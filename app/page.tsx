@@ -218,6 +218,17 @@ function HouseModel({ stage }: { stage: number }) {
 }
 
 function DigitalTwin({ stage }: { stage: number }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
+    return (
+      <div className="twin-loading" aria-label="Loading 3D home model">
+        <span><Box size={18} /> ASSEMBLING DIGITAL TWIN</span>
+      </div>
+    );
+  }
+
   return (
     <Canvas camera={{ position: [7.4, 7.6, 8.2], fov: 37 }} dpr={[1, 1.65]} gl={{ antialias: true }}>
       <color attach="background" args={["#101914"]} />

@@ -61,6 +61,8 @@ button { color: inherit; }
 
 .twin-stage { min-height: 0; position: relative; overflow: hidden; border: 1px solid var(--line); background: #101914; }
 .twin-stage canvas { position: relative; z-index: 2; }
+.twin-loading { position: absolute; inset: 0; display: grid; place-items: center; z-index: 2; color: #77877c; font: 650 8px/1 var(--font-geist-mono); letter-spacing: .14em; }
+.twin-loading span { display: flex; align-items: center; gap: 9px; }
 .model-grid { position: absolute; inset: 0; pointer-events: none; opacity: .17; background-image: linear-gradient(#73927c 1px, transparent 1px), linear-gradient(90deg, #73927c 1px, transparent 1px); background-size: 40px 40px; mask-image: linear-gradient(to bottom, transparent, black 55%, transparent); transform: perspective(350px) rotateX(64deg) scale(1.4); transform-origin: bottom; }
 .model-caption { position: absolute; z-index: 3; top: 15px; font: 600 8px/1.6 var(--font-geist-mono); letter-spacing: .1em; color: #6f8176; pointer-events: none; }
 .model-caption span { display: flex; align-items: center; gap: 5px; }
