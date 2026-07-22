@@ -22,9 +22,11 @@ test("server-renders the Agent Bento experience", async () => {
   const html = await response.text();
   assert.match(html, /<title>Agent Bento — Ambient Care Intelligence<\/title>/i);
   assert.match(html, /AGENT BENTO/);
-  assert.match(html, /RUN THE STORY/);
-  assert.match(html, /CARE RISK INDEX/);
-  assert.match(html, /NO IMAGE DATA/);
+  assert.match(html, /A home can/);
+  assert.match(html, /ask for help\./);
+  assert.match(html, /Unusual silence detected/);
+  assert.match(html, /Play the 30-second story/);
+  assert.match(html, /No cameras\. No recordings\./);
   assert.match(html, /og\.png/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
 });
@@ -37,8 +39,8 @@ test("keeps the finished experience accessible and self-contained", async () => 
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /aria-label="Demo stages"/);
-  assert.match(page, /DigitalTwin/);
+  assert.match(page, /aria-label="How Agent Bento works"/);
+  assert.match(page, /HomeScene/);
   assert.match(css, /prefers-reduced-motion/);
   assert.match(layout, /generateMetadata/);
   assert.match(packageJson, /"@react-three\/fiber"/);
