@@ -133,6 +133,60 @@ function Bed({ position }: { position: Vec3 }) {
   );
 }
 
+function TatamiArea({ position, columns = 2 }: { position: Vec3; columns?: number }) {
+  const mats = Array.from({ length: columns * 2 }, (_, index) => {
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    return [column * 1.48 - ((columns - 1) * 1.48) / 2, 0, row * 1.34 - 0.67] as Vec3;
+  });
+
+  return (
+    <group position={position}>
+      {mats.map((mat, index) => (
+        <group key={index} position={mat} rotation={[0, index % 2 ? Math.PI / 2 : 0, 0]}>
+          <Block size={[1.38, 0.065, 1.24]} position={[0, 0, 0]} color={index % 2 ? "#a89c65" : "#b6aa72"} radius={0.018} />
+          <Block size={[1.42, 0.07, 0.035]} position={[0, 0.012, -0.62]} color="#4d4932" radius={0.006} />
+          <Block size={[1.42, 0.07, 0.035]} position={[0, 0.012, 0.62]} color="#4d4932" radius={0.006} />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+function ShojiPanel({ position, width = 2.6, height = 2.45 }: { position: Vec3; width?: number; height?: number }) {
+  const verticals = [-0.38, -0.12, 0.12, 0.38];
+  const horizontals = [-0.34, 0, 0.34];
+  return (
+    <group position={position}>
+      <Block size={[width, height, 0.055]} position={[0, 0, 0]} color="#e6dec3" radius={0.015} emissive="#6d5d3c" />
+      <Block size={[width + 0.12, 0.09, 0.09]} position={[0, height / 2, 0.04]} color="#4e3828" radius={0.012} />
+      <Block size={[width + 0.12, 0.09, 0.09]} position={[0, -height / 2, 0.04]} color="#4e3828" radius={0.012} />
+      <Block size={[0.09, height, 0.09]} position={[-width / 2, 0, 0.04]} color="#4e3828" radius={0.012} />
+      <Block size={[0.09, height, 0.09]} position={[width / 2, 0, 0.04]} color="#4e3828" radius={0.012} />
+      {verticals.map((x) => <Block key={x} size={[0.035, height, 0.075]} position={[x * width, 0, 0.045]} color="#71513a" radius={0.006} />)}
+      {horizontals.map((y) => <Block key={y} size={[width, 0.035, 0.075]} position={[0, y * height, 0.045]} color="#71513a" radius={0.006} />)}
+    </group>
+  );
+}
+
+function PaperLantern({ position }: { position: Vec3 }) {
+  return (
+    <group position={position}>
+      <mesh castShadow>
+        <cylinderGeometry args={[0.2, 0.2, 0.58, 20]} />
+        <meshStandardMaterial color="#f5dfb0" emissive="#ffbd69" emissiveIntensity={2.4} roughness={0.9} />
+      </mesh>
+      <Block size={[0.46, 0.035, 0.46]} position={[0, 0.31, 0]} color="#3c2b22" radius={0.01} />
+      <Block size={[0.46, 0.035, 0.46]} position={[0, -0.31, 0]} color="#3c2b22" radius={0.01} />
+      <pointLight color="#ffbd69" intensity={4.5} distance={3.2} />
+    </group>
+  );
+}
+
+function Zabuton({ position, color = "#7d6044" }: { position: Vec3; color?: string }) {
+  return <Block size={[0.62, 0.12, 0.62]} position={position} color={color} radius={0.13} />;
+}
+
 function Router({ position, active }: { position: Vec3; active: boolean }) {
   return (
     <group position={position}>
@@ -293,6 +347,8 @@ function House({ step }: { step: number }) {
 
       <Block size={[9.5, 0.18, 2.9]} position={[0, 6.75, -1.15]} rotation={[0.12, 0, 0]} color="#17201f" radius={0.02} />
       <Block size={[9.5, 0.18, 2.9]} position={[0, 6.72, 1.15]} rotation={[-0.12, 0, 0]} color="#121a19" radius={0.02} />
+      <Block size={[9.9, 0.2, 0.28]} position={[0, 6.91, 0]} color="#0d1515" radius={0.04} />
+      <Block size={[9.85, 0.28, 0.2]} position={[0, 6.54, 2.55]} color="#111a19" radius={0.03} />
 
       <Block size={[0.22, 6.25, 4.6]} position={[-4.6, 3.12, 0]} color={frame} radius={0.02} />
       <Block size={[0.22, 6.25, 4.6]} position={[4.6, 3.12, 0]} color={frame} radius={0.02} />
@@ -308,6 +364,8 @@ function House({ step }: { step: number }) {
 
       <Sofa position={[-2.8, 0.16, -0.8]} />
       <LowTable position={[-2.65, 0.16, 0.55]} />
+      <Zabuton position={[-3.55, 0.26, 0.6]} color="#8b5948" />
+      <Zabuton position={[-1.75, 0.26, 0.55]} color="#5e745d" />
       <Plant position={[-4.0, 0.2, -1.45]} scale={0.9} />
       <WarmLamp position={[-3.9, 1.05, -0.7]} />
       <DiningSet position={[1.25, 0.16, -0.2]} />
@@ -315,12 +373,22 @@ function House({ step }: { step: number }) {
       <Router position={[3.45, 1.2, -1.4]} active={step > 0} />
       <Plant position={[4.05, 0.18, 0.85]} scale={0.75} />
 
+      <ShojiPanel position={[3.35, 1.72, -2.08]} width={2.15} height={2.55} />
+      <PaperLantern position={[2.7, 1.04, 1.45]} />
+      <Block size={[2.25, 0.18, 1.05]} position={[-0.5, 0.25, 2.38]} color="#4b3528" radius={0.025} />
+      <Block size={[1.5, 0.18, 0.78]} position={[-0.5, 0.42, 2.46]} color="#76624d" radius={0.025} />
+
+      <TatamiArea position={[-2.18, 3.41, -0.1]} columns={2} />
       <Bed position={[0.95, 3.48, -1.18]} />
       <LowTable position={[-2.65, 3.48, -0.4]} />
+      <Zabuton position={[-3.55, 3.58, -0.25]} color="#765a43" />
+      <Zabuton position={[-1.72, 3.58, -0.35]} color="#69745c" />
+      <ShojiPanel position={[-2.12, 4.73, -2.08]} width={3.75} height={2.48} />
       <Block size={[1.6, 0.1, 0.68]} position={[3.45, 4.18, -1.2]} color="#6c4e37" radius={0.03} />
       <Block size={[1.25, 1.55, 0.26]} position={[4.0, 4.28, -1.82]} color="#5a4130" radius={0.04} />
       {[3.78, 4.2, 4.62].map((y) => <Block key={y} size={[1.1, 0.04, 0.32]} position={[4, y, -1.61]} color="#a9875f" radius={0.01} />)}
       <WarmLamp position={[0.0, 4.84, -1.68]} />
+      <PaperLantern position={[-3.9, 4.24, 1.32]} />
       <Plant position={[4.0, 3.52, 0.95]} scale={0.75} />
 
       {step === 0 ? <UprightResident /> : <FallenResident visible />}

@@ -1,6 +1,6 @@
 # Agent Bento redesign QA
 
-Status: PASS
+Final result: passed
 
 Compared the selected cinematic cutaway reference with the implementation at a 1440px desktop viewport, then verified the responsive layout at 390px.
 
@@ -22,6 +22,7 @@ Compared the selected cinematic cutaway reference with the implementation at a 1
 | P2 | Courier callout overlapped the timeline | Resolved by moving the courier and callout into the central doorway area |
 | P2 | First-visit meaning needed to read before interaction | Pass: headline, three-line explanation, privacy promise, and three-step sequence are visible immediately |
 | P2 | Mobile layout needed a clear reading order | Pass: explanation and controls appear first, with the interactive 3D house immediately below |
+| P2 | House needed a recognizably Japanese identity | Pass: tatami rooms, illuminated shoji screens, zabuton cushions, paper lanterns, genkan step, and deeper roof eaves read clearly without obscuring the fall signal |
 | P3 | Three.js emits deprecation warnings for its internal clock/shadow-map APIs | Non-blocking dependency warning; no visual or interaction impact |
 
 ## Interaction checks

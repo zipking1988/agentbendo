@@ -96,6 +96,7 @@ Model output must use a versioned structured schema, be validated before use, ha
 - Three story states controlled by an accessible tab list.
 - Automatic story playback with pause and replay controls.
 - Fallen resident, ambient signal rings, signal path, router, courier, and bento bag.
+- Japanese home details including tatami flooring, shoji screens, zabuton cushions, paper lanterns, a genkan step, and deep roof eaves.
 - Privacy and product explanation visible on the first screen.
 - Reduced-motion behavior.
 - Production build and rendered HTML tests.
@@ -247,6 +248,12 @@ A product feature is done when:
 - Documented what is implemented, simulated, and planned.
 - Defined the target state machine, service boundaries, model limits, safety principles, and implementation order.
 
+### 2026-07-23 — Japanese home art direction
+
+- Strengthened the 3D scene as a recognizably Japanese home rather than a generic cutaway house.
+- Added tatami rooms, illuminated shoji panels, zabuton floor cushions, paper lanterns, a genkan entrance step, and heavier tiled-roof silhouettes.
+- Preserved the fallen-resident signal, bento check-in flow, accessibility, and story controls while adding the cultural details.
+
 ## 14. Next work, in order
 
 1. Implement shared incident types and the deterministic transition engine.
@@ -259,4 +266,3 @@ A product feature is done when:
 8. Add the Qwen structured-output adapter and deterministic fallback.
 9. Build consent, contact, incident history, and manual-resolution interfaces.
 10. Conduct privacy, accessibility, failure-mode, and field testing before a pilot.
-
