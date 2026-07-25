@@ -24,24 +24,32 @@ const HomeScene = dynamic(
   },
 );
 
+const GrandmaPortrait = dynamic(
+  () => import("./GrandmaPortrait").then((module) => module.GrandmaPortrait),
+  {
+    ssr: false,
+    loading: () => <div className="grandma-portrait-scene grandma-portrait-loading" />,
+  },
+);
+
 const STORY = [
   {
     number: "01",
     title: "Home is moving normally",
-    detail: "Wi‑Fi quietly sees room-to-room movement.",
-    sceneLabel: "ROUTINE LOOKS NORMAL",
+    detail: "2D Family View shows room-to-room movement analytics across the single-story Japanese home.",
+    sceneLabel: "ROUTINE NORMAL · 2D ANALYTICS VIEW",
   },
   {
     number: "02",
     title: "Unusual silence detected",
-    detail: "No movement for eight hours. The camera-free check begins.",
-    sceneLabel: "8 HOURS · NO MOVEMENT",
+    detail: "Grandpa fell in bathroom. Agent Bento senses 8h no movement and dispatches a nearby courier check-in.",
+    sceneLabel: "BATHROOM ALERT · AGENT BENTO DISPATCH",
   },
   {
     number: "03",
     title: "A human checks in",
-    detail: "A bento courier knocks. Family is alerted only if needed.",
-    sceneLabel: "BENTO CHECK-IN · ON THE WAY",
+    detail: "Bento courier with delivery bag knocks on door. Resident answers. Family receives All Clear update.",
+    sceneLabel: "BENTO CHECK-IN · RESIDENT AT DOOR",
   },
 ];
 
@@ -159,6 +167,28 @@ export default function Home() {
           <h2 id="why-title">Technology stays quiet.<br />Human care shows up.</h2>
           <p>Agent Bento turns ambient Wi‑Fi into a respectful sequence of care—starting with the least intrusive action.</p>
         </div>
+
+        <div className="resident-portrait">
+          <figure className="resident-portrait-media">
+            <GrandmaPortrait />
+            <figcaption>Sample resident · live 3D</figcaption>
+          </figure>
+          <div className="resident-portrait-copy">
+            <p className="eyebrow"><span /> INSPIRED BY</p>
+            <h3>My Grandma.</h3>
+            <ul>
+              <li>Stubborn</li>
+              <li>Doesn&apos;t like to bother anyone</li>
+              <li>Doesn&apos;t like being monitored</li>
+              <li>Falls down a lot</li>
+              <li>Food lover</li>
+            </ul>
+            <p>
+              So Agent Bento never watches with cameras. It only notices unusual silence — then sends care that feels like a meal, not surveillance.
+            </p>
+          </div>
+        </div>
+
         <div className="why-grid">
           <article>
             <span className="why-icon"><IconWifi size={25} /></span>
@@ -169,7 +199,7 @@ export default function Home() {
           <article>
             <span className="why-icon coral"><IconBowlChopsticks size={25} /></span>
             <p>02 · CHECK</p>
-            <h3>Care arrives as dinner</h3>
+            <h3>Care arrives as a meal</h3>
             <span>A hand-delivered bento creates a natural, friendly reason for a person to knock.</span>
           </article>
           <article>
@@ -182,6 +212,12 @@ export default function Home() {
         <div className="closing-line">
           <IconHeartHandshake size={24} />
           <span>Designed for independence. Built for peace of mind.</span>
+        </div>
+        <div className="closing-cta">
+          <a className="dashboard-cta" href="/dashboard">
+            <IconUsers size={18} />
+            Open family dashboard
+          </a>
         </div>
       </section>
     </main>

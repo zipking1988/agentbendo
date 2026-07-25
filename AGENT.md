@@ -90,36 +90,51 @@ Model output must use a versioned structured schema, be validated before use, ha
 
 ### Implemented
 
-- Next.js and React single-page experience.
-- Real-time Three.js cutaway home through React Three Fiber.
-- Responsive desktop and mobile layouts.
-- Three story states controlled by an accessible tab list.
-- Automatic story playback with pause and replay controls.
-- Fallen resident, ambient signal rings, signal path, router, courier, and bento bag.
-- Japanese home details including tatami flooring, shoji screens, zabuton cushions, paper lanterns, a genkan step, and deep roof eaves.
-- Privacy and product explanation visible on the first screen.
-- Reduced-motion behavior.
-- Production build and rendered HTML tests.
+- Next.js / React product landing experience.
+- Landing 3D cutaway home (React Three Fiber): Japanese home art direction, three story states, Wi‑Fi signal paths, camera presets, status rail, reduced motion.
+- Landing “Inspired by My Grandma” stylized 3D portrait and why-it-works section.
+- CTA into the family dashboard (`/dashboard`).
+- Family dashboard home setup (localStorage `agent-bento.home-setup.v4`):
+  1. Upload a floor-plan photo/sketch
+  2. StepFun vision detects living / kitchen / bedroom / bathroom boxes on that upload
+  3. Confirm rooms → pin Wi‑Fi → unlock monitoring
+- **Monitoring map = the user’s uploaded image** only (no colored room overlays, no room-name chips, no fake grid, no AI redraw, no dashboard 3D).
+- Room regions stay as invisible data for presence: simulated story beats map Grandpa into those boxes via `mapPresence()`.
+- Monitoring shows a high-contrast Grandpa marker (lime + dark outline + label) and the Wi‑Fi pin on the upload; **Re-upload floor plan** clears setup.
+- Family monitoring hybrid: calm “is Grandpa OK?” view plus simulated story replay from `demo_frames.json`.
+- Dashboard **CSI field** (Three.js): Matrix-style wire skeletons + cyan wave spheres + lime heatmap grid + particle fog + HUD — synthetic RF from demo motion (**Simulated**; not live CSI / not clinical vitals).
+- Privacy copy on first screen; production build and rendered HTML tests.
+- Floor-plan room / parse / CSI-sim unit tests.
 
 ### Simulated
 
-- normal movement state
-- eight hours without movement
-- Wi-Fi anomaly detection
-- bento courier dispatch and arrival
-- family escalation outcome
+- Landing story: normal movement, long silence, bento dispatch, family all-clear
+- Dashboard care story replay from local `demo_frames.json`
+- StepFun vision floor-plan → room boxes (`/api/floor-plan/analyze`; needs `STEPFUN_API_KEY`)
+- Browser-only floor-plan upload, room model, and Wi‑Fi pin (not device calibration)
+- CSI visual field from synthetic multipath / Doppler-style rules + demo `motionLevel` / stillness / anomaly (not ESP32 CSI)
 
 ### Planned
 
+- Better auto room accuracy (adjust / re-prompt without full manual labeling)
+- Family acknowledgement and quiet-hour controls
+- Shared incident types and deterministic transition engine behind the dashboard
 - ESP32-S3 CSI firmware and event bridge
-- resident onboarding and consent
-- baseline calibration and confidence scoring
-- incident API and persistent state machine
+- Resident onboarding and consent
+- Baseline calibration and confidence scoring
+- Incident API and persistent state machine
 - Qwen service adapter
-- delivery ordering adapter
-- courier response webhook
-- family notification and acknowledgement
-- operator review tools and system monitoring
+- Delivery ordering adapter
+- Courier response webhook
+- Family notification and acknowledgement
+- Operator review tools and system monitoring
+
+### Explicitly out of scope (for now)
+
+- Dashboard photoreal / dollhouse 3D of the floor plan (tried and reverted)
+- Visible colored room overlays or room-name labels on the map (rooms stay invisible data only)
+- HouseMind (separate experiment folder; not wired into AgentBento)
+- StepFun image-edit redraw of the floor plan as a second map image (removed; upload stays the visual)
 
 ## 7. Current technology
 
@@ -127,14 +142,25 @@ Model output must use a versioned structured schema, be validated before use, ha
 | --- | --- | --- |
 | Application | Next.js 16, React 19, TypeScript | Product UI and server rendering |
 | Build/runtime | Vinext, Vite 8 | Fast development and Cloudflare-compatible output |
-| 3D | Three.js, React Three Fiber, Drei | Interactive cutaway home |
-| Effects | React Three Postprocessing | Bloom and vignette treatment |
+| Landing 3D | Three.js, React Three Fiber, Drei | Cutaway home on `/` only |
+| Effects | React Three Postprocessing | Bloom / vignette on landing |
+| Floor-plan vision | StepFun Step Plan API (`step-3.7-flash`) | Auto room boxes from upload |
 | Icons | Tabler Icons | Bento and interface symbols |
 | Styling | Custom CSS, Tailwind CSS build support | Responsive cinematic interface |
 | Data scaffold | Drizzle ORM | Future typed persistence layer |
 | Testing | Node test runner and production build | Render and regression checks |
 | Hardware plan | ESP32-S3 with Wi-Fi CSI | Camera-free movement sensing |
 | Reasoning plan | Qwen with structured output | Explanation and constrained action support |
+
+### Floor-plan env (server only)
+
+```bash
+STEPFUN_API_KEY=...
+STEPFUN_BASE_URL=https://api.stepfun.com/step_plan/v1
+STEPFUN_VISION_MODEL=step-3.7-flash
+```
+
+Keep keys in `.env.local` / `.dev.vars` — never in client bundles.
 
 ## 8. Target service boundaries
 
@@ -184,31 +210,48 @@ Raw CSI storage should be short-lived and optional. Prefer derived movement feat
 - Store timestamps in UTC and render them in the resident's timezone.
 - Never place personal data, addresses, contacts, or credentials in client bundles or logs.
 - Avoid medical claims. Describe observed activity and care actions, not diagnoses.
-- Keep the core flow usable when 3D rendering, the model service, or an external provider is unavailable.
+- Keep the core flow usable when landing 3D, StepFun, or an external provider is unavailable.
 - Preserve keyboard access, readable contrast, reduced motion, and mobile layouts.
 - Do not let visual demo state become the source of truth for a real incident.
+- On the dashboard, the user’s uploaded floor plan is the map. Room boxes are invisible presence data only — do not draw colored overlays or room-name chips on the photo. Keep Grandpa high-contrast so he is easy to find.
 
 ## 11. Local development
 
 ```bash
 npm install
-npm run dev
+npm run dev          # http://localhost:3000/
 npm run build
 npm test
 npm run lint
+npm run test:stepfun     # vision smoke (needs key)
+npm run test:floor-plan  # analyze regression vs fixture (needs dev server)
 ```
 
 Node.js 22.13 or newer is required.
 
 Important files:
 
-- `app/page.tsx`: story state and page content
-- `app/HomeScene.tsx`: 3D scene and visual state mapping
-- `app/globals.css`: layout, responsive behavior, and design tokens
-- `app/layout.tsx`: page metadata
+- `app/page.tsx`: landing story state, why section, and dashboard CTA
+- `app/HomeScene.tsx`: landing 3D scene and story mapping
+- `app/GrandmaPortrait.tsx`: landing grandma sample
+- `app/dashboard/page.tsx`: family dashboard shell
+- `app/dashboard/DashboardApp.tsx`: setup vs monitoring gate; localStorage setup
+- `app/dashboard/HomeSetupWizard.tsx`: upload → StepFun rooms → Wi‑Fi pin
+- `app/dashboard/HomeFloorModel.tsx`: upload as map; room / Wi‑Fi / Grandpa overlays
+- `app/dashboard/FamilyBoard.tsx`: calm home + simulated story replay
+- `app/dashboard/CsiSignalField.tsx`: simulated CSI → visual dimensions canvas
+- `lib/csi-sim.ts`: synthetic CSI sample generator (RF-inspired, deterministic)
+- `app/api/floor-plan/analyze/route.ts`: StepFun vision analyze endpoint
+- `lib/home-setup.ts`: `HomeSetup` + localStorage v4 helpers
+- `lib/floor-plan-rooms.ts`: room regions, `mapPresence`, model JSON parsing
+- `lib/stepfun.ts`: StepFun vision client
+- `lib/demo-frames.ts`: demo frame types and English copy
+- `public/data/demo_frames.json`: simulated care story frames
+- `public/fixtures/test-floor-plan.png`: floor-plan analyze fixture
+- `app/globals.css`: layout and design tokens
 - `db/schema.ts`: future persistent domain model
+- `tests/floor-plan-rooms.test.ts`, `tests/parse-floor-plan-rooms.test.ts`, `tests/csi-sim.test.ts`
 - `tests/rendered-html.test.mjs`: build and server-render checks
-- `design-qa.md`: current visual QA results
 
 ## 12. Definition of done
 
@@ -226,43 +269,47 @@ A product feature is done when:
 
 ## 13. Worklog
 
-### 2026-07-23 — Initial experience
+### 2026-07-23 — Landing experience
 
-- Built the first Agent Bento web experience.
-- Added server rendering and deferred the 3D renderer until hydration for stable page loading.
+- Product landing with Japanese-home 3D cutaway, three story states, My Grandma block, CTA to `/dashboard`.
 
-### 2026-07-23 — Story-first redesign
+### 2026-07-24 — Family dashboard + floor-plan model
 
-- Replaced the dashboard-style interface with a first-visit product explanation.
-- Added the two-floor interactive 3D cutaway home.
-- Added normal, unusual-silence, and human-check-in story states.
-- Added the fallen older resident, Wi-Fi visualization, bento courier, and care callouts.
-- Added direct timeline controls and automatic playback.
-- Added a responsive mobile composition and a plain-language safety-net section.
-- Removed an incompatible soft-shadow shader that could hide the house after a state change.
-- Verified the three story states, mobile layout, browser console, production build, and rendered output.
+- Hybrid calm home + simulated `demo_frames.json` replay.
+- Setup: upload floor plan → room model → Wi‑Fi pin (browser localStorage).
+- Evolved from fake grid → manual room labels → StepFun auto rooms.
+- Rejected: AI image-edit redraw, empty SVG schematic-only map, dashboard 3D dollhouse / tipped views, visible colored room overlays / room-name chips.
+- **Current:** upload photo is the monitoring map; StepFun rooms are invisible data for `mapPresence()` only (`home-setup.v4`). Grandpa marker is lime + dark outline so he reads on pale plans.
 
-### 2026-07-23 — Product documentation
+### 2026-07-24 — Revert dashboard 3D
 
-- Reframed the repository around the functioning care workflow rather than the presentation alone.
-- Documented what is implemented, simulated, and planned.
-- Defined the target state machine, service boundaries, model limits, safety principles, and implementation order.
+- Removed 3D / tipped dashboard views.
 
-### 2026-07-23 — Japanese home art direction
+### 2026-07-24 — Hide room overlays
 
-- Strengthened the 3D scene as a recognizably Japanese home rather than a generic cutaway house.
-- Added tatami rooms, illuminated shoji panels, zabuton floor cushions, paper lanterns, a genkan entrance step, and heavier tiled-roof silhouettes.
-- Preserved the fallen-resident signal, bento check-in flow, accessibility, and story controls while adding the cultural details.
+- No colored room boxes or “ROOM MODEL ON” on the map. Rooms stay invisible for presence mapping.
+
+### 2026-07-24 — Grandpa marker contrast
+
+- Replaced pale white Grandpa stick figure with lime body, dark outline, ground halo, and stronger label so he is easy to find on light floor-plan photos.
+
+### 2026-07-24 — Simulated CSI visual field (reference match)
+
+- Dashboard CSI panel restyled to reference Matrix look: lime wire skeletons (red joints), cyan concentric wave spheres from AP box, lime occupancy grid, particle fog, bloom, dual HUD (vital-sign *sim* + Wi‑Fi metrics / PRESENT).
+- Still driven by `lib/csi-sim.ts` from demo frames. Labeled **Simulated**; HUD BPM/RPM are synthetic micro-motion readouts, not clinical vitals.
 
 ## 14. Next work, in order
 
-1. Implement shared incident types and the deterministic transition engine.
-2. Add transition tests for normal recovery, dispatch failure, duplicate webhook, family acknowledgement, and timeout escalation.
-3. Build a local event simulator that drives the transition engine through an API.
-4. Persist residents, devices, incidents, actions, and audit transitions.
-5. Connect the current 3D experience to live incident state instead of local component state.
-6. Add ESP32-S3 event ingestion and device health monitoring.
-7. Add delivery and notification provider adapters with idempotent retries.
-8. Add the Qwen structured-output adapter and deterministic fallback.
-9. Build consent, contact, incident history, and manual-resolution interfaces.
-10. Conduct privacy, accessibility, failure-mode, and field testing before a pilot.
+1. Improve auto room accuracy (re-prompt / adjust on bad boxes without full manual labeling).
+2. Add acknowledgement and quiet-hour controls on the family dashboard.
+3. Wire dashboard views to shared incident types instead of simulated frame playback alone.
+4. Implement shared incident types and the deterministic transition engine.
+5. Add transition tests for normal recovery, dispatch failure, duplicate webhook, family acknowledgement, and timeout escalation.
+6. Build a local event simulator that drives the transition engine through an API.
+7. Persist residents, devices, incidents, actions, and audit transitions.
+8. Connect landing 3D and dashboard monitoring to live incident state.
+9. Add ESP32-S3 event ingestion and device health monitoring.
+10. Add delivery and notification provider adapters with idempotent retries.
+11. Add the Qwen structured-output adapter and deterministic fallback.
+12. Build consent, contact, and manual-resolution interfaces.
+13. Conduct privacy, accessibility, failure-mode, and field testing.
