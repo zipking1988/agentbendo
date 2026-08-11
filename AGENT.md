@@ -95,12 +95,13 @@ Model output must use a versioned structured schema, be validated before use, ha
 - Landing “Inspired by My Grandma” stylized 3D portrait and why-it-works section.
 - CTA into the family dashboard (`/dashboard`).
 - Family dashboard home setup (localStorage `agent-bento.home-setup.v4`):
-  1. Upload a floor-plan photo/sketch
-  2. Qwen Cloud vision detects living / kitchen / bedroom / bathroom boxes on that upload
-  3. Confirm rooms → pin Wi‑Fi → unlock monitoring
-- **Monitoring map = the user’s uploaded image** only (no colored room overlays, no room-name chips, no fake grid, no AI redraw, no dashboard 3D).
+  1. First-time users immediately see a Japanese madori demo plan
+  2. A labeled Wi‑Fi router is already pinned in the living room and can be moved by click or drag
+  3. **Start monitoring** unlocks the care story without requiring cloud credentials
+  4. **Use my own plan** switches to upload mode; Qwen Cloud vision detects living / kitchen / bedroom / bathroom boxes before Wi‑Fi placement
+- **Monitoring map = the selected floor-plan image** (the included demo plan or the user’s upload), with no colored room overlays, room-name chips, fake grid, AI redraw, or dashboard 3D.
 - Room regions stay as invisible data for presence: simulated story beats map Grandpa into those boxes via `mapPresence()`.
-- Monitoring shows a high-contrast Grandpa marker (lime + dark outline + label) and the Wi‑Fi pin on the upload; **Re-upload floor plan** clears setup.
+- Monitoring shows a high-contrast Grandpa marker (lime + dark outline + label) and the labeled Wi‑Fi pin on the selected plan; **Re-upload floor plan** clears setup.
 - Family monitoring hybrid: calm “is Grandpa OK?” view plus simulated story replay from `demo_frames.json`.
 - Dashboard **CSI field** (Three.js): Matrix-style wire skeletons + cyan wave spheres + lime heatmap grid + particle fog + HUD — synthetic RF from demo motion (**Simulated**; not live CSI / not clinical vitals).
 - Local privacy-safe CSI feature extraction (`lib/csi-edge.ts`) and a GMI Cloud inference adapter with deterministic fallback.
@@ -114,7 +115,8 @@ Model output must use a versioned structured schema, be validated before use, ha
 - Landing story: normal movement, long silence, bento dispatch, family all-clear
 - Dashboard care story replay from local `demo_frames.json`
 - Qwen Cloud vision floor-plan → room boxes (`/api/floor-plan/analyze`; needs `QWEN_API_KEY`)
-- Browser-only floor-plan upload, room model, and Wi‑Fi pin (not device calibration)
+- Preloaded Japanese demo floor plan, detected room regions, and living-room Wi‑Fi point
+- Browser-only custom floor-plan upload, room model, and Wi‑Fi pin (not device calibration)
 - CSI visual field from synthetic multipath / Doppler-style rules + demo `motionLevel` / stillness / anomaly (not ESP32 CSI)
 - Live GMI and Qwen responses when their environment variables are absent; the application uses labeled deterministic fallbacks instead.
 
@@ -170,6 +172,7 @@ QWEN_VISION_MODEL=qwen3.7-plus
 
 Keep keys in ignored `.env.local` files and Vercel environment variables—never in client bundles.
 Start from `.env.example`. GMI uses the verified `Qwen/Qwen3.8-Max` default and is configured when `GMI_API_KEY` is set.
+The application remains functional without provider credentials by using the preloaded demo home and labeled deterministic care fallbacks. Live GMI inference requires a funded account; live custom-plan analysis requires a valid Qwen Model Studio key.
 
 ## 8. Target service boundaries
 
@@ -237,13 +240,14 @@ npm run test:floor-plan  # analyze regression vs fixture (needs dev server)
 
 Node.js 22.13 or newer is required.
 
-Current quality gate (verified 2026-08-10):
+Current quality gate (verified 2026-08-11):
 
 - `npm test`: 14 tests plus the native Next.js production build pass.
 - `npm run lint`: clean.
 - `npm audit`: 0 known vulnerabilities.
 - Browser verification: `/`, `/dashboard`, `/api/service-status`, and `/api/care-summary` load successfully.
 - Live GMI/Qwen integration tests still require valid provider credentials.
+- Git delivery: commit `01fbf52` is available on `zipking1988/agentbendo` branch `main`; the repository default branch is still `master`.
 
 Important files:
 
@@ -252,7 +256,7 @@ Important files:
 - `app/GrandmaPortrait.tsx`: landing grandma sample
 - `app/dashboard/page.tsx`: family dashboard shell
 - `app/dashboard/DashboardApp.tsx`: setup vs monitoring gate; localStorage setup
-- `app/dashboard/HomeSetupWizard.tsx`: upload → Qwen Cloud rooms → Wi‑Fi pin
+- `app/dashboard/HomeSetupWizard.tsx`: ready-made Japanese demo home or custom upload → Qwen Cloud rooms → Wi‑Fi pin
 - `app/dashboard/HomeFloorModel.tsx`: upload as map; room / Wi‑Fi / Grandpa overlays
 - `app/dashboard/FamilyBoard.tsx`: calm home + simulated story replay
 - `app/dashboard/CsiSignalField.tsx`: simulated CSI → visual dimensions canvas
@@ -285,6 +289,18 @@ A product feature is done when:
 - the demo uses the same implementation or adapter contract
 
 ## 13. Worklog
+
+### 2026-08-11 — Hackathon-ready onboarding and delivery
+
+- Migrated the application to native Next.js 16 / React 19 for Vercel deployment and removed unused prototype service integrations.
+- Limited sponsor-facing cloud architecture to GMI Cloud and Qwen Cloud.
+- Selected `Qwen/Qwen3.8-Max` for GMI activity inference, `qwen3.7-max` for Qwen reasoning, and `qwen3.7-plus` for Qwen floor-plan vision.
+- Added a Japanese madori demo floor plan as the first dashboard state so judges can understand and run the experience immediately.
+- Pre-positioned and labeled the Wi‑Fi router in the living room; it remains draggable for calibration.
+- Kept custom floor-plan upload available through **Use my own plan**.
+- Added full setup, environment, usage, testing, and deployment instructions to `README.md` and `.env.example`.
+- Verified lint, 14 tests, native production build, rendered HTML, and both local dashboard routes.
+- Published the completed project snapshot to GitHub branch `main` at commit `01fbf52`.
 
 ### 2026-07-25 — NotebookLM / PPT docs
 
