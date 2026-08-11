@@ -12,6 +12,7 @@ import {
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 import { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import * as THREE from "three";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 
 type Vec3 = [number, number, number];
 
@@ -26,7 +27,7 @@ function CameraController({
   zoomFactor: number;
 }) {
   const { camera } = useThree();
-  const controlsRef = useRef<any>(null);
+  const controlsRef = useRef<OrbitControlsImpl>(null);
   const lastAppliedView = useRef<string>("");
 
   const viewConfigs: Record<CameraViewPreset, { pos: Vec3; look: Vec3 }> = useMemo(
@@ -531,7 +532,7 @@ function TatamiLivingRoom() {
         [0.4, 0, 0.3, true],
         [1.8, 0, -0.35, false],
         [-2.5, 0, -0.35, false],
-      ].map(([x, y, z, rot], idx) => (
+      ].map(([x, , z, rot], idx) => (
         <group key={idx} position={[x as number, 0.08, z as number]} rotation={[0, rot ? Math.PI / 2 : 0, 0]}>
           <Block size={[1.42, 0.06, 1.25]} position={[0, 0, 0]} color={tatamiGreen} radius={0.015} roughness={0.8} />
           <Block size={[1.44, 0.065, 0.04]} position={[0, 0.005, -0.62]} color={tatamiBorder} radius={0.005} />
@@ -1212,13 +1213,13 @@ export function HomeScene({
 
   // Sequence Scenario 02 / 03 beats one-by-one (not all at once)
   useEffect(() => {
-    setPhase(0);
-    if (step === 0) return;
-
     const timers = [
+      window.setTimeout(() => setPhase(0), 0),
+    ];
+    if (step !== 0) timers.push(
       window.setTimeout(() => setPhase(1), 1800),
       window.setTimeout(() => setPhase(2), 3600),
-    ];
+    );
 
     return () => timers.forEach((id) => window.clearTimeout(id));
   }, [step]);

@@ -1,32 +1,9 @@
 "use client";
 
 import type { ServiceStatus } from "@/lib/ai-router";
-import IconBowlChopsticks from "@tabler/icons-react/dist/esm/icons/IconBowlChopsticks.mjs";
 import IconCheck from "@tabler/icons-react/dist/esm/icons/IconCheck.mjs";
-import IconCloud from "@tabler/icons-react/dist/esm/icons/IconCloud.mjs";
 import IconExclamationCircle from "@tabler/icons-react/dist/esm/icons/IconExclamationCircle.mjs";
-import IconRobot from "@tabler/icons-react/dist/esm/icons/IconRobot.mjs";
-import IconShield from "@tabler/icons-react/dist/esm/icons/IconShield.mjs";
-import IconWorld from "@tabler/icons-react/dist/esm/icons/IconWorld.mjs";
 import { useEffect, useState } from "react";
-
-const SERVICE_ICONS: Record<string, React.ReactNode> = {
-  "Qwen Cloud": <IconPhotoScan size={14} />,
-  "GMI Cloud": <IconWorld size={14} />,
-  Daytona: <IconCloud size={14} />,
-  "ai&": <IconShield size={14} />,
-  StepFun: <IconRobot size={14} />,
-};
-
-function IconPhotoScan({ size }: { size: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-      <circle cx="8.5" cy="8.5" r="1.5" />
-      <polyline points="21 15 16 10 5 21" />
-    </svg>
-  );
-}
 
 function StatusDot({ configured }: { configured: boolean }) {
   return (
@@ -107,7 +84,7 @@ export function ServiceStatusPanel() {
       )}
 
       <div style={{ marginTop: 12, padding: "8px 10px", border: "1px solid rgba(184,255,84,0.15)", background: "rgba(184,255,84,0.03)", fontSize: 11, color: "#7f8c83", lineHeight: 1.5 }}>
-        <strong style={{ color: "#aab4ac" }}>Routing:</strong> Qwen → floor plans · GMI → translations · Daytona → sandboxes · ai& → Japan-only privacy
+        <strong style={{ color: "#aab4ac" }}>Routing:</strong> GMI Cloud → CSI activity inference · Qwen Cloud → floor plans, care decisions, and Japanese delivery instructions
       </div>
     </div>
   );

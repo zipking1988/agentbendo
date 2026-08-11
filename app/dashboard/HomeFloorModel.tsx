@@ -402,8 +402,10 @@ export function HomeFloorModel({
             className={`floor-plan-wifi ${pinned ? "pinned" : "preview"} ${dragging && !labeling ? "dragging" : ""}`}
             style={{ left: `${wifiPos.x}%`, top: `${wifiPos.y}%` }}
             title={pinned ? "Wi‑Fi sensing point" : "Click or drag to place Wi‑Fi"}
+            aria-label={pinned ? "Wi‑Fi router location" : undefined}
           >
             <IconWifi size={16} stroke={2} />
+            {pinned ? <span className="floor-plan-wifi-label">Wi‑Fi router</span> : null}
           </div>
         ) : null}
 

@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 /**
- * Regression: StepFun room model + presence mapping on the fixture floor plan.
+ * Regression: Qwen Cloud room model + presence mapping on the fixture floor plan.
  * Usage: node scripts/floor-plan-regression.mjs
- * Requires: npm run dev on :3000 and STEPFUN_* in .env.local / .dev.vars
+ * Requires: npm run dev and QWEN_* in .env.local
+ * Optional: AGENT_BENTO_BASE_URL=http://localhost:3001
  */
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 
 function loadEnv() {
-  for (const file of [".env.local", ".dev.vars"]) {
+  for (const file of [".env.local"]) {
     if (!existsSync(file)) continue;
     for (const line of readFileSync(file, "utf8").split("\n")) {
       const m = line.match(/^([A-Z0-9_]+)=(.*)$/);
@@ -34,10 +35,11 @@ if (!fixture) {
 
 const bytes = readFileSync(fixture);
 const imageDataUrl = `data:image/png;base64,${bytes.toString("base64")}`;
+const baseUrl = (process.env.AGENT_BENTO_BASE_URL || "http://localhost:3000").replace(/\/$/, "");
 console.log("FIXTURE", fixture, "bytes", bytes.length);
 
 const t0 = Date.now();
-const response = await fetch("http://localhost:3000/api/floor-plan/analyze", {
+const response = await fetch(`${baseUrl}/api/floor-plan/analyze`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ imageDataUrl }),

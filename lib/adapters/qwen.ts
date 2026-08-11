@@ -6,34 +6,85 @@
  * 2. 生成日文配送指令（便当类型、敬语备注）
  *
  * API: 阿里云 DashScope
- * 模型: qwen-max / qwen-plus
+ * 模型: qwen3.7-max / qwen3.7-plus
  */
+
+import {
+  extractJsonObject,
+  FLOOR_PLAN_SYSTEM_PROMPT,
+  parseFloorPlanRoomsJson,
+  type FloorPlanAnalyzeResult,
+} from "@/lib/floor-plan-rooms";
 
 function getQwenConfig() {
   return {
     apiKey: process.env.QWEN_API_KEY?.trim() ?? "",
-    baseUrl: (process.env.QWEN_BASE_URL?.trim() || "https://dashscope.aliyuncs.com/compatible-mode/v1").replace(/\/$/, ""),
-    model: process.env.QWEN_MODEL?.trim() || "qwen-max",
+    baseUrl: (process.env.QWEN_BASE_URL?.trim() || "https://dashscope-intl.aliyuncs.com/compatible-mode/v1").replace(/\/$/, ""),
+    model: process.env.QWEN_MODEL?.trim() || "qwen3.7-max",
+    visionModel: process.env.QWEN_VISION_MODEL?.trim() || "qwen3.7-plus",
   };
 }
 
 export function isQwenConfigured(): boolean { return Boolean(getQwenConfig().apiKey); }
 
+type QwenContent = string | Array<
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string; detail?: "low" | "high" | "auto" } }
+>;
+
 type QwenResponse = { choices?: Array<{ message?: { content?: string } }>; error?: { message?: string } };
 
-async function callQwen(systemPrompt: string, userMessage: string, temp = 0.3, maxTokens = 2048): Promise<string> {
+async function callQwen(
+  systemPrompt: string,
+  userMessage: QwenContent,
+  temp = 0.3,
+  maxTokens = 2048,
+  modelOverride?: string,
+): Promise<string> {
   const { apiKey, baseUrl, model } = getQwenConfig();
   if (!apiKey) throw new Error("QWEN_API_KEY not configured.");
   const res = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model, temperature: temp, max_tokens: maxTokens, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userMessage }] }),
+    body: JSON.stringify({
+      model: modelOverride ?? model,
+      temperature: temp,
+      max_tokens: maxTokens,
+      response_format: { type: "json_object" },
+      messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userMessage }],
+    }),
   });
   const raw = await res.text();
   let p: QwenResponse;
   try { p = JSON.parse(raw) as QwenResponse; } catch { throw new Error(`Qwen non-JSON (${res.status}).`); }
   if (!res.ok) throw new Error(p.error?.message || `Qwen error ${res.status}`);
   return p.choices?.[0]?.message?.content?.trim() ?? "";
+}
+
+export async function analyzeFloorPlanWithQwen(imageDataUrl: string): Promise<FloorPlanAnalyzeResult> {
+  const { visionModel } = getQwenConfig();
+  if (!imageDataUrl.startsWith("data:image/")) {
+    throw new Error("Expected a data:image URL for floor-plan analysis.");
+  }
+  const jsonText = await callQwen(
+    FLOOR_PLAN_SYSTEM_PROMPT,
+    [
+      {
+        type: "text",
+        text: "Locate living, kitchen, bedroom, and bathroom. Return the required JSON only.",
+      },
+      { type: "image_url", image_url: { url: imageDataUrl, detail: "high" } },
+    ],
+    0.1,
+    4096,
+    visionModel,
+  );
+  const parsed = extractJsonObject(jsonText);
+  const rooms = parseFloorPlanRoomsJson(parsed);
+  const notes = parsed && typeof parsed === "object" && typeof (parsed as { notes?: unknown }).notes === "string"
+    ? (parsed as { notes: string }).notes
+    : undefined;
+  return { rooms, model: visionModel, notes };
 }
 
 /* ─── 分级决策推理 ─── */
@@ -77,7 +128,7 @@ export async function makeCareDecision(sensorData: {
   fallAlert: boolean;
 }): Promise<AgentDecision> {
   const context = [
-    `Motion: ${(sensorData.motionLevel * 100).toFixed(0)}%`,
+    `Motion: ${Math.min(100, Math.max(0, sensorData.motionLevel)).toFixed(0)}%`,
     `Still: ${sensorData.stillDuration}s`,
     `Anomaly: ${(sensorData.anomalyScore * 100).toFixed(0)}%`,
     `Posture: ${sensorData.posture}`,

@@ -39,6 +39,24 @@ function pctXZ(xPct: number, yPct: number): [number, number] {
   return [(xPct / 100 - 0.5) * 10, (yPct / 100 - 0.5) * 8];
 }
 
+function seededUnit(seed: number): number {
+  const value = Math.sin(seed * 12.9898) * 43758.5453;
+  return value - Math.floor(value);
+}
+
+function createParticlePositions(wifi: [number, number, number]): Float32Array {
+  const positions = new Float32Array(MAX_PARTICLES * 3);
+  for (let i = 0; i < MAX_PARTICLES; i++) {
+    const seedA = seededUnit(i * 3 + 1);
+    const seedB = seededUnit(i * 3 + 2);
+    const seedC = seededUnit(i * 3 + 3);
+    positions[i * 3] = wifi[0] + (seedA - 0.5) * 4;
+    positions[i * 3 + 1] = 0.2 + seedB * 2;
+    positions[i * 3 + 2] = wifi[2] + (seedC - 0.5) * 4;
+  }
+  return positions;
+}
+
 /** Lime wireframe skeleton with red joints + soft aura */
 function WireSkeleton({
   position,
@@ -79,7 +97,7 @@ function WireSkeleton({
     [9, 11],
   ];
 
-  const linePositions = useMemo(() => {
+  const linePositions = (() => {
     const arr: number[] = [];
     for (const [a, b] of bones) {
       const pa = joints[a];
@@ -87,7 +105,7 @@ function WireSkeleton({
       arr.push(pa[0], pa[1], pa[2], pb[0], pb[1], pb[2]);
     }
     return new Float32Array(arr);
-  }, []);
+  })();
 
   useFrame(({ clock }) => {
     const pulse = 1 + sample.microMotion * 0.06 * Math.sin(clock.elapsedTime * 2.4);
@@ -158,7 +176,7 @@ function GhostSkeleton({ position }: { position: [number, number, number] }) {
   const bones: [number, number][] = [
     [0, 1], [1, 2], [2, 3], [2, 4], [3, 5], [4, 6], [2, 7], [7, 8], [7, 9], [8, 10], [9, 11],
   ];
-  const linePositions = useMemo(() => {
+  const linePositions = (() => {
     const arr: number[] = [];
     for (const [a, b] of bones) {
       const pa = joints[a];
@@ -166,7 +184,7 @@ function GhostSkeleton({ position }: { position: [number, number, number] }) {
       arr.push(pa[0], pa[1], pa[2], pb[0], pb[1], pb[2]);
     }
     return new Float32Array(arr);
-  }, []);
+  })();
 
   return (
     <group position={position} scale={0.9}>
@@ -314,22 +332,14 @@ function ParticleFog({
   reduceMotion: boolean;
 }) {
   const ref = useRef<THREE.Points>(null);
-  const pos = useRef(new Float32Array(MAX_PARTICLES * 3));
-  const seeded = useRef(false);
-
-  if (!seeded.current) {
-    for (let i = 0; i < MAX_PARTICLES; i++) {
-      pos.current[i * 3] = wifi[0] + (Math.random() - 0.5) * 4;
-      pos.current[i * 3 + 1] = 0.2 + Math.random() * 2;
-      pos.current[i * 3 + 2] = wifi[2] + (Math.random() - 0.5) * 4;
-    }
-    seeded.current = true;
-  }
+  const positions = useRef<Float32Array | null>(null);
+  if (positions.current === null) positions.current = createParticlePositions(wifi);
 
   useFrame(({ clock }) => {
     if (!ref.current || reduceMotion) return;
     const count = Math.floor(30 + sample.motionEnergy * (MAX_PARTICLES - 30));
-    const p = pos.current;
+    const p = positions.current;
+    if (!p) return;
     const t = clock.elapsedTime;
     for (let i = 0; i < count; i++) {
       const ix = i * 3;
@@ -442,11 +452,9 @@ function HudOverlay({
 }
 
 function Scene(props: LiveProps) {
+  const { onSample } = props;
   const clockT = useRef(props.t);
   const propsRef = useRef(props);
-  propsRef.current = props;
-  const onSampleRef = useRef(props.onSample);
-  onSampleRef.current = props.onSample;
   const lastUi = useRef(0);
 
   const [sample, setSample] = useState<CsiSimSample>(() =>
@@ -464,8 +472,12 @@ function Scene(props: LiveProps) {
   );
 
   useEffect(() => {
-    onSampleRef.current(sample);
-  }, [sample]);
+    onSample(sample);
+  }, [onSample, sample]);
+
+  useEffect(() => {
+    propsRef.current = props;
+  }, [props]);
 
   useFrame((_, dt) => {
     const p = propsRef.current;

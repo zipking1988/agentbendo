@@ -1,166 +1,285 @@
 # Agent Bento
 
-Agent Bento is a privacy-first home safety system for older adults who live independently. It uses ambient Wi-Fi movement signals to notice an unusual period of silence, arranges a friendly human check-in through a bento delivery, and alerts family only when the situation remains unresolved.
+Agent Bento is a privacy-first home safety demo for older adults who live independently. It uses ambient Wi-Fi movement signals to notice unusual silence, asks for a friendly human check-in through a bento delivery, and alerts family only when the situation remains unresolved.
 
-The goal is not constant surveillance. The goal is a calm, explainable escalation path that preserves dignity while making it harder for a fall or medical problem to go unnoticed.
+The hackathon experience combines an interactive 3D Japanese home, a visible fall scenario, a family dashboard, privacy-safe CSI feature processing, and a deterministic escalation policy.
 
-## How the product works
-
-1. A Wi-Fi sensing device observes changes in radio reflections caused by movement. It does not capture images or conversations.
-2. A deterministic risk engine compares the current pattern with the resident's normal routine.
-3. Sustained, unusual silence starts a low-pressure check-in instead of immediately raising an emergency alarm.
-4. A nearby courier brings a bento and knocks at the door.
-5. A successful response closes the incident. No response escalates the incident to the resident's chosen family or care contact.
-6. Every decision and action is recorded in an auditable incident timeline.
+## Architecture
 
 ```text
-Wi-Fi CSI sensor or simulator
-            ↓
-Event ingestion and normalization
-            ↓
-Deterministic risk and escalation policy
-            ↓
-Qwen-assisted explanation and action planning
-            ↓
-Bento check-in → courier response → family escalation
-            ↓
-Consent-aware audit log
+ESP32 / RuView bridge / demo CSI frames
+                  ↓
+Local privacy-safe feature extraction
+                  ↓
+Vercel Next.js server and API routes
+        ├─ GMI Cloud: activity inference
+        └─ Qwen Cloud: floor-plan vision, care decisions, Japanese delivery copy
+                  ↓
+Deterministic safety policy and fallbacks
+                  ↓
+3D story, family dashboard, bento check-in, family escalation
 ```
 
-The model is a support layer, not the safety authority. Thresholds, escalation rules, consent, retries, and emergency boundaries must remain deterministic and testable.
+### Service responsibilities
 
-## Current status
+| Service | Responsibility |
+| --- | --- |
+| Vercel | Hosts the Next.js application and server-side API routes. Secrets stay in Vercel environment variables. |
+| GMI Cloud | Runs server-side inference over privacy-safe CSI feature summaries and returns activity classification and confidence. |
+| Qwen Cloud | Detects rooms from floor-plan images, produces structured care decisions, and generates Japanese delivery instructions. |
 
-### Working now
+Raw API keys are never sent to the browser. The safety policy remains deterministic: generated output can explain or enrich a decision, but it cannot bypass the escalation rules.
 
-- Responsive React experience that explains the product on the first screen.
-- Interactive 3D cutaway home rendered in real time.
-- Three selectable states: normal activity, unusual silence, and human check-in.
-- Visible fallen resident, Wi-Fi signal path, bento courier, and status callouts.
-- Automatic story playback plus direct timeline controls.
-- Camera-free privacy messaging and reduced-motion support.
-- Production build and server-render tests.
+## What works
 
-### Simulated in the current demo
+- Responsive landing experience that explains the product immediately.
+- Interactive 3D cutaway Japanese house with normal, fall, and courier states.
+- Visible fallen resident, Wi-Fi signal paths, bento courier, and family alert story.
+- Floor-plan upload and room detection through Qwen Cloud.
+- Privacy-safe local CSI preprocessing before GMI Cloud inference.
+- GMI Cloud activity classification with deterministic fallback behavior.
+- Qwen Cloud care decisions and Japanese delivery instructions.
+- Vercel-compatible Next.js route handlers.
+- Browser-only dashboard setup stored in `localStorage`.
+- Unit, production-build, and server-render tests.
 
-- Wi-Fi movement and inactivity events.
-- Eight-hour inactivity threshold.
-- Bento dispatch and courier arrival.
-- Family notification outcome.
+The CSI sensor stream, courier dispatch, and family notification are simulated for the hackathon. A real pilot still requires calibrated hardware, persistent incident storage, delivery/notification integrations, consent workflows, and field testing.
 
-### Required for a functioning pilot
+## Prerequisites
 
-- ESP32-S3 CSI capture and calibration.
-- Signed sensor event ingestion over WebSocket or HTTPS.
-- Resident profile, consent, contacts, and quiet-hour settings.
-- Persistent incidents and an auditable state machine.
-- Bento ordering or dispatch integration with retries and idempotency.
-- Courier webhook for answered and unanswered door checks.
-- Family notification delivery and acknowledgement.
-- Qwen service adapter with structured output, timeouts, and a deterministic fallback.
-- Operational monitoring, security review, and field testing with care professionals.
+- Node.js 22.13 or newer
+- npm
+- A GMI Cloud account and API key for live activity inference
+- A Qwen Cloud API key for floor-plan vision and live care reasoning
+- A Vercel account for deployment
 
-## Product state machine
+The landing page and deterministic care fallback work without cloud credentials. Qwen credentials are required to analyze a newly uploaded floor plan. The selected GMI model has a default, so GMI is considered configured when `GMI_API_KEY` is present.
 
-```text
-NORMAL
-  └─ unusual sustained silence → WATCH
-       ├─ movement resumes → RESOLVED
-       └─ policy threshold met → CHECK_IN_REQUESTED
-            ├─ dispatch fails → RETRY_OR_ESCALATE
-            └─ courier accepts → CHECK_IN_EN_ROUTE
-                 ├─ resident answers → RESOLVED
-                 └─ no answer → FAMILY_ALERTED
-                      ├─ contact acknowledges → HANDOFF_COMPLETE
-                      └─ no acknowledgement → ESCALATE_BY_POLICY
-```
+## Local setup
 
-## Technology
+1. Clone the repository and enter the project directory.
 
-### Current web experience
+   ```bash
+   git clone <your-repository-url>
+   cd AgentBento
+   ```
 
-- Next.js 16 and React 19
-- TypeScript
-- Vinext and Vite 8
-- Three.js with React Three Fiber and Drei
-- Post-processing bloom and vignette effects
-- Tabler icons
-- Custom responsive CSS with Tailwind CSS available in the build
-- Node's built-in test runner
-- Cloudflare-compatible build tooling
+2. Install the exact dependency versions from the lockfile.
 
-### Planned service layer
+   ```bash
+   npm ci
+   ```
 
-- ESP32-S3 firmware for CSI sampling
-- WebSocket or HTTPS event bridge
-- TypeScript service for incident orchestration
-- Qwen API adapter for structured explanations and action suggestions
-- Drizzle ORM with a SQL store for residents, incidents, actions, and acknowledgements
-- Provider adapters for delivery ordering and family notifications
+3. Create a local environment file.
 
-## Run locally
+   ```bash
+   cp .env.example .env.local
+   ```
 
-Requirements: Node.js 22.13 or newer.
+4. Add your server-side credentials to `.env.local`.
+
+   ```bash
+   GMI_API_KEY=your_gmi_key
+   GMI_BASE_URL=https://api.gmi-serving.com/v1
+   GMI_CSI_MODEL=Qwen/Qwen3.8-Max
+
+   QWEN_API_KEY=your_qwen_key
+   QWEN_BASE_URL=https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+   QWEN_MODEL=qwen3.7-max
+   QWEN_VISION_MODEL=qwen3.7-plus
+   ```
+
+   Never prefix these keys with `NEXT_PUBLIC_`; that would expose them to the browser. Do not commit `.env.local`.
+
+5. Find a GMI model ID available to your account.
+
+   ```bash
+   curl "$GMI_BASE_URL/models" \
+     -H "Authorization: Bearer $GMI_API_KEY"
+   ```
+
+   `Qwen/Qwen3.8-Max` was selected from the live GMI catalog as the flagship reasoning, vision, and text model. Agent Bento currently sends privacy-safe CSI feature summaries to it and validates the returned activity JSON. You can replace it with another returned model `id` when optimizing cost or latency.
+
+6. Start the development server.
+
+   ```bash
+   npm run dev
+   ```
+
+7. Open [http://localhost:3000](http://localhost:3000).
+
+## How to use the demo
+
+### 3D landing story
+
+1. Open `/`.
+2. Start with **Unusual silence detected** to show the fall scenario.
+3. Select **Home is moving normally** to explain the camera-free baseline.
+4. Select **A human checks in** to show the bento courier response.
+5. Drag or zoom the house to demonstrate that it is a live 3D scene.
+6. Use **Play the 30-second story** for the automatic judge presentation.
+
+### Family dashboard
+
+1. Open `/dashboard` or select **Open family dashboard**.
+2. Upload a Japanese floor-plan image.
+3. Qwen Cloud identifies the living room, kitchen, bedroom, and bathroom.
+4. Confirm the room model and place the Wi-Fi point.
+5. Replay the monitoring story and watch the resident marker move through the detected rooms.
+6. Open the service-status panel to confirm GMI Cloud and Qwen Cloud configuration.
+
+Dashboard setup is stored only in the current browser under `agent-bento.home-setup.v4`. Clear that `localStorage` entry to repeat onboarding from the beginning.
+
+## Server API usage
+
+All routes run on the Vercel-hosted Next.js server.
+
+### Check cloud configuration
 
 ```bash
-npm install
-npm run dev
+curl http://localhost:3000/api/service-status
 ```
 
-Then open the local URL printed by the development server.
+The response lists exactly GMI Cloud and Qwen Cloud and reports whether each service has the required environment variables.
 
-Other commands:
+### Run the care pipeline
 
 ```bash
-npm run build   # create a production build
-npm test        # build and verify the rendered experience
-npm run lint    # run static checks
+curl -X POST http://localhost:3000/api/care-summary \
+  -H "Content-Type: application/json" \
+  -d '{"roomId":"bathroom","logEntries":["Unusual silence detected"]}'
 ```
 
-## Demo flow
+If no `mockCsiFrames` are supplied, the route creates demo frames. The response includes local edge screening, optional GMI inference, the Qwen or deterministic decision, and a `pipeline` array showing which path ran.
 
-The web demo is intentionally short and visual:
+### Create a check-in decision
 
-1. Start at **Unusual silence detected** to communicate the problem immediately.
-2. Select **Home is moving normally** to show the privacy-preserving baseline.
-3. Select **A human checks in** to show the bento courier and escalation path.
-4. Drag the house to demonstrate that it is a live 3D scene.
-5. Scroll to the safety-net section to explain sensing, checking, and protecting.
+```bash
+curl -X POST http://localhost:3000/api/incident/check-in \
+  -H "Content-Type: application/json" \
+  -d '{"incidentId":"demo-001","roomId":"bathroom","situation":"Unusual silence detected","timeOfDay":"lunch"}'
+```
 
-The demo tells the story; it does not pretend that simulated integrations are live.
+### Analyze a floor plan
 
-## Safety and privacy principles
+`POST /api/floor-plan/analyze` expects JSON containing an `imageDataUrl` such as `data:image/png;base64,...`. This route requires `QWEN_API_KEY`; the dashboard prepares the data URL automatically.
 
-- No cameras or audio recordings.
-- Explicit resident consent and configurable contacts.
-- Collect the minimum signal data required for movement analysis.
-- Prefer reversible, low-pressure actions before escalation.
-- Keep the resident and family informed about why an action occurred.
-- Never allow a generated recommendation to bypass deterministic safety policy.
-- Provide manual cancellation, acknowledgement, and incident review.
-- Treat this as an assistive safety system, not a medical diagnosis device.
+### Optional hardware bridge
+
+`GET /api/ruview` checks the optional `RUVIEW_API_URL`. For local development it can point to a LAN bridge. On Vercel it must be a publicly reachable HTTPS endpoint—`localhost` and `.local` addresses refer to the serverless environment and will not reach your home device.
+
+## Testing and quality checks
+
+```bash
+npm run lint             # ESLint
+npm run build            # Native Next.js production build
+npm test                 # Unit tests, production build, and rendered-page test
+npm run test:floor-plan  # Live Qwen regression; requires npm run dev and QWEN_API_KEY
+```
+
+To test the floor-plan route on a non-default local URL:
+
+```bash
+AGENT_BENTO_BASE_URL=http://localhost:3001 npm run test:floor-plan
+```
+
+## Deploy to Vercel
+
+### Option A: Vercel dashboard
+
+1. Push the repository to your Git provider.
+2. In Vercel, select **Add New → Project** and import the repository.
+3. Keep the detected framework as **Next.js**.
+4. Add these environment variables in **Project Settings → Environment Variables**:
+   - `GMI_API_KEY`
+   - `GMI_BASE_URL`
+   - `GMI_CSI_MODEL`
+   - `QWEN_API_KEY`
+   - `QWEN_BASE_URL`
+   - `QWEN_MODEL`
+   - `QWEN_VISION_MODEL`
+   - `RUVIEW_API_URL` and `RUVIEW_TIMEOUT` only when using a public hardware bridge
+5. Add the variables to Production, Preview, and Development as appropriate. Do not give preview deployments production-only credentials unless necessary.
+6. Select **Deploy**.
+
+Future pushes to the production branch create production deployments; other branches and pull requests create preview deployments.
+
+### Option B: Vercel CLI
+
+```bash
+npm install --global vercel
+vercel login
+vercel link
+vercel env add GMI_API_KEY
+vercel env add GMI_CSI_MODEL
+vercel env add QWEN_API_KEY
+vercel env pull .env.local
+vercel deploy
+```
+
+After verifying the preview deployment:
+
+```bash
+vercel --prod
+```
+
+The non-secret base URLs and model names can also be added through the Vercel dashboard. Re-run `vercel env pull .env.local --yes` after changing project environment variables.
+
+## Troubleshooting
+
+### GMI Cloud shows “not configured”
+
+- Confirm `GMI_API_KEY` is set and the account has enough GMI inference credit.
+- Verify the model ID using `GET https://api.gmi-serving.com/v1/models`.
+- Restart `npm run dev` after editing `.env.local`.
+- On Vercel, redeploy after adding or changing environment variables.
+
+### Floor-plan analysis returns HTTP 503
+
+- Set `QWEN_API_KEY` on the server.
+- Confirm `QWEN_VISION_MODEL` is available to the account.
+- Check that the uploaded file is a supported image and small enough for a serverless request.
+
+### The demo runs but uses fallbacks
+
+This is expected when cloud keys are absent or a provider request fails. Inspect the `pipeline` field returned by `/api/care-summary` or `/api/incident/check-in` to see whether GMI, Qwen, or deterministic fallback logic handled each step.
+
+### Vercel deployment cannot reach the hardware bridge
+
+Vercel cannot connect to a laptop-only `localhost` or LAN `.local` address. Expose the bridge through an authenticated HTTPS endpoint, or leave `RUVIEW_API_URL` empty and use demo CSI frames.
+
+## Safety and privacy
+
+- No cameras or audio recordings are required.
+- Raw CSI is processed locally; cloud services receive derived feature summaries.
+- API credentials remain server-side.
+- Resident consent and configurable contacts are required for a real deployment.
+- Generated recommendations never override deterministic safety rules.
+- Agent Bento is an assistive safety concept, not a medical diagnosis device.
 
 ## Repository map
 
 ```text
-app/page.tsx             Story controls and product explanation
-app/HomeScene.tsx        Interactive 3D home and incident states
-app/globals.css          Visual system and responsive layout
-app/layout.tsx           Metadata and root layout
-db/                      Database scaffold for the future service layer
-tests/                    Build and server-render verification
-design/                   Selected visual direction
-design-qa.md              Visual and interaction QA record
-AGENT.md                  Product, engineering, and worklog guide
+app/                         Next.js pages, 3D landing, dashboard, and API routes
+app/api/                     Vercel-hosted server endpoints
+lib/csi-edge.ts              Local privacy-safe CSI feature extraction
+lib/ai-router.ts             GMI → Qwen → deterministic fallback orchestration
+lib/adapters/gmi.ts          GMI Cloud inference client
+lib/adapters/qwen.ts         Qwen Cloud vision and reasoning client
+public/data/                 Simulated monitoring story
+public/fixtures/             Floor-plan regression fixture
+scripts/                     Live integration regression scripts
+tests/                       Unit and production-render tests
+docs/                        Presentation and FAQ source material
+AGENT.md                     Product, architecture, and engineering worklog
+vercel.json                  Vercel framework configuration
 ```
 
-## Near-term roadmap
+## Production roadmap
 
-1. Define incident types and implement the deterministic state machine.
-2. Add a local event simulator that drives the same API as future hardware.
-3. Persist incidents, actions, and acknowledgements.
-4. Connect ESP32-S3 CSI input and calibrate per-home baselines.
-5. Add delivery and notification adapters behind testable interfaces.
-6. Integrate Qwen for structured explanations with strict schema validation.
-7. Build resident, family, courier, and operator views.
-8. Run failure-mode, privacy, accessibility, and field tests before any pilot.
+1. Connect calibrated ESP32-S3 CSI input through an authenticated public event bridge.
+2. Deploy and validate a CSI-specific activity model through a dedicated GMI endpoint.
+3. Add persistent residents, consent, incidents, actions, and acknowledgements.
+4. Add idempotent delivery ordering and courier-response webhooks.
+5. Add family notification delivery, acknowledgement, retries, and audit logs.
+6. Complete privacy, accessibility, failure-mode, and care-professional field testing.
