@@ -23,6 +23,15 @@ type HomeSetupWizardProps = {
   onComplete: (setup: HomeSetup) => void;
 };
 
+const DEMO_FLOOR_PLAN = "/fixtures/test-floor-plan.png";
+const DEMO_WIFI: WifiPin = { x: 58, y: 56 };
+const DEMO_ROOMS: RoomRegion[] = [
+  { id: "kitchen", label: "Kitchen", bbox: { x: 21, y: 14, w: 21, h: 29 } },
+  { id: "bedroom", label: "Bedroom", bbox: { x: 48, y: 14, w: 21, h: 23 } },
+  { id: "living", label: "Living room", bbox: { x: 45, y: 43, w: 24, h: 29 } },
+  { id: "bathroom", label: "Bathroom", bbox: { x: 69, y: 43, w: 12, h: 24 } },
+];
+
 function stepTitle(step: Step): string {
   if (step === "upload") return "Show us the home.";
   if (step === "analyzing") return "Building the room model.";
@@ -35,7 +44,7 @@ function stepLead(step: Step): string {
     return "Upload your floor-plan photo. We keep your picture as the map and build a quiet room model underneath so Grandpa’s story matches real rooms.";
   }
   if (step === "analyzing") {
-    return "StepFun is finding living, kitchen, bedroom, and bathroom on your plan.";
+    return "Qwen Cloud is finding the living room, kitchen, bedroom, and bathroom.";
   }
   if (step === "review") {
     return "Your photo is the map. Room boxes stay in the background for Grandpa’s story — nothing drawn on top. Re-upload if something feels wrong.";
@@ -64,11 +73,11 @@ async function buildRoomModel(imageDataUrl: string): Promise<RoomRegion[]> {
 
 export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [step, setStep] = useState<Step>("upload");
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [fileName, setFileName] = useState("");
-  const [rooms, setRooms] = useState<RoomRegion[]>([]);
-  const [wifi, setWifi] = useState<WifiPin | null>(null);
+  const [step, setStep] = useState<Step>("wifi");
+  const [imageUrl, setImageUrl] = useState<string | null>(DEMO_FLOOR_PLAN);
+  const [fileName, setFileName] = useState("Japanese demo home");
+  const [rooms, setRooms] = useState<RoomRegion[]>(DEMO_ROOMS);
+  const [wifi, setWifi] = useState<WifiPin | null>(DEMO_WIFI);
   const [error, setError] = useState<string | null>(null);
   const [draggingFile, setDraggingFile] = useState(false);
 
@@ -279,9 +288,15 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
               <button
                 type="button"
                 className="dashboard-ghost"
-                onClick={() => setStep("review")}
+                onClick={() => {
+                  setStep("upload");
+                  setRooms([]);
+                  setWifi(null);
+                  setImageUrl(null);
+                  setFileName("");
+                }}
               >
-                Back to rooms
+                Use my own plan
               </button>
               <button
                 type="button"
@@ -299,7 +314,9 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
                 Click anywhere on the plan — or drag the Wi‑Fi marker — to set the router.
               </p>
             ) : (
-              <p className="setup-pin-note ok">Router pinned · drag again anytime to move it</p>
+              <p className="setup-pin-note ok">
+                Demo router pinned in the living room · click or drag to move it
+              </p>
             )}
           </div>
         ) : null}

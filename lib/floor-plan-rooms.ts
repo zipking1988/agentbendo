@@ -227,7 +227,7 @@ function mapRoomId(raw: unknown): RoomId | null {
   return isRoomId(raw.trim().toLowerCase()) ? (raw.trim().toLowerCase() as RoomId) : null;
 }
 
-/** Parse and validate StepFun (or any) JSON room layout into app RoomRegion[]. */
+/** Parse and validate a Qwen Cloud JSON room layout into app RoomRegion[]. */
 export function parseFloorPlanRoomsJson(payload: unknown): RoomRegion[] {
   const root = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : null;
   const list = Array.isArray(root?.rooms)
@@ -329,4 +329,3 @@ JSON schema example:
   ],
   "notes": "optional short note"
 }`;
-

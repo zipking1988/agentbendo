@@ -4,14 +4,14 @@
  * 角色：接收 ESP32 CSI 原始数据流，通过 GMI Cloud GPU 推理
  * 输出活动状态置信度分数，供 Qwen Agent 做分级决策。
  *
- * 数据流：ESP32 → Nosana(边缘去噪/FFT) → GMI(深度学习推理) → 活动置信度
+ * 数据流：ESP32 → 本地特征提取 → GMI Cloud 推理 → 活动置信度
  */
 
 function getGmiConfig() {
   return {
     apiKey: process.env.GMI_API_KEY?.trim() ?? "",
-    baseUrl: (process.env.GMI_BASE_URL?.trim() || "https://api.gmi.cloud/v1").replace(/\/$/, ""),
-    csiModel: process.env.GMI_CSI_MODEL?.trim() || "gmi-csi-activity-v1",
+    baseUrl: (process.env.GMI_BASE_URL?.trim() || "https://api.gmi-serving.com/v1").replace(/\/$/, ""),
+    csiModel: process.env.GMI_CSI_MODEL?.trim() || "Qwen/Qwen3.8-Max",
   };
 }
 
@@ -21,7 +21,7 @@ export function isGmiConfigured(): boolean {
 
 /* ─── CSI 数据类型 ─── */
 
-/** 单帧 CSI 数据（从 Nosana 边缘预处理后传入） */
+/** 单帧 CSI 数据（在设备侧预处理后传入） */
 export type CsiFrame = {
   timestamp: number;
   /** 去噪后的振幅序列 (30 subcarriers) */
@@ -91,7 +91,9 @@ async function callGmiCsi(
   options?: { temperature?: number; maxTokens?: number }
 ): Promise<string> {
   const { apiKey, baseUrl, csiModel } = getGmiConfig();
-  if (!apiKey) throw new Error("GMI_API_KEY is not configured.");
+  if (!apiKey || !csiModel) {
+    throw new Error("GMI_API_KEY and GMI_CSI_MODEL must both be configured.");
+  }
 
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",

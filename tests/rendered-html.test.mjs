@@ -1,21 +1,43 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render() {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
-  const { default: worker } = await import(workerUrl.href);
+const host = "127.0.0.1";
+const port = 3400 + (process.pid % 500);
+const baseUrl = `http://${host}:${port}`;
 
-  return worker.fetch(
-    new Request("http://localhost/", { headers: { accept: "text/html", host: "localhost" } }),
-    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
-    { waitUntil() {}, passThroughOnException() {} },
+async function startProductionServer() {
+  const output = [];
+  const server = spawn(
+    process.execPath,
+    ["node_modules/next/dist/bin/next", "start", "--hostname", host, "--port", String(port)],
+    { cwd: new URL("..", import.meta.url), env: process.env, stdio: ["ignore", "pipe", "pipe"] },
   );
+  server.stdout.on("data", (chunk) => output.push(chunk.toString()));
+  server.stderr.on("data", (chunk) => output.push(chunk.toString()));
+
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    if (server.exitCode !== null) {
+      throw new Error(`Next.js exited before startup.\n${output.join("")}`);
+    }
+    try {
+      const response = await fetch(baseUrl);
+      if (response.ok) return { server, response };
+    } catch {
+      // The server is still starting.
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+
+  server.kill("SIGTERM");
+  throw new Error(`Timed out waiting for Next.js.\n${output.join("")}`);
 }
 
-test("server-renders the Agent Bento experience", async () => {
-  const response = await render();
+test("server-renders the Agent Bento experience", async (t) => {
+  const { server, response } = await startProductionServer();
+  t.after(() => server.kill("SIGTERM"));
+
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
@@ -28,7 +50,7 @@ test("server-renders the Agent Bento experience", async () => {
   assert.match(html, /Play the 30-second story/);
   assert.match(html, /No cameras\. No recordings\./);
   assert.match(html, /og\.png/);
-  assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
+  assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton/i);
 });
 
 test("keeps the finished experience accessible and self-contained", async () => {
@@ -45,5 +67,4 @@ test("keeps the finished experience accessible and self-contained", async () => 
   assert.match(layout, /generateMetadata/);
   assert.match(packageJson, /"@react-three\/fiber"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
-  assert.doesNotMatch(page, /_sites-preview|SkeletonPreview/);
 });

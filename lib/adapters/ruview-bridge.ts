@@ -145,7 +145,6 @@ export function mapRuViewToDemoFrame(
   anomalyScore: number;
 } {
   const presence = snapshot.presence;
-  const vitals = snapshot.vitals;
   const posture = snapshot.posture;
 
   // 根据运动能量判断活动

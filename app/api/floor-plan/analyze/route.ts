@@ -1,5 +1,4 @@
-import { isStepFunConfigured, analyzeFloorPlanWithStepFun } from "@/lib/stepfun";
-import { isQwenConfigured } from "@/lib/adapters/qwen";
+import { analyzeFloorPlanWithQwen, isQwenConfigured } from "@/lib/adapters/qwen";
 
 export const runtime = "nodejs";
 
@@ -22,31 +21,19 @@ export async function POST(request: Request) {
   }
 
   try {
-    // 优先使用 StepFun 做户型图识别
-    if (isStepFunConfigured()) {
-      const result = await analyzeFloorPlanWithStepFun(imageDataUrl);
+    if (isQwenConfigured()) {
+      const result = await analyzeFloorPlanWithQwen(imageDataUrl);
       return Response.json({
         rooms: result.rooms,
         model: result.model,
         notes: result.notes ?? null,
         simulated: false,
-        provider: "stepfun",
-      });
-    }
-
-    // Qwen 也可用于视觉分析（如果配置了的话）
-    if (isQwenConfigured()) {
-      return Response.json({
-        rooms: [],
-        model: "qwen-vl",
-        notes: "Qwen configured but floor plan vision not yet implemented for v2. Configure STEPFUN_API_KEY for floor plan analysis.",
-        simulated: false,
-        provider: "qwen",
+        provider: "qwen-cloud",
       });
     }
 
     return Response.json(
-      { error: "No floor plan vision service configured. Set STEPFUN_API_KEY or QWEN_API_KEY." },
+      { error: "Qwen Cloud floor-plan vision is not configured. Set QWEN_API_KEY." },
       { status: 503 },
     );
   } catch (error) {
