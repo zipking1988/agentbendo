@@ -9,6 +9,7 @@ export {
   hasAllRequiredRooms,
   mapPresence,
   normalizeBBox,
+  pointInBBox,
   roomMeta,
   upsertRoom,
 } from "@/lib/floor-plan-rooms";
@@ -19,6 +20,8 @@ export type WifiPin = {
   /** Percent from top edge of the floor-plan image (0–100) */
   y: number;
 };
+
+export const DEMO_FLOOR_PLAN_URL = "/fixtures/test-floor-plan.png";
 
 export type HomeSetup = {
   /** User upload as a data URL — the visual map (kept local in the browser) */
@@ -70,7 +73,7 @@ export function readImageAsDataUrl(file: File): Promise<string> {
 }
 
 export function isAllowedFloorPlanFile(file: File): boolean {
-  if (!file.type.startsWith("image/")) return false;
+  if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) return false;
   // Keep localStorage payloads reasonable (~4MB binary → larger as base64)
   return file.size <= 4_500_000;
 }

@@ -47,7 +47,9 @@ test("server-renders the Agent Bento experience", async (t) => {
   assert.match(html, /A home can/);
   assert.match(html, /ask for help\./);
   assert.match(html, /Unusual silence detected/);
-  assert.match(html, /Play the 30-second story/);
+  assert.match(html, /Open family demo/);
+  assert.match(html, /Play the story/);
+  assert.match(html, /Interactive demo/);
   assert.match(html, /No cameras\. No recordings\./);
   assert.match(html, /og\.png/);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton/i);
@@ -61,7 +63,8 @@ test("keeps the finished experience accessible and self-contained", async () => 
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /aria-label="How Agent Bento works"/);
+  assert.match(page, /aria-label="Bathroom check-in story scenes"/);
+  assert.match(page, /aria-pressed/);
   assert.match(page, /HomeScene/);
   assert.match(css, /prefers-reduced-motion/);
   assert.match(layout, /generateMetadata/);

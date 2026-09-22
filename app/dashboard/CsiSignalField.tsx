@@ -562,12 +562,10 @@ export function CsiSignalField(props: Props) {
           />
         ) : null}
         <Canvas
+          shadows="basic"
           dpr={[1, 1.75]}
           camera={{ position: [0, 5.5, 9.5], fov: 38, near: 0.1, far: 80 }}
           gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
-          onCreated={({ gl }) => {
-            gl.shadowMap.type = THREE.PCFShadowMap;
-          }}
         >
           <color attach="background" args={["#020605"]} />
           <fog attach="fog" args={["#020605", 12, 28]} />

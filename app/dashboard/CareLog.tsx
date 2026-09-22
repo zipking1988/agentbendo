@@ -28,6 +28,7 @@ export function CareLog({ entries, mode }: CareLogProps) {
             ? "Simulated notes from the quiet check-in story."
             : "Events appear as the story unfolds."}
         </p>
+        <p className="care-log-time-label">Times below are replay time.</p>
       </div>
 
       <ol className="care-log-list">

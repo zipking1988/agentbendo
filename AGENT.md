@@ -97,11 +97,11 @@ Model output must use a versioned structured schema, be validated before use, ha
 - Family dashboard home setup (localStorage `agent-bento.home-setup.v4`):
   1. First-time users immediately see a Japanese madori demo plan
   2. A labeled Wi‑Fi router is already pinned in the living room and can be moved by click or drag
-  3. **Start monitoring** unlocks the care story without requiring cloud credentials
+  3. **Start demo** unlocks the care story without requiring cloud credentials
   4. **Use my own plan** switches to upload mode; Qwen Cloud vision detects living / kitchen / bedroom / bathroom boxes before Wi‑Fi placement
 - **Monitoring map = the selected floor-plan image** (the included demo plan or the user’s upload), with no colored room overlays, room-name chips, fake grid, AI redraw, or dashboard 3D.
 - Room regions stay as invisible data for presence: simulated story beats map Grandpa into those boxes via `mapPresence()`.
-- Monitoring shows a high-contrast Grandpa marker (lime + dark outline + label) and the labeled Wi‑Fi pin on the selected plan; **Re-upload floor plan** clears setup.
+- Monitoring shows a high-contrast Grandpa marker (lime + dark outline + label) and the labeled Wi‑Fi pin on the selected plan; **Change floor plan** clears setup.
 - Family monitoring hybrid: calm “is Grandpa OK?” view plus simulated story replay from `demo_frames.json`.
 - Dashboard **CSI field** (Three.js): Matrix-style wire skeletons + cyan wave spheres + lime heatmap grid + particle fog + HUD — synthetic RF from demo motion (**Simulated**; not live CSI / not clinical vitals).
 - Local privacy-safe CSI feature extraction (`lib/csi-edge.ts`) and a GMI Cloud inference adapter with deterministic fallback.
@@ -240,14 +240,14 @@ npm run test:floor-plan  # analyze regression vs fixture (needs dev server)
 
 Node.js 22.13 or newer is required.
 
-Current quality gate (verified 2026-08-11):
+Current quality gate (verified 2026-09-23):
 
-- `npm test`: 14 tests plus the native Next.js production build pass.
+- `npm test`: 19 tests plus the native Next.js production build pass.
 - `npm run lint`: clean.
 - `npm audit`: 0 known vulnerabilities.
 - Browser verification: `/`, `/dashboard`, `/api/service-status`, and `/api/care-summary` load successfully.
 - Live GMI/Qwen integration tests still require valid provider credentials.
-- Git delivery: commit `01fbf52` is available on `zipking1988/agentbendo` branch `main`; the repository default branch is still `master`.
+- Git delivery targets `zipking1988/agentbendo` branch `main`.
 
 Important files:
 
@@ -263,15 +263,17 @@ Important files:
 - `lib/csi-sim.ts`: synthetic CSI sample generator (RF-inspired, deterministic)
 - `app/api/floor-plan/analyze/route.ts`: Qwen Cloud vision analyze endpoint
 - `lib/home-setup.ts`: `HomeSetup` + localStorage v4 helpers
+- `lib/home-setup-analysis.ts`: custom-plan analysis cancellation and response validation
 - `lib/floor-plan-rooms.ts`: room regions, `mapPresence`, model JSON parsing
 - `lib/adapters/qwen.ts`: Qwen Cloud care and floor-plan vision client
 - `lib/adapters/gmi.ts`: GMI Cloud CSI activity inference client
 - `lib/csi-edge.ts`: local privacy-safe CSI feature extraction
 - `lib/demo-frames.ts`: demo frame types and English copy
+- `lib/landing-story.ts`: shared landing playback clock and chapter/beat mapping
 - `public/data/demo_frames.json`: simulated care story frames
 - `public/fixtures/test-floor-plan.png`: floor-plan analyze fixture
 - `app/globals.css`: layout and design tokens
-- `tests/floor-plan-rooms.test.ts`, `tests/parse-floor-plan-rooms.test.ts`, `tests/csi-sim.test.ts`
+- `tests/floor-plan-rooms.test.ts`, `tests/parse-floor-plan-rooms.test.ts`, `tests/csi-sim.test.ts`, `tests/demo-care-stage.test.ts`
 - `tests/rendered-html.test.mjs`: build and server-render checks
 
 ## 12. Definition of done

@@ -7,20 +7,19 @@ import { StatusHero } from "@/app/dashboard/StatusHero";
 import {
   activityLabel,
   buildActivityTrail,
+  demoCarePresentation,
+  demoCareStageAt,
   frameAt,
   loadDemoFrames,
   logsUpTo,
   roomLabel,
-  sceneCopy,
-  sceneFor,
   translateStatusReason,
   type ActivityTrailItem,
   type DemoFramesData,
 } from "@/lib/demo-frames";
-import { mapPresence, type HomeSetup } from "@/lib/home-setup";
+import { DEMO_FLOOR_PLAN_URL, mapPresence, type HomeSetup } from "@/lib/home-setup";
 import IconArrowLeft from "@tabler/icons-react/dist/esm/icons/IconArrowLeft.mjs";
 import IconUpload from "@tabler/icons-react/dist/esm/icons/IconUpload.mjs";
-import { useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
@@ -47,11 +46,11 @@ type FamilyBoardProps = {
 };
 
 export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
-  const reduceMotion = useReducedMotion();
   const [data, setData] = useState<DemoFramesData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("calm");
   const [playing, setPlaying] = useState(false);
+  const [technicalOpen, setTechnicalOpen] = useState(false);
   const [t, setT] = useState(IDLE_T);
   const [trail, setTrail] = useState<ActivityTrailItem[]>([]);
 
@@ -83,8 +82,7 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
     const delta = Math.min(0.08, (now - last) / 1000);
     lastStampRef.current = now;
 
-    const speed = reduceMotion ? 4 : 1;
-    const next = tRef.current + delta * speed;
+    const next = tRef.current + delta;
     const end = data.meta.duration;
 
     if (next >= end) {
@@ -142,13 +140,10 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
 
   const jumpToScene = (start: number) => {
     if (!data) return;
-    const target = reduceMotion
-      ? Math.max(start, Math.min(start + 0.01, data.meta.duration - 0.05))
-      : start;
+    const target = start;
     tRef.current = target;
     setT(target);
     setMode("replay");
-    if (!playing) setPlaying(true);
   };
 
   if (error) {
@@ -179,24 +174,34 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
     homeSetup.rooms,
     data.meta.rooms,
   );
-  const scene = sceneFor(data.meta.scenes, viewT);
   const logs = logsUpTo(data.meta.bendoLog, mode === "calm" ? data.meta.duration : viewT);
   const motionPct = Math.round(Math.max(0, Math.min(1, frame.motionLevel)) * 100);
   const stillSeconds = Math.max(0, Math.round(frame.stillDuration));
   const statusReason = translateStatusReason(frame.statusReason);
-  const status = mode === "calm" ? "normal" : frame.status;
+  const stage = demoCareStageAt(viewT, data.meta.careTimeline);
+  const presentation = demoCarePresentation(stage);
+  const status = presentation.tone;
+  const displayedActivity = stage === "resident_responding"
+    ? "Responding to the courier"
+    : stage === "check_in_complete"
+      ? "Check-in confirmed"
+      : activityLabel(frame.activity);
+  const mapSource = homeSetup.floorPlanDataUrl === DEMO_FLOOR_PLAN_URL
+    ? "Sample floor plan"
+    : "Your uploaded floor plan";
 
   return (
     <section className={`dashboard-shell mode-${mode} status-${status}`}>
-      <div className="dashboard-copy">
+      <div className="dashboard-status">
         <Link className="dashboard-back" href="/">
           <IconArrowLeft size={16} />
           Back to the story
         </Link>
 
         <StatusHero
-          status={frame.status}
-          sceneId={scene.id}
+          stage={stage}
+          currentRoom={roomLabel(presence.room)}
+          currentActivity={displayedActivity}
           playing={playing}
           mode={mode}
           onPlay={handlePlay}
@@ -204,25 +209,61 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
           onRestart={handleRestart}
         />
 
+      </div>
+
+      <aside className="dashboard-map">
+        <div className={`monitor-plan status-${status}`}>
+          <div className="monitor-plan-toolbar">
+            <p className="monitor-plan-kicker">{mapSource.toUpperCase()}</p>
+            <button type="button" className="reset-floor-btn" onClick={onResetSetup}>
+              <IconUpload size={15} stroke={1.9} />
+              Change floor plan
+            </button>
+          </div>
+          <HomeFloorModel
+            imageUrl={homeSetup.floorPlanDataUrl}
+            wifi={homeSetup.wifi}
+            rooms={homeSetup.rooms}
+            presence={presence}
+            status={status}
+            compactWifi
+            label={mapSource}
+          />
+          <p className="home-map-caption">
+            <strong>{roomLabel(presence.room)}</strong>
+            <span>{displayedActivity}</span>
+          </p>
+          <p className="home-map-source">{mapSource}</p>
+        </div>
+      </aside>
+
+      <div className="dashboard-care">
+        <CareLog entries={logs} mode={mode} />
+      </div>
+
+      <div className="dashboard-story">
+        <div className="dashboard-panel-head dashboard-story-head">
+          <p className="dashboard-panel-kicker">{mode === "replay" ? "REPLAY" : "TODAY"}</p>
+          <h2>{mode === "replay" ? "Care story scenes" : "Movement history"}</h2>
+        </div>
         {mode === "replay" ? (
-          <div className="scene-rail" role="tablist" aria-label="Care story scenes">
-            {data.meta.scenes.map((item) => {
-              const copy = sceneCopy(item);
-              const active = scene.id === item.id;
+          <div className="scene-rail" role="group" aria-label="Sofa-nap check-in story scenes">
+            {data.meta.careTimeline.map((item) => {
+              const copy = demoCarePresentation(item.stage);
+              const active = stage === item.stage;
               const complete = viewT >= item.end;
               return (
                 <button
-                  key={item.id}
+                  key={item.stage}
                   type="button"
-                  role="tab"
-                  aria-selected={active}
+                  aria-pressed={active}
                   className={`scene-rail-item ${active ? "active" : ""} ${complete && !active ? "complete" : ""}`}
                   onClick={() => jumpToScene(item.start)}
                 >
-                  <span className="scene-rail-id">{item.id}</span>
+                  <span className="scene-rail-id">{`${Math.floor(item.start / 60)}:${String(item.start % 60).padStart(2, "0")}`}</span>
                   <span className="scene-rail-text">
-                    <strong>{copy.label}</strong>
-                    <small>{copy.desc}</small>
+                    <strong>{copy.title}</strong>
+                    <small>{copy.lead}</small>
                   </span>
                 </button>
               );
@@ -243,77 +284,46 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
         )}
       </div>
 
-      <aside className="dashboard-side">
-        <div className={`monitor-plan status-${status}`}>
-          <div className="monitor-plan-toolbar">
-            <p className="monitor-plan-kicker">YOUR FLOOR PLAN</p>
-            <button
-              type="button"
-              className="reset-floor-btn"
-              onClick={onResetSetup}
-            >
-              <IconUpload size={15} stroke={1.9} />
-              Re-upload floor plan
-            </button>
+      <details
+        className="technical-details"
+        open={technicalOpen}
+        onToggle={(event) => setTechnicalOpen(event.currentTarget.open)}
+      >
+        <summary>
+          <span>Technical demo details</span>
+          <small>Simulated signal field and service status</small>
+        </summary>
+        <div className="technical-details-body">
+          <div className="sensing-meters" aria-label="Movement sensing">
+            <div className="meter">
+              <div className="meter-head"><span>Motion</span><strong>{motionPct}%</strong></div>
+              <div className="meter-track"><div className="meter-fill motion" style={{ width: `${motionPct}%` }} /></div>
+            </div>
+            <div className="meter">
+              <div className="meter-head"><span>Stillness</span><strong>{stillSeconds}s</strong></div>
+              <div className="meter-track">
+                <div className="meter-fill still" style={{ width: `${Math.min(100, (stillSeconds / 510) * 100)}%` }} />
+              </div>
+            </div>
+            {statusReason ? <p className="sensing-reason">{statusReason}</p> : null}
           </div>
-          <HomeFloorModel
-            imageUrl={homeSetup.floorPlanDataUrl}
-            wifi={homeSetup.wifi}
-            rooms={homeSetup.rooms}
-            presence={presence}
-            status={status}
-            label="Your floor plan"
-          />
-          <p className="home-map-caption">
-            <strong>{roomLabel(presence.room)}</strong>
-            <span>{activityLabel(frame.activity)}</span>
-          </p>
-          <p className="home-map-source">
-            Your uploaded floor plan
-          </p>
+
+          {technicalOpen ? (
+            <CsiSignalField
+              motionLevel={frame.motionLevel}
+              stillDuration={frame.stillDuration}
+              anomalyScore={frame.anomalyScore}
+              status={status}
+              t={viewT}
+              presenceX={presence.x}
+              presenceY={presence.y}
+              wifiX={homeSetup.wifi.x}
+              wifiY={homeSetup.wifi.y}
+            />
+          ) : null}
+          <ServiceStatusPanel />
         </div>
-
-        <div className="sensing-meters" aria-label="Movement sensing">
-          <div className="meter">
-            <div className="meter-head">
-              <span>Motion</span>
-              <strong>{motionPct}%</strong>
-            </div>
-            <div className="meter-track">
-              <div className="meter-fill motion" style={{ width: `${motionPct}%` }} />
-            </div>
-          </div>
-          <div className="meter">
-            <div className="meter-head">
-              <span>Stillness</span>
-              <strong>{stillSeconds}s</strong>
-            </div>
-            <div className="meter-track">
-              <div
-                className="meter-fill still"
-                style={{ width: `${Math.min(100, (stillSeconds / 510) * 100)}%` }}
-              />
-            </div>
-          </div>
-          {statusReason ? <p className="sensing-reason">{statusReason}</p> : null}
-        </div>
-
-        <CsiSignalField
-          motionLevel={frame.motionLevel}
-          stillDuration={frame.stillDuration}
-          anomalyScore={frame.anomalyScore}
-          status={status}
-          t={viewT}
-          presenceX={presence.x}
-          presenceY={presence.y}
-          wifiX={homeSetup.wifi.x}
-          wifiY={homeSetup.wifi.y}
-        />
-
-
-        <ServiceStatusPanel />
-        <CareLog entries={logs} mode={mode} />
-      </aside>
+      </details>
     </section>
   );
 }

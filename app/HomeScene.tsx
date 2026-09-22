@@ -567,17 +567,24 @@ function TatamiLivingRoom() {
 }
 
 /* ─── Kitchen Counter & Wi-Fi Router Hub ─── */
-function KitchenStation({ step }: { step: number }) {
+function KitchenStation({ step, phase }: { step: number; phase: number }) {
   // Calm monitoring glow in Scenario 01; brighter when an incident is open
   const monitoring = step === 0;
   const alerting = step === 1;
-  const resolved = step === 2;
-  const emissive = alerting ? "#ff7650" : resolved ? "#ffbd69" : monitoring ? "#6fbf3a" : "#465940";
-  const lightIntensity = alerting ? 7.5 : resolved ? 5.5 : monitoring ? 3.2 : 1.5;
-  const lightColor = alerting ? "#ff7650" : resolved ? "#ffbd69" : "#b7ff4a";
+  const confirming = step === 2 && phase < 2;
+  const resolved = step === 2 && phase >= 2;
+  const emissive = alerting || confirming ? "#ff7650" : resolved ? "#ffbd69" : monitoring ? "#6fbf3a" : "#465940";
+  const lightIntensity = alerting || confirming ? 7.5 : resolved ? 5.5 : monitoring ? 3.2 : 1.5;
+  const lightColor = alerting || confirming ? "#ff7650" : resolved ? "#ffbd69" : "#b7ff4a";
 
   const agentStatus =
-    step === 1 ? "DISPATCHING" : step === 2 ? "ALL CLEAR" : "MONITORING";
+    step === 1
+      ? "DISPATCHING"
+      : resolved
+        ? "ALL CLEAR"
+        : confirming
+          ? "CONFIRMING"
+          : "MONITORING";
 
   return (
     <group position={[3.4, 0.1, -1.2]}>
@@ -887,7 +894,7 @@ function SignalPath({
     );
   }
 
-  // Scenario 02: reveal one path at a time — silence → courier → family
+  // Scenario 02: reveal one path at a time — silence → check-in request → awaiting response
   if (step === 1) {
     return (
       <group>
@@ -924,21 +931,6 @@ function SignalPath({
               gapSize={0.08}
             />
             <PathArrows points={dispatchPoints} color="#ffbd69" count={5} />
-          </>
-        )}
-        {phase >= 2 && (
-          <>
-            <Line
-              points={familyPoints}
-              color="#5ecbff"
-              lineWidth={2.2}
-              transparent
-              opacity={0.9}
-              dashed
-              dashSize={0.14}
-              gapSize={0.1}
-            />
-            <PathArrows points={familyPoints} color="#5ecbff" count={4} />
           </>
         )}
       </group>
@@ -1004,7 +996,6 @@ function JapaneseHouse({
   const floorWood = "#6e4e37";
 
   const showCourierDispatch = step === 1 && phase >= 1;
-  const showFamilyAlert = step === 1 && phase >= 2;
   const showFamilySafe = step === 2 && phase >= 2;
   const showDoorCheckIn = step === 2 && phase >= 0;
   const showAnswered = step === 2 && phase >= 1;
@@ -1027,7 +1018,7 @@ function JapaneseHouse({
 
       <Bathroom />
       <TatamiLivingRoom />
-      <KitchenStation step={step} />
+      <KitchenStation step={step} phase={phase} />
       <EngawaAndGarden />
 
       {/* Scenario 0: Moving Grandpa cycling between rooms */}
@@ -1055,15 +1046,15 @@ function JapaneseHouse({
 
       <SignalPath step={step} phase={phase} activityIdx={activityIdx} />
       <CourierDispatchNode visible={showCourierDispatch} />
-      <FamilyContactNode visible={showFamilyAlert || showFamilySafe} safe={showFamilySafe} />
+      <FamilyContactNode visible={showFamilySafe} safe />
       <JapaneseRoof />
 
       {/* Callouts — timed with sequence */}
       {step === 1 && phase === 0 && (
         <Html position={[-3.3, 1.8, -0.2]} center distanceFactor={7.5}>
           <div className="scene-callout alert-callout">
-            <b>BATHROOM ALERT · NO MOVEMENT 8H</b>
-            <span>Agent Bento confirmed unusual silence</span>
+            <b>UNUSUAL SILENCE DETECTED</b>
+            <span>Agent Bento is checking the change in routine</span>
           </div>
         </Html>
       )}
@@ -1076,10 +1067,10 @@ function JapaneseHouse({
         </Html>
       )}
       {step === 1 && phase >= 2 && (
-        <Html position={[6.6, 1.6, 1.0]} center distanceFactor={7.5}>
-          <div className="scene-callout family-callout">
-            <b>FAMILY ALERTED</b>
-            <span>Trusted contacts notified of the quiet check-in</span>
+        <Html position={[5.2, 1.6, 3.0]} center distanceFactor={7.5}>
+          <div className="scene-callout courier-callout">
+            <b>CHECK-IN REQUESTED</b>
+            <span>Awaiting a response from the courier network</span>
           </div>
         </Html>
       )}
@@ -1095,8 +1086,8 @@ function JapaneseHouse({
       {step === 2 && phase === 1 && (
         <Html position={[0, 2.2, 3.2]} center distanceFactor={7.5}>
           <div className="scene-callout courier-callout">
-            <b>RESIDENT ANSWERED</b>
-            <span>Grandpa is at the door · check-in complete</span>
+            <b>RESIDENT RESPONDING</b>
+            <span>Grandpa answered · confirmation pending</span>
           </div>
         </Html>
       )}
@@ -1113,7 +1104,7 @@ function JapaneseHouse({
 }
 
 const ROUTINE_BEATS = ["Living Room", "Kitchen", "Engawa"];
-const ALERT_BEATS = ["Silence spotted", "Courier sent", "Family alerted"];
+const ALERT_BEATS = ["Silence spotted", "Check-in requested", "Awaiting response"];
 const CHECKIN_BEATS = ["At the door", "Answered", "Family all clear"];
 
 /* ─── Cinematic status rail (Scenarios 01–03) ─── */
@@ -1129,7 +1120,15 @@ function ScenarioBar({
   if (step < 0 || step > 2) return null;
 
   const mode = step === 1 ? "alert" : step === 2 ? "checkin" : "routine";
-  const word = step === 1 ? "SILENCE" : step === 2 ? "CLEAR" : "SAFE";
+  const word = step === 1
+    ? "SILENCE"
+    : step === 2
+      ? phase >= 2
+        ? "CLEAR"
+        : phase === 1
+          ? "RESPONDING"
+          : "AT DOOR"
+      : "SAFE";
   const chapter = step === 1 ? "02" : step === 2 ? "03" : "01";
   const detail =
     step === 1
@@ -1137,12 +1136,12 @@ function ScenarioBar({
         ? "Unusual silence confirmed in the bathroom."
         : phase === 1
           ? "Agent Bento is contacting a nearby bento courier."
-          : "Trusted family contacts are being notified."
+          : "The check-in request is awaiting a response."
       : step === 2
         ? phase === 0
           ? "Bento courier is at the door for a friendly check-in."
           : phase === 1
-            ? "Grandpa answered. Human check-in complete."
+            ? "Grandpa answered. The courier is confirming the check-in."
             : "Family received the all-clear — Grandpa is safe."
         : `${GRANDPA_ACTIVITIES[activityIdx].label} in the ${GRANDPA_ACTIVITIES[activityIdx].room}.`;
   const beats = step === 1 ? ALERT_BEATS : step === 2 ? CHECKIN_BEATS : ROUTINE_BEATS;
@@ -1150,15 +1149,15 @@ function ScenarioBar({
   const meta =
     step === 1
       ? phase === 0
-        ? ["8h quiet", "Detecting"]
+          ? ["Unusual quiet", "Detecting"]
         : phase === 1
           ? ["Courier", "Dispatch"]
-          : ["Family", "Alerted"]
+          : ["Awaiting", "Response"]
       : step === 2
         ? phase === 0
           ? ["At door", "Check-in"]
           : phase === 1
-            ? ["Answered", "OK"]
+            ? ["Answered", "Pending"]
             : ["All clear", "Safe"]
         : ["Routine", "0 alerts"];
 
@@ -1171,11 +1170,15 @@ function ScenarioBar({
       <div className="sb-body">
         <div className="sb-top">
           <span className="sb-chapter">STORY {chapter}</span>
-          <span className="sb-live">{step === 1 ? "WATCH" : step === 2 ? "DONE" : "LIVE"}</span>
+          <span className="sb-live">
+            {step === 1 ? "WATCH" : step === 2 && phase >= 2 ? "DONE" : step === 2 ? "CHECK" : "LIVE"}
+          </span>
         </div>
 
-        <p className="sb-word" aria-live="polite">{word}</p>
-        <p className="sb-detail">{detail}</p>
+        <div role="status" aria-live="polite" aria-atomic="true">
+          <p className="sb-word">{word}</p>
+          <p className="sb-detail">{detail}</p>
+        </div>
 
         <ol className="sb-beats">
           {beats.map((label, i) => (
@@ -1202,27 +1205,15 @@ function ScenarioBar({
 /* ─── Main Export ─── */
 export function HomeScene({
   step,
+  phase,
 }: {
   step: number;
+  phase: number;
   viewPreset?: CameraViewPreset;
 }) {
   const [zoomFactor, setZoomFactor] = useState(1.0);
   const [currentView, setCurrentView] = useState<CameraViewPreset>("overview");
   const [activityIdx, setActivityIdx] = useState(0);
-  const [phase, setPhase] = useState(0);
-
-  // Sequence Scenario 02 / 03 beats one-by-one (not all at once)
-  useEffect(() => {
-    const timers = [
-      window.setTimeout(() => setPhase(0), 0),
-    ];
-    if (step !== 0) timers.push(
-      window.setTimeout(() => setPhase(1), 1800),
-      window.setTimeout(() => setPhase(2), 3600),
-    );
-
-    return () => timers.forEach((id) => window.clearTimeout(id));
-  }, [step]);
 
   // No auto-view change on step change. User controls the camera.
 
@@ -1294,13 +1285,10 @@ export function HomeScene({
       </div>
 
       <Canvas
-        shadows
+        shadows="basic"
         dpr={[1, 1.75]}
         camera={{ position: [9.2, 6.5, 9.5], fov: 38, near: 0.1, far: 90 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-        onCreated={({ gl }) => {
-          gl.shadowMap.type = THREE.PCFShadowMap;
-        }}
       >
         <color attach="background" args={["#060e16"]} />
         <fog attach="fog" args={["#060e16", 18, 36]} />

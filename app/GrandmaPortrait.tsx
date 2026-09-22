@@ -122,6 +122,7 @@ export function GrandmaPortrait() {
   return (
     <div className="grandma-portrait-scene" role="img" aria-label="Cute 3D sample of Grandma">
       <Canvas
+        shadows="basic"
         dpr={[1, 1.5]}
         camera={{ position: [0, 0.85, 3.35], fov: 28, near: 0.1, far: 40 }}
         gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
@@ -129,7 +130,6 @@ export function GrandmaPortrait() {
           camera.lookAt(0, 0.7, 0);
           camera.updateProjectionMatrix();
           gl.setClearColor("#7f8c7c");
-          gl.shadowMap.type = THREE.PCFShadowMap;
         }}
       >
         <color attach="background" args={["#7f8c7c"]} />

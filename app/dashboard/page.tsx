@@ -19,9 +19,12 @@ export default function DashboardPage() {
           </span>
           <span>AGENT BENTO</span>
         </Link>
-        <div className="privacy-note">
-          <IconShieldCheck size={17} />
-          <span>No cameras. No recordings.</span>
+        <div className="trust-notes">
+          <div className="privacy-note">
+            <IconShieldCheck size={17} />
+            <span>No cameras. No recordings.</span>
+          </div>
+          <p className="demo-notice">Interactive demo — sensing, delivery and notifications are simulated.</p>
         </div>
       </header>
 

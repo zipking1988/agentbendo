@@ -34,7 +34,7 @@ Raw API keys are never sent to the browser. The safety policy remains determinis
 
 - Responsive landing experience that explains the product immediately.
 - Interactive 3D cutaway Japanese house with normal, fall, and courier states.
-- Visible fallen resident, Wi-Fi signal paths, bento courier, and family alert story.
+- Visible resident, Wi-Fi signal paths, bento courier check-in, and family all-clear story.
 - Floor-plan upload and room detection through Qwen Cloud.
 - Privacy-safe local CSI preprocessing before GMI Cloud inference.
 - GMI Cloud activity classification with deterministic fallback behavior.
@@ -117,16 +117,16 @@ The landing page and deterministic care fallback work without cloud credentials.
 3. Select **Home is moving normally** to explain the camera-free baseline.
 4. Select **A human checks in** to show the bento courier response.
 5. Drag or zoom the house to demonstrate that it is a live 3D scene.
-6. Use **Play the 30-second story** for the automatic judge presentation.
+6. Use **Play the story** for the automatic judge presentation.
 
 ### Family dashboard
 
-1. Open `/dashboard` or select **Open family dashboard**.
-2. Upload a Japanese floor-plan image.
-3. Qwen Cloud identifies the living room, kitchen, bedroom, and bathroom.
-4. Confirm the room model and place the Wi-Fi point.
-5. Replay the monitoring story and watch the resident marker move through the detected rooms.
-6. Open the service-status panel to confirm GMI Cloud and Qwen Cloud configuration.
+1. Open `/dashboard` or select **Open family demo**.
+2. Review the preloaded sample floor plan and router position, then select **Start demo**.
+3. Replay the sofa-nap check-in and watch the resident marker move through the mapped rooms.
+4. Open **Technical demo details** to inspect the simulated CSI field and provider status.
+5. To use another layout, choose **Change floor plan**, then **Use my own plan** and upload a PNG, JPG, or WebP image.
+6. Qwen Cloud identifies the living room, kitchen, bedroom, and bathroom before router placement.
 
 Dashboard setup is stored only in the current browser under `agent-bento.home-setup.v4`. Clear that `localStorage` entry to repeat onboarding from the beginning.
 

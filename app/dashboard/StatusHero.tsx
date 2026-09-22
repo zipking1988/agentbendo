@@ -1,15 +1,18 @@
 "use client";
 
-import type { CareStatus } from "@/lib/demo-frames";
-import { statusChip, statusHeadline } from "@/lib/demo-frames";
+import {
+  demoCarePresentation,
+  type DemoCareStage,
+} from "@/lib/demo-frames";
 import IconPlayerPause from "@tabler/icons-react/dist/esm/icons/IconPlayerPause.mjs";
 import IconPlayerPlay from "@tabler/icons-react/dist/esm/icons/IconPlayerPlay.mjs";
 import IconRefresh from "@tabler/icons-react/dist/esm/icons/IconRefresh.mjs";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 type StatusHeroProps = {
-  status: CareStatus;
-  sceneId: string;
+  stage: DemoCareStage;
+  currentRoom: string;
+  currentActivity: string;
   playing: boolean;
   mode: "calm" | "replay";
   onPlay: () => void;
@@ -18,8 +21,9 @@ type StatusHeroProps = {
 };
 
 export function StatusHero({
-  status,
-  sceneId,
+  stage,
+  currentRoom,
+  currentActivity,
   playing,
   mode,
   onPlay,
@@ -27,12 +31,14 @@ export function StatusHero({
   onRestart,
 }: StatusHeroProps) {
   const reduceMotion = useReducedMotion();
-  const { title, lead } = statusHeadline(status, mode === "calm" ? "S7" : sceneId);
-  const chip = mode === "calm" ? statusChip("normal") : statusChip(status);
+  const { title, lead, chip, tone } = demoCarePresentation(stage);
 
   return (
-    <div className={`status-hero status-${mode === "calm" ? "normal" : status}`}>
-      <p className="eyebrow"><span /> FAMILY VIEW</p>
+    <div className={`status-hero status-${tone}`}>
+      <p className="eyebrow"><span /> FAMILY VIEW · SOFA-NAP CHECK-IN EXAMPLE</p>
+      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {title}. {lead}
+      </p>
 
       <AnimatePresence mode="wait">
         <motion.h1
@@ -58,11 +64,17 @@ export function StatusHero({
         {chip}
       </motion.div>
 
+      <div className="current-location" aria-label={`Current room: ${currentRoom}. ${currentActivity}`}>
+        <span>CURRENT ROOM</span>
+        <strong>{currentRoom}</strong>
+        <small>{currentActivity}</small>
+      </div>
+
       <div className="dashboard-cta-row">
         {mode === "calm" || !playing ? (
           <button type="button" className="play-button dashboard-play" onClick={onPlay}>
             <IconPlayerPlay size={18} stroke={2} />
-            {mode === "calm" ? "Replay today’s quiet check-in" : "Continue story"}
+            {mode === "calm" ? "Replay the sofa-nap check-in" : "Continue story"}
           </button>
         ) : (
           <button type="button" className="play-button dashboard-play" onClick={onPause}>

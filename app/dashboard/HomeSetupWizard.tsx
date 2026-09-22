@@ -2,8 +2,15 @@
 
 import { HomeFloorModel } from "@/app/dashboard/HomeFloorModel";
 import {
+  FloorPlanAnalysisRequestGuard,
+  floorPlanRoomsFromResponse,
+  type FloorPlanAnalysisRequest,
+} from "@/lib/home-setup-analysis";
+import {
+  DEMO_FLOOR_PLAN_URL,
   hasAllRequiredRooms,
   isAllowedFloorPlanFile,
+  pointInBBox,
   readImageAsDataUrl,
   type HomeSetup,
   type RoomRegion,
@@ -15,7 +22,7 @@ import IconSparkles from "@tabler/icons-react/dist/esm/icons/IconSparkles.mjs";
 import IconUpload from "@tabler/icons-react/dist/esm/icons/IconUpload.mjs";
 import IconWifi from "@tabler/icons-react/dist/esm/icons/IconWifi.mjs";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Step = "upload" | "analyzing" | "review" | "wifi";
 
@@ -23,7 +30,6 @@ type HomeSetupWizardProps = {
   onComplete: (setup: HomeSetup) => void;
 };
 
-const DEMO_FLOOR_PLAN = "/fixtures/test-floor-plan.png";
 const DEMO_WIFI: WifiPin = { x: 58, y: 56 };
 const DEMO_ROOMS: RoomRegion[] = [
   { id: "kitchen", label: "Kitchen", bbox: { x: 21, y: 14, w: 21, h: 29 } },
@@ -52,29 +58,21 @@ function stepLead(step: Step): string {
   return "Click or drag on your plan to place the router. That pin is the sensing origin — not a camera.";
 }
 
-async function buildRoomModel(imageDataUrl: string): Promise<RoomRegion[]> {
+async function buildRoomModel(imageDataUrl: string, signal: AbortSignal): Promise<RoomRegion[]> {
   const response = await fetch("/api/floor-plan/analyze", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ imageDataUrl }),
+    signal,
   });
-  const payload = (await response.json()) as {
-    rooms?: RoomRegion[];
-    error?: string;
-  };
-  if (!response.ok) {
-    throw new Error(payload.error || "Could not build a room model from that floor plan.");
-  }
-  if (!payload.rooms || !hasAllRequiredRooms(payload.rooms)) {
-    throw new Error("Room model did not include all required rooms.");
-  }
-  return payload.rooms;
+  return floorPlanRoomsFromResponse(await response.json(), response.ok);
 }
 
 export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const analysisGuard = useMemo(() => new FloorPlanAnalysisRequestGuard(), []);
   const [step, setStep] = useState<Step>("wifi");
-  const [imageUrl, setImageUrl] = useState<string | null>(DEMO_FLOOR_PLAN);
+  const [imageUrl, setImageUrl] = useState<string | null>(DEMO_FLOOR_PLAN_URL);
   const [fileName, setFileName] = useState("Japanese demo home");
   const [rooms, setRooms] = useState<RoomRegion[]>(DEMO_ROOMS);
   const [wifi, setWifi] = useState<WifiPin | null>(DEMO_WIFI);
@@ -82,19 +80,39 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
   const [draggingFile, setDraggingFile] = useState(false);
 
   const roomsReady = hasAllRequiredRooms(rooms);
+  const usingDemoHome = imageUrl === DEMO_FLOOR_PLAN_URL;
 
-  const runAnalyze = async (dataUrl: string) => {
+  useEffect(() => {
+    return () => analysisGuard.cancel();
+  }, [analysisGuard]);
+
+  const restoreDemoHome = () => {
+    analysisGuard.cancel();
+    setImageUrl(DEMO_FLOOR_PLAN_URL);
+    setFileName("Japanese demo home");
+    setRooms(DEMO_ROOMS);
+    setWifi(DEMO_WIFI);
+    setError(null);
+    setDraggingFile(false);
+    setStep("wifi");
+  };
+
+  const runAnalyze = async (dataUrl: string, request: FloorPlanAnalysisRequest) => {
     setStep("analyzing");
     setError(null);
     setRooms([]);
     setWifi(null);
     try {
-      const nextRooms = await buildRoomModel(dataUrl);
+      const nextRooms = await buildRoomModel(dataUrl, request.controller.signal);
+      if (!analysisGuard.canApply(request)) return;
       setRooms(nextRooms);
       setStep("review");
     } catch (err) {
+      if (!analysisGuard.canApply(request)) return;
       setError(err instanceof Error ? err.message : "Analysis failed.");
       setStep("upload");
+    } finally {
+      analysisGuard.finish(request);
     }
   };
 
@@ -103,18 +121,23 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
     setError(null);
 
     if (!isAllowedFloorPlanFile(file)) {
+      analysisGuard.cancel();
       setError("Use an image under 4.5MB (PNG, JPG, or WebP).");
       return;
     }
 
+    const request = analysisGuard.begin();
     try {
       const dataUrl = await readImageAsDataUrl(file);
+      if (!analysisGuard.canApply(request)) return;
       setImageUrl(dataUrl);
       setFileName(file.name);
-      await runAnalyze(dataUrl);
+      await runAnalyze(dataUrl, request);
     } catch {
+      if (!analysisGuard.canApply(request)) return;
       setError("Could not read that image. Try another file.");
       setStep("upload");
+      analysisGuard.finish(request);
     }
   };
 
@@ -128,6 +151,13 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
       savedAt: new Date().toISOString(),
     });
   };
+
+  const routerRoom = wifi
+    ? rooms.find((room) => pointInBBox(wifi, room.bbox))
+    : null;
+  const routerPosition = wifi
+    ? `${routerRoom?.label ?? "Unlabeled area"} · ${Math.round(wifi.x)}% from left, ${Math.round(wifi.y)}% from top`
+    : null;
 
   return (
     <section className="setup-shell">
@@ -161,7 +191,7 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
             <span className="setup-step-num">02</span>
             <span>
               <strong>Room model</strong>
-              <small>Colored regions on your photo</small>
+              <small>Rooms identified in the background</small>
             </span>
           </li>
           <li className={step === "wifi" ? "active" : ""}>
@@ -211,16 +241,20 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
             <input
               ref={inputRef}
               type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif"
+              accept="image/png,image/jpeg,image/webp"
               hidden
               onChange={(event) => void handleFile(event.target.files?.[0])}
             />
             {error ? <p className="setup-error">{error}</p> : null}
+            <button type="button" className="dashboard-ghost setup-demo-return" onClick={restoreDemoHome}>
+              Use demo home
+            </button>
           </div>
         ) : null}
 
         {step === "analyzing" && imageUrl ? (
           <div className="setup-pin-stage">
+            <p className="setup-plan-label">Your uploaded floor plan</p>
             <div className="setup-analyzing" role="status" aria-live="polite">
               <IconSparkles size={22} stroke={1.7} />
               <strong>Building 2D room model…</strong>
@@ -231,11 +265,15 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
               wifi={null}
               label="Reading your floor plan upload"
             />
+            <button type="button" className="dashboard-ghost setup-demo-return" onClick={restoreDemoHome}>
+              Use demo home
+            </button>
           </div>
         ) : null}
 
         {step === "review" && imageUrl ? (
           <div className="setup-pin-stage">
+            <p className="setup-plan-label">Your uploaded floor plan</p>
             <HomeFloorModel
               imageUrl={imageUrl}
               wifi={null}
@@ -256,6 +294,9 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
               >
                 Re-upload
               </button>
+              <button type="button" className="dashboard-ghost" onClick={restoreDemoHome}>
+                Use demo home
+              </button>
               <button
                 type="button"
                 className="play-button dashboard-play"
@@ -275,6 +316,9 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
 
         {step === "wifi" && imageUrl ? (
           <div className="setup-pin-stage">
+            <p className="setup-plan-label">
+              {usingDemoHome ? "Sample floor plan" : "Your uploaded floor plan"}
+            </p>
             <HomeFloorModel
               imageUrl={imageUrl}
               wifi={wifi}
@@ -298,6 +342,11 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
               >
                 Use my own plan
               </button>
+              {!usingDemoHome ? (
+                <button type="button" className="dashboard-ghost" onClick={restoreDemoHome}>
+                  Use demo home
+                </button>
+              ) : null}
               <button
                 type="button"
                 className="play-button dashboard-play"
@@ -305,17 +354,19 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
                 onClick={finish}
               >
                 <IconWifi size={18} stroke={2} />
-                Start monitoring
+                Start demo
               </button>
             </div>
 
             {!wifi ? (
               <p className="setup-pin-note">
-                Click anywhere on the plan — or drag the Wi‑Fi marker — to set the router.
+                Click the plan to place the router. With the map focused, use arrow keys to adjust it.
               </p>
             ) : (
               <p className="setup-pin-note ok">
-                Demo router pinned in the living room · click or drag to move it
+                {usingDemoHome
+                  ? `Sample floor plan · router in ${routerPosition} · use arrow keys to adjust`
+                  : `Your uploaded floor plan · router in ${routerPosition} · use arrow keys to adjust`}
               </p>
             )}
           </div>

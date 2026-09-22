@@ -38,6 +38,7 @@ type HomeFloorModelProps = {
   status?: CareStatus;
   /** monitor = dashboard neon overlays; quiet = warm muted for tipped 3D */
   tone?: "monitor" | "quiet";
+  compactWifi?: boolean;
   interactive?: boolean;
   onPin?: (pin: WifiPin) => void;
   label?: string;
@@ -236,6 +237,7 @@ export function HomeFloorModel({
   presence = null,
   status = "normal",
   tone = "monitor",
+  compactWifi = false,
   interactive = false,
   onPin,
   label = "Floor plan with room model",
@@ -248,7 +250,7 @@ export function HomeFloorModel({
 
   const labeling = roomDrawing != null;
   const quiet = tone === "quiet";
-  const canInteract = interactive && (labeling || onPin != null);
+  const canInteract = interactive;
   const pinned = wifi != null;
   const wifiPos = wifi ?? wifiPreview;
   const draftBox =
@@ -336,7 +338,7 @@ export function HomeFloorModel({
   return (
     <div
       className={`home-floor-model status-${status}${quiet ? " tone-quiet" : ""}`}
-      aria-label={label}
+      aria-label={canInteract ? undefined : label}
     >
       <div
         ref={stageRef}
@@ -348,7 +350,8 @@ export function HomeFloorModel({
         onKeyDown={canInteract ? handleKeyDown : undefined}
         role={canInteract ? "application" : undefined}
         tabIndex={canInteract ? 0 : undefined}
-        aria-roledescription={roleDesc}
+        aria-label={canInteract ? label : undefined}
+        aria-description={roleDesc}
       >
         <div className="floor-plan-converted">
           {imageUrl ? (
@@ -356,7 +359,7 @@ export function HomeFloorModel({
             <img
               className="floor-plan-converted-img"
               src={imageUrl}
-              alt="Your floor plan"
+              alt={`${label} background`}
               draggable={false}
             />
           ) : (
@@ -399,7 +402,7 @@ export function HomeFloorModel({
 
         {!labeling ? (
           <div
-            className={`floor-plan-wifi ${pinned ? "pinned" : "preview"} ${dragging && !labeling ? "dragging" : ""}`}
+            className={`floor-plan-wifi ${pinned ? "pinned" : "preview"} ${compactWifi ? "compact" : ""} ${wifiPos.x > 72 ? "edge-right" : ""} ${dragging && !labeling ? "dragging" : ""}`}
             style={{ left: `${wifiPos.x}%`, top: `${wifiPos.y}%` }}
             title={pinned ? "Wi‑Fi sensing point" : "Click or drag to place Wi‑Fi"}
             aria-label={pinned ? "Wi‑Fi router location" : undefined}
@@ -411,7 +414,7 @@ export function HomeFloorModel({
 
         {presence ? (
           <motion.div
-            className="floor-plan-human"
+            className={`floor-plan-human ${presence.x > 72 ? "edge-right" : ""}`}
             aria-label="Grandpa"
             animate={{
               left: `${Math.min(92, Math.max(8, presence.x))}%`,

@@ -9,6 +9,11 @@ import IconPlayerPlayFilled from "@tabler/icons-react/dist/esm/icons/IconPlayerP
 import IconShieldCheck from "@tabler/icons-react/dist/esm/icons/IconShieldCheck.mjs";
 import IconUsers from "@tabler/icons-react/dist/esm/icons/IconUsers.mjs";
 import IconWifi from "@tabler/icons-react/dist/esm/icons/IconWifi.mjs";
+import {
+  advanceStoryTime,
+  STORY_CHAPTER_MS,
+  storyPositionAt,
+} from "@/lib/landing-story";
 import { useEffect, useRef, useState } from "react";
 
 const HomeScene = dynamic(
@@ -37,57 +42,78 @@ const STORY = [
     number: "01",
     title: "Home is moving normally",
     detail: "2D Family View shows room-to-room movement analytics across the single-story Japanese home.",
-    sceneLabel: "ROUTINE NORMAL · 2D ANALYTICS VIEW",
   },
   {
     number: "02",
     title: "Unusual silence detected",
-    detail: "Grandpa fell in bathroom. Agent Bento senses 8h no movement and dispatches a nearby courier check-in.",
-    sceneLabel: "BATHROOM ALERT · AGENT BENTO DISPATCH",
+    detail: "In this bathroom check-in example, sustained silence prompts a nearby courier request.",
   },
   {
     number: "03",
     title: "A human checks in",
     detail: "Bento courier with delivery bag knocks on door. Resident answers. Family receives All Clear update.",
-    sceneLabel: "BENTO CHECK-IN · RESIDENT AT DOOR",
   },
 ];
 
 export default function Home() {
-  const [step, setStep] = useState(1);
   const [playing, setPlaying] = useState(false);
-  const timerRef = useRef<number | null>(null);
+  const [storyFinished, setStoryFinished] = useState(false);
+  const [storyPosition, setStoryPosition] = useState(() => storyPositionAt(0, STORY.length));
+  const storyTimeRef = useRef(0);
+  const storyPositionRef = useRef(storyPosition);
+  const totalStoryTime = STORY.length * STORY_CHAPTER_MS;
+  const { step, phase } = storyPosition;
 
   useEffect(() => {
     if (!playing) return;
-
-    timerRef.current = window.setInterval(() => {
-      setStep((current) => {
-        if (current >= STORY.length - 1) {
-          setPlaying(false);
-          return current;
-        }
-        return current + 1;
-      });
-    }, 5200);
-
-    return () => {
-      if (timerRef.current) window.clearInterval(timerRef.current);
+    let frame = 0;
+    let last = performance.now();
+    const tick = (now: number) => {
+      const next = advanceStoryTime(storyTimeRef.current, now - last, totalStoryTime);
+      last = now;
+      storyTimeRef.current = next;
+      const nextPosition = storyPositionAt(next, STORY.length);
+      if (
+        nextPosition.step !== storyPositionRef.current.step
+        || nextPosition.phase !== storyPositionRef.current.phase
+      ) {
+        storyPositionRef.current = nextPosition;
+        setStoryPosition(nextPosition);
+      }
+      if (next >= totalStoryTime - 1) {
+        setStoryFinished(true);
+        setPlaying(false);
+        return;
+      }
+      frame = window.requestAnimationFrame(tick);
     };
-  }, [playing]);
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
+  }, [playing, totalStoryTime]);
 
   const playStory = () => {
     if (playing) {
       setPlaying(false);
       return;
     }
-    if (step === STORY.length - 1) setStep(0);
+    if (storyFinished) {
+      storyTimeRef.current = 0;
+      const start = storyPositionAt(0, STORY.length);
+      storyPositionRef.current = start;
+      setStoryPosition(start);
+      setStoryFinished(false);
+    }
     setPlaying(true);
   };
 
   const selectStep = (nextStep: number) => {
     setPlaying(false);
-    setStep(nextStep);
+    const nextTime = nextStep * STORY_CHAPTER_MS;
+    const nextPosition = storyPositionAt(nextTime, STORY.length);
+    storyTimeRef.current = nextTime;
+    storyPositionRef.current = nextPosition;
+    setStoryPosition(nextPosition);
+    setStoryFinished(false);
   };
 
   return (
@@ -99,20 +125,19 @@ export default function Home() {
           </span>
           <span>AGENT BENTO</span>
         </a>
-        <div className="privacy-note">
-          <IconShieldCheck size={17} />
-          <span>No cameras. No recordings.</span>
+        <div className="trust-notes">
+          <div className="privacy-note">
+            <IconShieldCheck size={17} />
+            <span>No cameras. No recordings.</span>
+          </div>
+          <p className="demo-notice">Interactive demo — sensing, delivery and notifications are simulated.</p>
         </div>
       </header>
 
       <section className="hero" id="story" aria-labelledby="hero-title">
         <div className="scene-wrap" aria-label="Interactive 3D cutaway home">
-          <HomeScene step={step} />
+          <HomeScene step={step} phase={phase} />
           <div className="scene-vignette" />
-          <div className="scene-status" aria-live="polite">
-            <span className="status-pulse" />
-            {STORY[step].sceneLabel}
-          </div>
           <div className="orbit-hint">DRAG TO LOOK AROUND</div>
         </div>
 
@@ -125,16 +150,25 @@ export default function Home() {
             Family steps in only when needed.
           </p>
 
-          <div className="story-heading">HOW AGENT BENTO HELPS</div>
-          <div className="story-steps" role="tablist" aria-label="How Agent Bento works">
+          <div className="hero-actions">
+            <a className="play-button hero-dashboard-cta" href="/dashboard">
+              <IconUsers size={18} />
+              Open family demo
+            </a>
+            <button className="story-play-secondary" type="button" onClick={playStory}>
+              {playing ? <IconPlayerPauseFilled size={18} /> : <IconPlayerPlayFilled size={18} />}
+              {playing ? "Pause the story" : storyFinished ? "Replay the story" : "Play the story"}
+            </button>
+          </div>
+
+          <div className="story-heading">BATHROOM CHECK-IN EXAMPLE · HOW AGENT BENTO HELPS</div>
+          <div className="story-steps" role="group" aria-label="Bathroom check-in story scenes">
             {STORY.map((item, index) => (
               <button
                 key={item.number}
                 className={`story-step ${index === step ? "active" : ""} ${index < step ? "complete" : ""}`}
                 onClick={() => selectStep(index)}
-                role="tab"
-                aria-selected={index === step}
-                aria-controls="scene-description"
+                aria-pressed={index === step}
               >
                 <span className="step-dot" />
                 <span className="step-number">{item.number}</span>
@@ -146,13 +180,7 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="primary-actions">
-            <button className="play-button" onClick={playStory}>
-              {playing ? <IconPlayerPauseFilled size={18} /> : <IconPlayerPlayFilled size={18} />}
-              {playing ? "Pause the story" : step === 2 ? "Replay the story" : "Play the 30-second story"}
-            </button>
-            <p id="scene-description" aria-live="polite">{STORY[step].detail}</p>
-          </div>
+          <p className="scene-description" id="scene-description" aria-live="polite">{STORY[step].detail}</p>
         </div>
 
         <a className="scroll-cue" href="#why">
