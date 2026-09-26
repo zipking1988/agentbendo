@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.includes("localhost") ? "http" : "https");
   const origin = `${protocol}://${host}`;
   const title = "Agent Bento — Ambient Care Intelligence";
-  const description = "A privacy-first AI care agent that senses, reasons, and sends human help when it matters.";
+  const description = "A privacy-first home care concept that notices unusual silence and sends human help when it matters.";
 
   return {
     metadataBase: new URL(origin),

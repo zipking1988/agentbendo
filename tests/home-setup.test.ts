@@ -1,9 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  MAX_FLOOR_PLAN_FILE_BYTES,
   clearHomeSetup,
-  isAllowedFloorPlanFile,
   saveHomeSetup,
   type HomeSetup,
 } from "../lib/home-setup.ts";
@@ -20,16 +18,6 @@ const setup: HomeSetup = {
   ],
   savedAt: "2026-09-26T00:00:00.000Z",
 };
-
-test("floor-plan uploads stay below a safe browser-storage payload", () => {
-  const accepted = new File([new Uint8Array(MAX_FLOOR_PLAN_FILE_BYTES)], "plan.png", { type: "image/png" });
-  const tooLarge = new File([new Uint8Array(MAX_FLOOR_PLAN_FILE_BYTES + 1)], "plan.png", { type: "image/png" });
-  const wrongType = new File(["plan"], "plan.svg", { type: "image/svg+xml" });
-
-  assert.equal(isAllowedFloorPlanFile(accepted), true);
-  assert.equal(isAllowedFloorPlanFile(tooLarge), false);
-  assert.equal(isAllowedFloorPlanFile(wrongType), false);
-});
 
 test("setup persistence reports quota failures without throwing", () => {
   const previousWindow = globalThis.window;

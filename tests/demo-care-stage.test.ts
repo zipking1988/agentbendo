@@ -12,11 +12,6 @@ import {
   type DemoFramesData,
 } from "../lib/demo-frames.ts";
 import {
-  FloorPlanAnalysisRequestGuard,
-  floorPlanRoomsFromResponse,
-  shouldApplyFloorPlanAnalysis,
-} from "../lib/home-setup-analysis.ts";
-import {
   advanceStoryTime,
   STORY_CHAPTER_MS,
   storyPositionAt,
@@ -130,38 +125,6 @@ test("care notes match the watch, response, and confirmation stages", async () =
     assert.equal(frame?.stillDuration, 0);
     assert.equal(demoCareStageAt(replayTime, timeline), "resident_responding");
   }
-});
-
-test("restoring the demo invalidates aborted and late floor-plan analysis", () => {
-  assert.equal(shouldApplyFloorPlanAnalysis(4, 4, false), true);
-  assert.equal(shouldApplyFloorPlanAnalysis(4, 5, false), false);
-  assert.equal(shouldApplyFloorPlanAnalysis(4, 4, true), false);
-
-  const guard = new FloorPlanAnalysisRequestGuard();
-  const staleRequest = guard.begin();
-  guard.cancel();
-  assert.equal(staleRequest.controller.signal.aborted, true);
-  assert.equal(guard.canApply(staleRequest), false);
-
-  const currentRequest = guard.begin();
-  assert.equal(guard.canApply(currentRequest), true);
-  guard.finish(currentRequest);
-  assert.equal(guard.canApply(currentRequest), false);
-});
-
-test("floor-plan analysis rejects provider and malformed responses", () => {
-  assert.throws(
-    () => floorPlanRoomsFromResponse({ error: "Provider unavailable" }, false),
-    /Provider unavailable/,
-  );
-  assert.throws(
-    () => floorPlanRoomsFromResponse({ rooms: [{ id: "living" }] }, true),
-    /invalid/,
-  );
-  assert.throws(
-    () => floorPlanRoomsFromResponse({ rooms: fixture.meta.rooms }, true),
-    /invalid/,
-  );
 });
 
 test("landing story uses one bounded playback clock", () => {

@@ -1054,41 +1054,6 @@ button { color: inherit; }
   padding-top: 18px;
 }
 
-.setup-dropzone {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 14px;
-  min-height: 340px;
-  padding: 36px 32px;
-  border: 1px dashed rgba(184, 255, 84, 0.35);
-  background:
-    linear-gradient(165deg, rgba(10, 22, 18, 0.55), rgba(6, 14, 20, 0.28));
-  transition: border-color 0.25s, background 0.25s;
-}
-
-.setup-dropzone.dragging {
-  border-color: var(--lime);
-  background: rgba(184, 255, 84, 0.06);
-}
-
-.setup-dropzone svg { color: var(--lime); }
-
-.setup-dropzone h2 {
-  margin: 8px 0 0;
-  font-size: 28px;
-  font-weight: 560;
-  letter-spacing: -0.04em;
-}
-
-.setup-dropzone p {
-  margin: 0;
-  max-width: 28em;
-  color: #8c9890;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
 .setup-error {
   margin: 4px 0 0;
   color: var(--coral);
@@ -1118,30 +1083,6 @@ button { color: inherit; }
 
 .setup-pin-note.ok { color: var(--lime); }
 
-.setup-analyzing {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  padding: 14px 16px;
-  border: 1px solid rgba(184, 255, 84, 0.35);
-  background: rgba(184, 255, 84, 0.07);
-  color: var(--lime);
-}
-
-.setup-analyzing strong {
-  font-size: 14px;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-}
-
-.setup-analyzing span {
-  color: #aab4ac;
-  font-size: 14px;
-}
-
-.setup-demo-return { align-self: flex-start; }
-
 .setup-plan-label {
   margin: 0;
   color: #b7c0b9;
@@ -1150,11 +1091,6 @@ button { color: inherit; }
   text-transform: uppercase;
 }
 
-.setup-analyzing svg {
-  animation: wifiCoachPulse 1.6s ease-in-out infinite;
-}
-
-/* Converted floor plan = the user's upload as the real map */
 .home-floor-model {
   display: flex;
   flex-direction: column;
@@ -1183,94 +1119,12 @@ button { color: inherit; }
   outline-offset: 3px;
 }
 
-.floor-model-stage.is-labeling {
-  cursor: crosshair;
-}
-
-.floor-room-box {
-  position: absolute;
-  z-index: 3;
-  box-sizing: border-box;
-  border: 1.5px solid rgba(184, 255, 84, 0.45);
-  background: rgba(184, 255, 84, 0.08);
-  pointer-events: none;
-}
-
-.floor-room-box span {
-  position: absolute;
-  left: 6px;
-  top: 6px;
-  max-width: calc(100% - 12px);
-  padding: 3px 6px;
-  border: 1px solid rgba(184, 255, 84, 0.28);
-  background: rgba(5, 13, 10, 0.78);
-  color: var(--lime);
-  font: 700 8px/1 var(--font-geist-mono), monospace;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.floor-room-box.active {
-  border-color: rgba(184, 255, 84, 0.8);
-  background: rgba(184, 255, 84, 0.14);
-  box-shadow: inset 0 0 0 1px rgba(184, 255, 84, 0.2);
-}
-
-.floor-room-box.has-presence {
-  border-color: rgba(240, 240, 229, 0.45);
-  background: rgba(240, 240, 229, 0.06);
-}
-
-.floor-room-box.drafting {
-  border-style: dashed;
-  border-color: rgba(184, 255, 84, 0.7);
-  background: rgba(184, 255, 84, 0.12);
-}
-
-.wifi-coach.room-coach {
-  top: auto;
-  bottom: 14px;
-  transform: translate(-50%, 0);
-  animation: none;
-}
-
 .floor-plan-converted {
   position: relative;
   display: grid;
   place-items: center;
   min-height: 280px;
   background: #0a1210;
-}
-
-.floor-room-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.floor-room-overlay-svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.floor-model-badge {
-  position: absolute;
-  z-index: 5;
-  right: 12px;
-  top: 12px;
-  margin: 0;
-  padding: 6px 9px;
-  border: 1px solid rgba(184, 255, 84, 0.4);
-  background: rgba(5, 13, 10, 0.82);
-  color: var(--lime);
-  font: 700 9px/1 var(--font-geist-mono), monospace;
-  letter-spacing: 0.12em;
-  pointer-events: none;
 }
 
 .floor-plan-converted-empty {
@@ -1310,68 +1164,6 @@ button { color: inherit; }
   mix-blend-mode: multiply;
 }
 
-.floor-room-chip {
-  position: absolute;
-  z-index: 5;
-  left: 12px;
-  top: 12px;
-  padding: 7px 10px;
-  border: 1px solid rgba(184, 255, 84, 0.35);
-  background: rgba(5, 13, 10, 0.78);
-  backdrop-filter: blur(10px);
-  color: var(--lime);
-  font: 700 9px/1 var(--font-geist-mono), monospace;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  pointer-events: none;
-}
-
-.home-floor-model.status-warning .floor-room-chip {
-  color: var(--amber);
-  border-color: rgba(255, 189, 105, 0.45);
-}
-
-.home-floor-model.status-critical .floor-room-chip {
-  color: var(--coral);
-  border-color: rgba(255, 118, 80, 0.5);
-}
-
-.wifi-coach {
-  position: absolute;
-  z-index: 5;
-  left: 50%;
-  top: 46%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 14px 18px;
-  border: 1px solid rgba(184, 255, 84, 0.4);
-  background: rgba(5, 13, 10, 0.82);
-  backdrop-filter: blur(10px);
-  color: var(--lime);
-  pointer-events: none;
-  animation: wifiCoachPulse 1.8s ease-in-out infinite;
-}
-
-.wifi-coach strong {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-.wifi-coach span {
-  color: #c7cec8;
-  font-size: 11px;
-  text-align: center;
-}
-
-@keyframes wifiCoachPulse {
-  0%, 100% { opacity: 0.88; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.03); }
-}
-
 .floor-plan-wifi {
   position: absolute;
   z-index: 6;
@@ -1386,11 +1178,6 @@ button { color: inherit; }
   box-shadow: 0 0 0 4px rgba(184, 255, 84, 0.18), 0 8px 24px rgba(0, 0, 0, 0.35);
   pointer-events: none;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.floor-plan-wifi.preview {
-  opacity: 0.55;
-  animation: wifiPreviewBob 1.4s ease-in-out infinite;
 }
 
 .floor-plan-wifi.pinned {
@@ -1426,11 +1213,6 @@ button { color: inherit; }
 .floor-plan-wifi.dragging {
   transform: scale(1.12);
   box-shadow: 0 0 0 6px rgba(184, 255, 84, 0.28), 0 12px 28px rgba(0, 0, 0, 0.4);
-}
-
-@keyframes wifiPreviewBob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
 }
 
 .floor-plan-human {
@@ -1588,9 +1370,7 @@ button { color: inherit; }
     transition: none !important;
   }
 
-  .status-pulse,
-  .wifi-coach,
-  .floor-plan-wifi.preview {
+  .status-pulse {
     animation: none;
   }
 }

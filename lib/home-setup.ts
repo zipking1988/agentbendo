@@ -8,10 +8,7 @@ export {
   REQUIRED_ROOMS,
   hasAllRequiredRooms,
   mapPresence,
-  normalizeBBox,
   pointInBBox,
-  roomMeta,
-  upsertRoom,
 } from "./floor-plan-rooms.ts";
 
 export type WifiPin = {
@@ -22,9 +19,16 @@ export type WifiPin = {
 };
 
 export const DEMO_FLOOR_PLAN_URL = "/fixtures/test-floor-plan.png";
+export const DEMO_WIFI: WifiPin = { x: 58, y: 56 };
+export const DEMO_ROOMS: RoomRegion[] = [
+  { id: "kitchen", label: "Kitchen", bbox: { x: 21, y: 14, w: 21, h: 29 } },
+  { id: "bedroom", label: "Bedroom", bbox: { x: 48, y: 14, w: 21, h: 23 } },
+  { id: "living", label: "Living room", bbox: { x: 45, y: 43, w: 24, h: 29 } },
+  { id: "bathroom", label: "Bathroom", bbox: { x: 69, y: 43, w: 12, h: 24 } },
+];
 
 export type HomeSetup = {
-  /** User upload as a data URL — sent to the analysis route during setup, then retained as the browser-side visual map. */
+  /** Floor-plan image URL or a legacy browser-saved data URL. */
   floorPlanDataUrl: string;
   fileName: string;
   wifi: WifiPin;
@@ -34,7 +38,6 @@ export type HomeSetup = {
 };
 
 const STORAGE_KEY = "agent-bento.home-setup.v4";
-export const MAX_FLOOR_PLAN_FILE_BYTES = 3_000_000;
 
 export function loadHomeSetup(): HomeSetup | null {
   if (typeof window === "undefined") return null;
@@ -68,22 +71,4 @@ export function clearHomeSetup(): void {
   } catch {
     // The in-memory setup can still be reset when browser storage is unavailable.
   }
-}
-
-export function readImageAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") resolve(reader.result);
-      else reject(new Error("Could not read image"));
-    };
-    reader.onerror = () => reject(new Error("Could not read image"));
-    reader.readAsDataURL(file);
-  });
-}
-
-export function isAllowedFloorPlanFile(file: File): boolean {
-  if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) return false;
-  // Base64 adds roughly one third; keep the stored data URL below common 5 MB quotas.
-  return file.size <= MAX_FLOOR_PLAN_FILE_BYTES;
 }

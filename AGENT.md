@@ -1,391 +1,171 @@
 # Agent Bento Project Guide
 
-## 1. Project purpose
+## Product purpose
 
-Agent Bento is a privacy-first home safety system for older adults who live alone or spend long periods independently. Ambient Wi-Fi sensing looks for meaningful changes in movement without using cameras or microphones. When an unusual period of silence persists, the system follows a staged care path: verify the signal, arrange a bento delivery as a friendly human check-in, and notify trusted contacts only if the resident does not respond.
+Agent Bento is a privacy-first home-care concept for older adults who live independently. The product story notices unusual silence, arranges a friendly bento delivery as a human check-in, and keeps family informed as the situation changes.
 
-The product promise is:
+The promise is:
 
 > Notice unusual silence, send human care, and escalate only when needed.
 
-This repository currently contains the interactive web experience and the foundation for a future service layer. Treat the experience as a truthful product prototype, not as proof that hardware, ordering, or alert integrations are already live.
+This repository contains an interactive product prototype. Treat it as a truthful demonstration of the care experience, not proof that sensing hardware, delivery ordering, or family notifications are live.
 
-## 2. Product before demo
+## Truthfulness labels
 
-Always prioritize a functioning and safe care workflow before improving presentation.
+- **Implemented**: runs in this repository and has a meaningful check.
+- **Simulated**: behaves realistically through local scripted data.
+- **Planned**: future product or service work.
 
-Engineering priority order:
+Never describe simulated sensing, ordering, courier arrival, resident response, or family alerts as live integrations.
 
-1. Correct incident state and reliable transitions.
-2. Resident consent, privacy, and control.
-3. Deterministic risk and escalation policy.
-4. Reliable dispatch, acknowledgement, retries, and audit history.
-5. Clear interfaces for residents, family, couriers, and operators.
-6. Model-assisted explanations and suggestions.
-7. Demo pacing, animation, and visual polish.
-
-The demo must use the same domain states and API contracts as the functioning product. Do not build a separate fake architecture that cannot later accept real sensor and service events.
-
-## 3. Truthfulness labels
-
-Use these labels in planning and documentation:
-
-- **Implemented**: runs in this repository and is covered by a meaningful check.
-- **Simulated**: behaves realistically but uses local or scripted data.
-- **Planned**: architecture or intent only; it is not available yet.
-
-Never describe simulated sensing, ordering, courier arrival, family alerts, or model decisions as live integrations.
-
-## 4. Core care workflow
-
-The production state machine should be explicit and persisted:
-
-```text
-NORMAL
-WATCH
-CHECK_IN_REQUESTED
-CHECK_IN_EN_ROUTE
-RESIDENT_RESPONDED
-FAMILY_ALERTED
-HANDOFF_COMPLETE
-ESCALATED
-RESOLVED
-```
-
-Every transition must record:
-
-- incident ID and resident ID
-- previous and next state
-- source event and timestamp
-- deterministic rule that allowed the transition
-- confidence and relevant sensor features
-- action requested and provider response
-- actor, acknowledgement, and resolution reason
-
-Repeated events and webhooks must be idempotent. A retry must not create duplicate orders or duplicate incidents.
-
-## 5. Decision boundaries
-
-### Deterministic policy owns
-
-- inactivity thresholds and quiet-hour behavior
-- minimum evidence for opening an incident
-- escalation timing and retry limits
-- contact order and notification channels
-- emergency boundaries
-- consent checks and disabled actions
-- final permission to dispatch or escalate
-
-### Qwen may assist with
-
-- summarizing recent sensor and incident context
-- producing a plain-language explanation for family or operators
-- ranking allowed next actions
-- translating a structured incident into localized messages
-- identifying missing information for a human reviewer
-
-Model output must use a versioned structured schema, be validated before use, have a timeout, and have a deterministic fallback. It must never directly bypass policy or initiate an emergency action by itself.
-
-## 6. Current implementation
+## Current implementation
 
 ### Implemented
 
-- Next.js / React product landing experience.
-- Editorial product landing with realistic Japanese-home photography, restrained navigation, a clear family-demo path, privacy proof, and responsive care-story sections.
-- Landing imagery uses optimized production WebP assets; the old interactive dollhouse is no longer part of the public landing.
-- Landing demo CTAs open `/dashboard?start=1`, starting a saved family demo at normal activity and replay `0:00`.
-- Family dashboard home setup (localStorage `agent-bento.home-setup.v4`):
-  1. First-time users immediately see a Japanese madori demo plan
-  2. A labeled Wi‑Fi router is already pinned in the living room and can be moved by click or drag
-  3. **Start demo** unlocks the care story without requiring cloud credentials
-  4. **Use my own plan** switches to upload mode; Qwen Cloud vision detects living / kitchen / bedroom / bathroom boxes before Wi‑Fi placement
-- **Monitoring map = the selected floor-plan image** (the included demo plan or the user’s upload), with no colored room overlays, room-name chips, fake grid, AI redraw, or dashboard 3D.
-- Room regions stay as invisible data for presence: simulated story beats map Grandpa into those boxes via `mapPresence()`.
-- Monitoring shows a high-contrast Grandpa marker (lime + dark outline + label) and the labeled Wi‑Fi pin on the selected plan; **Change floor plan** clears setup and opens the plan chooser.
-- Family monitoring hybrid: calm “is Grandpa OK?” view plus simulated story replay from `demo_frames.json`.
-- Collapsed technical details show a compact SVG Wi‑Fi movement trace, quiet history, and change from baseline (**Simulated**; not live CSI or clinical vitals).
-- Custom floor-plan selection discloses provider processing before upload, limits images to 3 MB for browser storage, and reports storage failures without crashing the setup flow.
-- Local privacy-safe CSI feature extraction (`lib/csi-edge.ts`) and a GMI Cloud inference adapter with deterministic fallback.
-- Qwen Cloud adapters for floor-plan vision, structured care decisions, and Japanese delivery instructions, all called from server-side routes.
-- Native Next.js route handlers designed to run as Vercel Functions; provider credentials stay server-side.
-- Privacy copy on first screen; production build and rendered HTML tests.
-- Floor-plan room / parse / CSI-sim unit tests.
+- Next.js 16 and React 19 product landing.
+- Editorial landing with realistic Japanese-home photography and a clear family-demo path.
+- Landing CTAs open `/dashboard?start=1` and start a saved demo at replay `0:00`.
+- Family dashboard setup using the bundled Japanese sample floor plan.
+- Movable, keyboard-accessible router pin.
+- Browser-local setup using `agent-bento.home-setup.v4`.
+- Synchronized care replay with presentation state derived from one playback clock.
+- Floor-plan resident marker and plain-language care journey.
+- Collapsed technical details with a compact simulated Wi-Fi movement trace.
+- Optional experimental RuView bridge route, currently separate from the public dashboard.
+- Responsive layouts, reduced-motion behavior, focus states, and rendered-page checks.
 
 ### Simulated
 
-- Landing story: normal movement, long silence, bento dispatch, family all-clear
-- Dashboard care story replay from local `demo_frames.json`
-- Qwen Cloud vision floor-plan → room boxes (`/api/floor-plan/analyze`; needs `QWEN_API_KEY`)
-- Preloaded Japanese demo floor plan, detected room regions, and living-room Wi‑Fi point
-- Browser-only custom floor-plan upload, room model, and Wi‑Fi pin (not device calibration)
-- Compact Wi‑Fi movement trace from demo `motionLevel`, stillness, and anomaly values (not ESP32 CSI)
-- Live GMI and Qwen responses when their environment variables are absent; the application uses labeled deterministic fallbacks instead.
+- Wi-Fi movement signal and activity history.
+- Unusual-stillness detection.
+- Bento check-in request, courier progress, and arrival.
+- Resident response and courier confirmation.
+- Family-facing care notes and resolution.
 
 ### Planned
 
-- Better auto room accuracy (adjust / re-prompt without full manual labeling)
-- Family acknowledgement and quiet-hour controls
-- Shared incident types and deterministic transition engine behind the dashboard
-- ESP32-S3 CSI firmware and event bridge
-- Resident onboarding and consent
-- Baseline calibration and confidence scoring
-- Incident API and persistent state machine
-- Production hardening for the Qwen Cloud adapter
-- Delivery ordering adapter
-- Courier response webhook
-- Family notification and acknowledgement
-- Operator review tools and system monitoring
+- Resident onboarding and consent.
+- Calibrated sensing hardware and device health.
+- Persistent incidents, actions, acknowledgements, and audit history.
+- Reliable delivery ordering and courier callbacks.
+- Family notification delivery and acknowledgement.
+- Quiet hours, contact preferences, and manual resolution.
+- Privacy, accessibility, failure-mode, and field testing.
 
-### Explicitly out of scope (for now)
+## Product boundaries
 
-- Dashboard photoreal / dollhouse 3D of the floor plan (tried and reverted)
-- Visible colored room overlays or room-name labels on the map (rooms stay invisible data only)
-- HouseMind (separate experiment folder; not wired into AgentBento)
-- Generative redraw of the floor plan as a second map image (removed; upload stays the visual)
+- The public prototype does not call cloud model providers.
+- The dashboard uses the bundled sample plan; custom floor-plan analysis is not part of the current product.
+- Technical values must remain labeled as simulated and must not resemble clinical vital signs.
+- Agent Bento is an assistive care concept, not a medical or diagnostic product.
+- The old landing dollhouse and dense technical visualization must not return.
 
-## 7. Current technology
+## Current technology
 
 | Area | Technology | Purpose |
 | --- | --- | --- |
 | Application | Next.js 16.3, React 19.2, TypeScript 5.9 | Product UI and server rendering |
-| Build/runtime | Native Next.js on Vercel | Web application and server-side API routes |
-| Dashboard diagnostics | SVG + CSS | Compact simulated movement trace inside a collapsed disclosure |
-| Activity inference | GMI Cloud (`Qwen/Qwen3.8-Max`) | Flagship CSI activity classification from privacy-safe features |
-| Floor-plan vision | Qwen Cloud (`qwen3.7-plus`) | Auto room boxes from upload |
-| Icons | Tabler Icons | Bento and interface symbols |
-| Styling | Custom CSS, Tailwind CSS build support | Responsive cinematic interface |
-| Testing | Node test runner and production build | Render and regression checks |
-| Hardware plan | ESP32-S3 with Wi-Fi CSI | Camera-free movement sensing |
-| Reasoning plan | Qwen with structured output | Explanation and constrained action support |
+| Hosting | Vercel | Web deployment |
+| Dashboard diagnostics | SVG and CSS | Compact simulated movement trace |
+| Icons | Tabler Icons | Product and interface symbols |
+| Styling | Custom CSS with Tailwind build support | Responsive interface |
+| Testing | Node test runner, Next.js production build | Logic and render checks |
+| Experimental bridge | RuView-compatible HTTP adapter | Future hardware exploration |
 
-### Floor-plan env (server only)
+Only the optional bridge uses environment variables:
 
 ```bash
-GMI_API_KEY=...
-GMI_BASE_URL=https://api.gmi-serving.com/v1
-GMI_CSI_MODEL=Qwen/Qwen3.8-Max
-QWEN_API_KEY=...
-QWEN_BASE_URL=https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-QWEN_MODEL=qwen3.7-max
-QWEN_VISION_MODEL=qwen3.7-plus
+RUVIEW_API_URL=http://localhost:3000
+RUVIEW_TIMEOUT=5000
 ```
 
-Keep keys in ignored `.env.local` files and Vercel environment variables—never in client bundles.
-Start from `.env.example`. GMI uses the verified `Qwen/Qwen3.8-Max` default and is configured when `GMI_API_KEY` is set.
-The application remains functional without provider credentials by using the preloaded demo home and labeled deterministic care fallbacks. Live GMI inference requires a funded account; live custom-plan analysis requires a valid Qwen Model Studio key.
+The bridge is not wired into the public family demo.
 
-## 8. Target service boundaries
+## Engineering rules
 
-Keep external systems behind small interfaces:
-
-```text
-SensorAdapter
-  ingest(sample | activity_event)
-
-RiskPolicy
-  evaluate(resident_context, recent_events) → decision
-
-ReasoningAdapter
-  explain(decision_context) → structured_explanation
-
-CheckInProvider
-  request_check_in(incident) → dispatch_reference
-  get_status(dispatch_reference) → status
-
-NotificationProvider
-  notify(contact, incident_summary) → delivery_reference
-
-IncidentRepository
-  create, transition, append_action, acknowledge, resolve
-```
-
-The local simulator and real integrations must implement the same interfaces.
-
-## 9. Suggested first data model
-
-- `residents`: identity, timezone, consent state, home settings
-- `contacts`: ordered trusted contacts and notification preferences
-- `sensor_devices`: device identity, calibration, health, last seen
-- `activity_events`: normalized movement features and timestamps
-- `incidents`: current state, severity, confidence, opened and resolved times
-- `incident_transitions`: append-only transition audit
-- `actions`: dispatch, notification, retry, cancellation, and result
-- `acknowledgements`: resident, courier, family, or operator responses
-
-Raw CSI storage should be short-lived and optional. Prefer derived movement features when they are sufficient.
-
-## 10. Engineering rules
-
-- Keep safety decisions deterministic and covered by transition tests.
-- Validate every external request and response at the boundary.
-- Use idempotency keys for dispatch and notification actions.
-- Store timestamps in UTC and render them in the resident's timezone.
-- Never place personal data, addresses, contacts, or credentials in client bundles or logs.
-- Avoid medical claims. Describe observed activity and care actions, not diagnoses.
-- Keep the core flow usable when landing imagery, GMI Cloud, or Qwen Cloud is unavailable.
+- Preserve the truth boundary between implemented, simulated, and planned behavior.
+- Keep replay state on one clock so pausing freezes every visible stage.
+- Keep care headlines, badges, notes, and journey selection consistent.
+- Avoid medical claims and clinical-style readouts.
+- Keep the public demo functional without network services or credentials.
 - Preserve keyboard access, readable contrast, reduced motion, and mobile layouts.
-- Do not let visual demo state become the source of truth for a real incident.
-- On the dashboard, the user’s uploaded floor plan is the map. Room boxes are invisible presence data only — do not draw colored overlays or room-name chips on the photo. Keep Grandpa high-contrast so he is easy to find.
+- Keep the bundled floor-plan coordinates accurate and map labels within bounds.
+- Preserve the `home-setup.v4` storage format so existing saved setups continue to load.
+- Do not place personal data, addresses, contacts, or secrets in client bundles or logs.
 
-## 11. Local development
+## Local development
 
 ```bash
 npm ci
-npm run dev          # http://localhost:3000/
+npm run dev
+npm run lint
 npm run build
 npm test
-npm run lint
-npm run test:floor-plan  # analyze regression vs fixture (needs dev server)
 ```
 
 Node.js 22.13 or newer is required.
 
-Current quality gate (verified 2026-09-26):
+## Important files
 
-- `npm test`: 21 unit tests, the native Next.js production build, and two rendered-page checks pass.
-- `npm run lint`: clean.
-- `npm audit`: 0 known vulnerabilities.
-- Browser verification: `/`, `/dashboard`, `/api/service-status`, and `/api/care-summary` load successfully.
-- Live GMI/Qwen integration tests still require valid provider credentials.
-- Git delivery targets `zipking1988/agentbendo` branch `main`.
+- `app/page.tsx`: product landing and dashboard conversion path
+- `app/landing.module.css`: landing design
+- `app/dashboard/DashboardApp.tsx`: setup and monitoring gate
+- `app/dashboard/HomeSetupWizard.tsx`: sample-home and router setup
+- `app/dashboard/HomeFloorModel.tsx`: floor-plan, router, and resident markers
+- `app/dashboard/FamilyBoard.tsx`: replay controls, map, care journey, and technical trace
+- `lib/demo-frames.ts`: care-stage and presentation model
+- `lib/home-setup.ts`: sample setup and browser persistence
+- `lib/floor-plan-rooms.ts`: room geometry and presence mapping
+- `lib/adapters/ruview-bridge.ts`: optional experimental bridge client
+- `public/data/demo_frames.json`: simulated care story
+- `public/fixtures/test-floor-plan.png`: bundled sample plan
+- `tests/`: unit and rendered-page checks
 
-Important files:
+## Definition of done
 
-- `app/page.tsx`: editorial product landing and dashboard conversion path
-- `app/landing.module.css`: scoped responsive landing design
-- `public/agent-bento-home-hero-v2.webp`, `public/agent-bento-resident.webp`: production landing imagery
-- `app/dashboard/page.tsx`: family dashboard shell
-- `app/dashboard/DashboardApp.tsx`: setup vs monitoring gate; localStorage setup
-- `app/dashboard/HomeSetupWizard.tsx`: ready-made Japanese demo home or custom upload → Qwen Cloud rooms → Wi‑Fi pin
-- `app/dashboard/HomeFloorModel.tsx`: upload as map; room / Wi‑Fi / Grandpa overlays
-- `app/dashboard/FamilyBoard.tsx`: care dashboard, replay controls, floor-plan view, and compact Wi-Fi movement trace
-- `app/api/floor-plan/analyze/route.ts`: Qwen Cloud vision analyze endpoint
-- `lib/home-setup.ts`: `HomeSetup` + localStorage v4 helpers
-- `lib/home-setup-analysis.ts`: custom-plan analysis cancellation and response validation
-- `lib/floor-plan-rooms.ts`: room regions, `mapPresence`, model JSON parsing
-- `lib/adapters/qwen.ts`: Qwen Cloud care and floor-plan vision client
-- `lib/adapters/gmi.ts`: GMI Cloud CSI activity inference client
-- `lib/csi-edge.ts`: local privacy-safe CSI feature extraction
-- `lib/demo-frames.ts`: demo frame types and English copy
-- `public/data/demo_frames.json`: simulated care story frames
-- `public/fixtures/test-floor-plan.png`: floor-plan analyze fixture
-- `app/globals.css`: layout and design tokens
-- `tests/floor-plan-rooms.test.ts`, `tests/parse-floor-plan-rooms.test.ts`, `tests/demo-care-stage.test.ts`
-- `tests/rendered-html.test.mjs`: build and server-render checks
+A prototype change is done when:
 
-## 12. Definition of done
+- the user-facing state and failure behavior are clear
+- important logic does not depend on animation timing
+- the user can understand what happened and what is simulated
+- keyboard and mobile use still work
+- tests cover the changed logic where meaningful
+- lint, build, and rendered-page checks pass
+- documentation matches the shipped interface
 
-A product feature is done when:
+## Worklog
 
-- its domain state and failure behavior are defined
-- important logic is not dependent on animation timing
-- input and output schemas are validated
-- retries are safe and idempotent
-- the user can understand what happened and why
-- cancellation or manual recovery is available where appropriate
-- privacy and security implications are documented
-- tests cover the successful path and meaningful failures
-- the demo uses the same implementation or adapter contract
+### 2026-09-26 — Retired cloud inference and custom analysis
 
-## 13. Worklog
+- Removed the retired cloud-inference endpoints and their supporting code.
+- Removed associated adapters, feature-processing code, environment variables, scripts, and model-response tests.
+- Removed custom floor-plan upload because its room mapping depended on the retired analysis service.
+- Simplified onboarding to the bundled sample home with adjustable router placement.
+- Preserved `home-setup.v4` loading for existing browser-saved setups.
+- Updated product metadata, README, presentation source, FAQ, and project guide to describe the local simulated prototype accurately.
 
-### 2026-09-26 — Post-launch code review and resilience fixes
+### 2026-09-26 — Post-launch resilience
 
-- Reviewed the landing-to-dashboard entry, setup recovery, replay journey, technical details, browser persistence, responsive layout, and documentation against the production behavior.
-- Replaced the care-journey progress calculation with a percentage inside a bounded track, avoiding unsupported CSS arithmetic while keeping it synchronized with replay time.
-- Kept the resolved dashboard on the final replay frame so completing the story no longer jumps backward from `2:29` to `2:00`.
-- Reduced custom floor-plan uploads to 3 MB so base64 storage remains below common browser quotas.
-- Added graceful handling and visible recovery copy when browser storage is unavailable or full; reset remains usable when storage access is blocked.
-- Added focused storage and file-limit regression tests.
-- Updated `README.md` and this engineering worklog to remove the retired 3D diagnostics description and document the current replay, setup, and technical-detail behavior.
-- Verified lint, TypeScript, 21 unit tests, the production build, two rendered-page tests, 390px and 1280px layouts, setup recovery, and the final replay transition.
-
-### 2026-08-11 — Hackathon-ready onboarding and delivery
-
-- Migrated the application to native Next.js 16 / React 19 for Vercel deployment and removed unused prototype service integrations.
-- Limited sponsor-facing cloud architecture to GMI Cloud and Qwen Cloud.
-- Selected `Qwen/Qwen3.8-Max` for GMI activity inference, `qwen3.7-max` for Qwen reasoning, and `qwen3.7-plus` for Qwen floor-plan vision.
-- Added a Japanese madori demo floor plan as the first dashboard state so judges can understand and run the experience immediately.
-- Pre-positioned and labeled the Wi‑Fi router in the living room; it remains draggable for calibration.
-- Kept custom floor-plan upload available through **Use my own plan**.
-- Added full setup, environment, usage, testing, and deployment instructions to `README.md` and `.env.example`.
-- Verified lint, 14 tests, native production build, rendered HTML, and both local dashboard routes.
-- Published the completed project snapshot to GitHub branch `main` at commit `01fbf52`.
-
-### 2026-07-25 — NotebookLM / PPT docs
-
-- Added `docs/`: project overview, PPT deck script, FAQ source pack for NotebookLM (`docs/README.md`).
-
-### 2026-07-23 — Landing experience
-
-- Product landing with Japanese-home 3D cutaway, three story states, My Grandma block, CTA to `/dashboard`.
+- Synchronized care-journey progress with replay time.
+- Kept the resolved dashboard on the final replay frame.
+- Added graceful browser-storage handling.
+- Verified desktop and mobile layouts, setup recovery, and final replay transitions.
 
 ### 2026-09-26 — Product landing redesign
 
-- Replaced the toy-like interactive 3D hero with a premium editorial product landing grounded in realistic Japanese-home photography.
-- Added restrained navigation, a clear family-experience CTA, privacy proof, responsive care steps, and a realistic resident story.
-- Preserved the family dashboard and its lazy 3D CSI diagnostic view.
+- Replaced the toy-like interactive landing with a restrained editorial product page.
+- Added realistic imagery, privacy proof, care steps, and direct family-demo entry.
 
-### 2026-07-24 — Family dashboard + floor-plan model
+### 2026-09-26 — Technical details refinement
 
-- Hybrid calm home + simulated `demo_frames.json` replay.
-- Setup: upload floor plan → room model → Wi‑Fi pin (browser localStorage).
-- Evolved from fake grid → manual room labels → Qwen Cloud auto rooms.
-- Rejected: AI image-edit redraw, empty SVG schematic-only map, dashboard 3D dollhouse / tipped views, visible colored room overlays / room-name chips.
-- **Current:** upload photo is the monitoring map; Qwen Cloud rooms are invisible data for `mapPresence()` only (`home-setup.v4`). Grandpa marker is lime + dark outline so he reads on pale plans.
+- Replaced the dense 3D field with a compact 2D simulated movement trace.
+- Removed provider-status panels and synthetic clinical vital-sign readouts.
 
-### 2026-07-24 — Revert dashboard 3D
+## Next work
 
-- Removed 3D / tipped dashboard views.
-
-### 2026-07-24 — Hide room overlays
-
-- No colored room boxes or “ROOM MODEL ON” on the map. Rooms stay invisible for presence mapping.
-
-### 2026-07-24 — Grandpa marker contrast
-
-- Replaced pale white Grandpa stick figure with lime body, dark outline, ground halo, and stronger label so he is easy to find on light floor-plan photos.
-
-### 2026-09-26 — Technical movement summary refinement
-
-- Replaced the dense 3D CSI field with a compact 2D trace driven by the existing demo-frame movement, stillness, and change values.
-- Removed the unused provider-status panel and all synthetic heart-rate and respiration readouts from the family dashboard.
-
-## 14. Next work, in order
-
-1. Improve auto room accuracy (re-prompt / adjust on bad boxes without full manual labeling).
-2. Add acknowledgement and quiet-hour controls on the family dashboard.
-3. Wire dashboard views to shared incident types instead of simulated frame playback alone.
-4. Implement shared incident types and the deterministic transition engine.
-5. Add transition tests for normal recovery, dispatch failure, duplicate webhook, family acknowledgement, and timeout escalation.
-6. Build a local event simulator that drives the transition engine through an API.
-7. Persist residents, devices, incidents, actions, and audit transitions.
-8. Connect dashboard monitoring to live incident state.
-9. Add ESP32-S3 event ingestion and device health monitoring.
-10. Add delivery and notification provider adapters with idempotent retries.
-11. Harden Qwen structured output and GMI Cloud inference with schema validation, timeouts, and deterministic fallback telemetry.
-12. Build consent, contact, and manual-resolution interfaces.
-13. Conduct privacy, accessibility, failure-mode, and field testing.
-
-### 2026-08-08 — Sponsor architecture consolidation
-
-- Reduced the cloud architecture to GMI Cloud and Qwen Cloud only.
-- Moved CSI preprocessing into the local privacy-safe device layer before GMI inference.
-- Moved floor-plan vision, care decisions, and Japanese delivery instructions to Qwen Cloud.
-- Removed unused third-party sponsor adapters and kept deterministic local fallbacks.
-
-### 2026-08-08 — Vercel server migration
-
-- Migrated development, production build, and server-render verification to native Next.js.
-- Configured Vercel as the application and API server.
-- Replaced the legacy environment template with GMI Cloud, Qwen Cloud, and optional hardware-bridge variables only.
-- Expanded `README.md` with complete local setup, usage, API, test, troubleshooting, and Vercel deployment instructions.
-
-### 2026-08-10 — Native server verification and security hardening
-
-- Upgraded to Next.js 16.3 and React 19.2.8 for the patched Vercel runtime.
-- Removed the previous worker/Vite build layer and unused database scaffolding.
-- Added `vercel.json`, `.env.example`, native `next dev/build/start` scripts, and a production server-render test.
-- Fixed the React/Three development runtime failure caused by the WebGL post-processing double mount.
-- Verified the product landing, dashboard, service status, and deterministic care API in a real browser.
-- Confirmed clean lint, passing tests, and zero dependency audit findings.
+1. Validate the care narrative with older residents, family members, and care professionals.
+2. Add family acknowledgement and quiet-hour controls to the prototype.
+3. Define persistent incident and audit data before connecting hardware.
+4. Connect calibrated sensing through the optional bridge only after privacy and failure behavior are specified.
+5. Add reliable delivery and notification integrations with idempotent retries.
+6. Conduct accessibility, privacy, failure-mode, and field testing.

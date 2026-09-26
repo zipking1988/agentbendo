@@ -21,7 +21,7 @@ import {
 import { DEMO_FLOOR_PLAN_URL, mapPresence, type HomeSetup } from "@/lib/home-setup";
 import IconChevronRight from "@tabler/icons-react/dist/esm/icons/IconChevronRight.mjs";
 import IconShieldCheck from "@tabler/icons-react/dist/esm/icons/IconShieldCheck.mjs";
-import IconUpload from "@tabler/icons-react/dist/esm/icons/IconUpload.mjs";
+import IconAdjustments from "@tabler/icons-react/dist/esm/icons/IconAdjustments.mjs";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 
 type Mode = "calm" | "replay";
@@ -276,7 +276,6 @@ export function FamilyBoard({ homeSetup, autoStart = false, onResetSetup }: Fami
           <HomeFloorModel
             imageUrl={homeSetup.floorPlanDataUrl}
             wifi={homeSetup.wifi}
-            rooms={homeSetup.rooms}
             presence={presence}
             status={status}
             compactWifi
@@ -291,8 +290,8 @@ export function FamilyBoard({ homeSetup, autoStart = false, onResetSetup }: Fami
               {latestNote ? translateLogText(latestNote.text) : presentation.lead}
             </p>
             <button type="button" className="reset-floor-btn" onClick={onResetSetup}>
-              <IconUpload size={15} stroke={1.9} />
-              Change floor plan
+              <IconAdjustments size={15} stroke={1.9} />
+              Adjust demo home
             </button>
           </div>
         </div>

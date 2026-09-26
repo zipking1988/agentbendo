@@ -8,7 +8,7 @@ import "./dashboard-product.css";
 
 export const metadata: Metadata = {
   title: "Family Dashboard — Agent Bento",
-  description: "Set up your home floor plan, label rooms, pin Wi‑Fi sensing, and watch Grandpa’s care status.",
+  description: "Place the demo router and follow Grandpa’s simulated family care story.",
 };
 
 type DashboardPageProps = {

@@ -832,85 +832,11 @@
   box-shadow: 0 0 12px rgba(184, 255, 84, 0.7);
 }
 
-.dashboard-page .setup-dropzone {
-  min-height: 500px;
-  margin: 24px;
-  padding: clamp(34px, 6vw, 72px);
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 16px;
-  border: 1px dashed rgba(184, 255, 84, 0.32);
-  background:
-    radial-gradient(circle at 50% 38%, rgba(184, 255, 84, 0.055), transparent 42%),
-    rgba(10, 22, 25, 0.44);
-}
-
-.dashboard-page .setup-dropzone.dragging {
-  border-color: var(--lime);
-  background: rgba(184, 255, 84, 0.07);
-}
-
-.setup-dropzone-icon {
-  display: grid;
-  place-items: center;
-  width: 64px;
-  height: 64px;
-  margin-bottom: 6px;
-  border: 1px solid rgba(184, 255, 84, 0.38);
-  border-radius: 50%;
-  background: rgba(184, 255, 84, 0.07);
-  color: var(--lime);
-}
-
-.dashboard-page .setup-dropzone h3 {
-  margin: 0;
-  font-size: 30px;
-  line-height: 1.1;
-  letter-spacing: -0.045em;
-  font-weight: 580;
-}
-
-.dashboard-page .setup-dropzone > p {
-  max-width: 430px;
-  color: #9fa9a2;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.dashboard-page .setup-dropzone > .setup-upload-disclosure {
-  max-width: 470px;
-  margin: 0;
-  padding: 12px 14px;
-  border: 1px solid rgba(229, 239, 230, 0.14);
-  background: rgba(229, 239, 230, 0.035);
-  color: #b8c2ba;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.dashboard-page .setup-dropzone .dashboard-play {
-  width: auto;
-  min-width: 210px;
-  margin-top: 8px;
-}
-
 .dashboard-page .setup-error {
   padding: 10px 12px;
   border: 1px solid rgba(255, 118, 80, 0.35);
   background: rgba(255, 118, 80, 0.08);
   color: #ff9a7e;
-}
-
-.setup-demo-option {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 24px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(229, 239, 230, 0.12);
-  color: #87938b;
-  font-size: 13px;
 }
 
 .dashboard-page .dashboard-ghost {
@@ -967,40 +893,6 @@
   filter: grayscale(1) sepia(0.06) contrast(1.02) brightness(1.04);
 }
 
-.dashboard-page .setup-analyzing {
-  display: grid;
-  grid-template-columns: 30px 1fr;
-  gap: 12px;
-  align-items: center;
-  padding: 16px 18px;
-  border: 1px solid rgba(184, 255, 84, 0.26);
-  background: rgba(184, 255, 84, 0.055);
-}
-
-.setup-analyzing p { margin: 0; }
-.dashboard-page .setup-analyzing strong,
-.dashboard-page .setup-analyzing span { display: block; }
-.dashboard-page .setup-analyzing span { margin-top: 4px; color: #9ba79f; }
-
-.setup-room-summary {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  border: 1px solid rgba(229, 239, 230, 0.14);
-}
-
-.setup-room-summary > span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 44px;
-  border-right: 1px solid rgba(229, 239, 230, 0.12);
-  color: #bcc6be;
-  font-size: 12px;
-}
-.setup-room-summary > span:last-child { border-right: 0; }
-.setup-room-summary svg { color: var(--lime); }
-
 .setup-router-readout {
   display: grid;
   grid-template-columns: 26px 1fr;
@@ -1039,8 +931,6 @@
   text-align: right;
 }
 .dashboard-page .setup-pin-note.ok { color: #a9b99f; }
-.dashboard-page .setup-demo-return { align-self: flex-start; }
-
 @media (max-width: 1180px) {
   .dashboard-page .dashboard-shell {
     grid-template-columns: minmax(220px, 0.75fr) minmax(430px, 1.7fr) minmax(220px, 0.72fr);
@@ -1191,18 +1081,9 @@
   .setup-panel-head { min-height: 82px; padding: 16px 18px; }
   .setup-panel-head h2 { font-size: 19px; }
   .setup-panel-status { font-size: 12px; }
-  .dashboard-page .setup-dropzone {
-    min-height: 430px;
-    margin: 14px;
-    padding: 34px 20px;
-  }
-  .setup-demo-option { flex-direction: column; gap: 10px; }
   .dashboard-page .setup-pin-stage { padding: 14px; }
   .setup-plan-frame { padding: 9px; }
   .setup-plan-heading { margin: 3px 3px 10px; }
-  .setup-room-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .setup-room-summary > span:nth-child(2) { border-right: 0; }
-  .setup-room-summary > span:nth-child(-n + 2) { border-bottom: 1px solid rgba(229, 239, 230, 0.12); }
   .dashboard-page .setup-pin-actions { align-items: stretch; }
   .dashboard-page .setup-pin-actions .dashboard-play { width: 100%; }
   .dashboard-page .setup-pin-note { text-align: left; }
@@ -1244,6 +1125,5 @@
   .dashboard-page .journey-progress-line,
   .dashboard-page .technical-details summary svg { transition: none; }
 
-  .setup-analyzing svg,
   .setup-panel-status > span { animation: none !important; }
 }

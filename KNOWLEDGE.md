@@ -1,61 +1,46 @@
 # Agent Bento code knowledge
 
-## Cloud architecture
+## Runtime architecture
 
-Agent Bento runs as a native Next.js application on Vercel and uses two cloud AI services only:
-
-1. **GMI Cloud** — serverless CSI activity inference from privacy-safe feature summaries.
-2. **Qwen Cloud** — floor-plan vision, care-decision explanations, and Japanese delivery instructions.
-
-Deterministic local logic remains available when either service is unavailable.
-Vercel hosts the UI and server-side API routes; GMI and Qwen credentials must remain in Vercel environment variables.
-
-## Module index
-
-### `lib/ai-router.ts`
-
-Orchestrates the complete care flow:
+Agent Bento is a native Next.js application hosted on Vercel. The public experience is self-contained and uses a local scripted care replay.
 
 ```text
-ESP32 CSI
-  → local feature extraction
-  → Vercel API route
-  → GMI Cloud activity inference
-  → Qwen Cloud care decision
-  → Qwen Cloud delivery instruction
-  → deterministic fallback at every boundary
+Bundled floor plan + local story frames
+                  ↓
+Shared replay clock and care-stage presentation
+                  ↓
+Family status, resident marker, journey, and simulated signal trace
+                  ↓
+Browser-local home setup
 ```
 
-### `lib/csi-edge.ts`
+The public prototype has no cloud-model dependency and requires no model credentials.
 
-Processes raw CSI locally. Only derived amplitudes, phase features, motion statistics, and signal quality are passed to GMI Cloud.
+## Main modules
 
-### `lib/adapters/gmi.ts`
+### `lib/demo-frames.ts`
 
-GMI Cloud Inference Engine adapter for activity classification.
+Defines the replay stages and derives the headline, badge, explanation, tone, journey selection, and progress from the same timestamp.
 
-- Endpoint default: `https://api.gmi-serving.com/v1`
-- Environment: `GMI_API_KEY`, `GMI_BASE_URL`, `GMI_CSI_MODEL`
-- Selected model: `Qwen/Qwen3.8-Max` (flagship reasoning, vision, and text model verified in the account catalog on 2026-08-11).
+### `lib/home-setup.ts`
 
-### `lib/adapters/qwen.ts`
+Defines the bundled plan, story-room regions, router position, and `home-setup.v4` browser persistence. Legacy saved data URLs remain loadable, but the current setup screen uses only the bundled sample plan.
 
-Qwen Cloud adapter for structured care decisions, Japanese delivery messages, and multimodal floor-plan analysis.
+### `lib/floor-plan-rooms.ts`
 
-- Environment: `QWEN_API_KEY`, `QWEN_BASE_URL`, `QWEN_MODEL`, `QWEN_VISION_MODEL`
-- Selected models: `qwen3.7-max` for reasoning and `qwen3.7-plus` for floor-plan vision.
+Maps scripted story positions into the four predefined sample-plan regions.
 
-## API routes
+### `app/dashboard/FamilyBoard.tsx`
 
-| Route | Purpose |
-| --- | --- |
-| `/api/floor-plan/analyze` | Qwen Cloud floor-plan vision |
-| `/api/service-status` | GMI Cloud and Qwen Cloud readiness |
-| `/api/incident/check-in` | Local features → GMI inference → Qwen decision |
+Owns playback, pausing, restart, stage jumps, family-facing status, and the compact simulated movement trace.
 
-## Safety rules
+### `lib/adapters/ruview-bridge.ts`
 
-- Cloud model output never bypasses deterministic escalation policy.
-- API keys remain server-side.
-- Raw CSI is processed locally; use minimum necessary derived features.
-- Every cloud failure must return to a safe, testable local path.
+Experimental client for a future sensing bridge. It is exposed through `/api/ruview` but is not connected to the public dashboard.
+
+## Product truth
+
+- Sensing, courier dispatch, resident response, and notifications are simulated.
+- The technical trace is simulated and is not a clinical measurement.
+- The sample floor plan and room regions are bundled with the repository.
+- Real monitoring requires consent, calibration, persistent incidents, audited actions, and field validation.

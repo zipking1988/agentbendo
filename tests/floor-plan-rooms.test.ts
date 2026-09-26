@@ -3,9 +3,7 @@ import test from "node:test";
 import {
   hasAllRequiredRooms,
   mapPresence,
-  normalizeBBox,
   pointInBBox,
-  upsertRoom,
   type RoomRegion,
 } from "../lib/floor-plan-rooms.ts";
 
@@ -22,14 +20,6 @@ const demoCenters = {
   kitchen: { x: 70, y: 30 },
   living: { x: 20, y: 30 },
 };
-
-test("normalizeBBox orders drag corners and enforces a minimum size", () => {
-  const box = normalizeBBox({ x: 80, y: 60 }, { x: 10, y: 20 });
-  assert.equal(box.x, 10);
-  assert.equal(box.y, 20);
-  assert.equal(box.w, 70);
-  assert.equal(box.h, 40);
-});
 
 test("hasAllRequiredRooms requires the four story rooms", () => {
   assert.equal(hasAllRequiredRooms([]), false);
@@ -59,15 +49,4 @@ test("mapPresence keeps bathroom beats inside the bathroom box", () => {
   );
   assert.equal(presence.room, "bathroom");
   assert.equal(pointInBBox(presence, labeledRooms[3].bbox), true);
-});
-
-test("upsertRoom replaces an existing room label", () => {
-  const next = upsertRoom(labeledRooms, {
-    id: "kitchen",
-    label: "Kitchen",
-    bbox: { x: 60, y: 10, w: 30, h: 25 },
-  });
-  assert.equal(next.length, 4);
-  const kitchen = next.find((room) => room.id === "kitchen");
-  assert.deepEqual(kitchen?.bbox, { x: 60, y: 10, w: 30, h: 25 });
 });

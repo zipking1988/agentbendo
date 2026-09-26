@@ -31,7 +31,7 @@ function getServerSetup(): HomeSetup | null {
 
 function publishSetup(next: HomeSetup | null): string | null {
   if (next && !saveHomeSetup(next)) {
-    return "Could not save this plan in the browser. Choose a smaller image or free browser storage, then try again.";
+    return "Could not save the demo setup in this browser. Check browser storage permissions, then try again.";
   }
   if (!next) clearHomeSetup();
   cachedSetup = next;
@@ -46,16 +46,13 @@ type DashboardAppProps = {
 export function DashboardApp({ autoStart = false }: DashboardAppProps) {
   const setup = useSyncExternalStore(subscribe, getClientSetup, getServerSetup);
   const [startFreshDemo, setStartFreshDemo] = useState(autoStart);
-  const [chooseFloorPlan, setChooseFloorPlan] = useState(false);
 
   if (!setup) {
     return (
       <HomeSetupWizard
-        initialStep={chooseFloorPlan ? "upload" : "wifi"}
         onComplete={(next) => {
           const error = publishSetup(next);
           if (!error) {
-            setChooseFloorPlan(false);
             setStartFreshDemo(true);
           }
           return error;
@@ -70,7 +67,6 @@ export function DashboardApp({ autoStart = false }: DashboardAppProps) {
       autoStart={startFreshDemo}
       onResetSetup={() => {
         setStartFreshDemo(false);
-        setChooseFloorPlan(true);
         publishSetup(null);
       }}
     />
