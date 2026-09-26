@@ -43,7 +43,7 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
     <section className="setup-shell">
       <div className="setup-copy">
         <Link className="dashboard-back" href="/">
-          <IconArrowLeft size={16} />
+          <IconArrowLeft size={16} aria-hidden="true" />
           Back to site
         </Link>
 
@@ -55,14 +55,14 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
 
         <ol className="setup-steps" aria-label="Demo setup">
           <li className="complete">
-            <span className="setup-step-num"><IconCheck size={14} /></span>
+            <span className="setup-step-num"><IconCheck size={14} aria-hidden="true" /></span>
             <span>
               <strong>Sample home ready</strong>
               <small>A Japanese floor plan is included</small>
             </span>
           </li>
           <li className="complete">
-            <span className="setup-step-num"><IconCheck size={14} /></span>
+            <span className="setup-step-num"><IconCheck size={14} aria-hidden="true" /></span>
             <span>
               <strong>Story rooms ready</strong>
               <small>Living room, kitchen, bedroom and bathroom</small>
@@ -78,7 +78,7 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
         </ol>
 
         <div className="setup-assurance" aria-label="Privacy information">
-          <IconShieldLock size={19} stroke={1.7} />
+          <IconShieldLock size={19} stroke={1.7} aria-hidden="true" />
           <p>
             <strong>Private by design</strong>
             <span>No cameras, microphones or recordings. This prototype uses a local, scripted care story.</span>
@@ -102,7 +102,7 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
           <div className="setup-plan-frame">
             <div className="setup-plan-heading">
               <p className="setup-plan-label">Sample floor plan</p>
-              <span><IconCheck size={14} /> Ready</span>
+              <span><IconCheck size={14} aria-hidden="true" /> Ready</span>
             </div>
             <HomeFloorModel
               imageUrl={DEMO_FLOOR_PLAN_URL}
@@ -114,7 +114,7 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
           </div>
 
           <div className="setup-router-readout ready" role="status" aria-live="polite">
-            <IconRoute size={20} stroke={1.7} />
+            <IconRoute size={20} stroke={1.7} aria-hidden="true" />
             <p>
               <strong>{routerRoom?.label ?? "Router placed"}</strong>
               <span>{routerPosition}</span>
@@ -133,7 +133,7 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
               Reset router
             </button>
             <button type="button" className="play-button dashboard-play" onClick={finish}>
-              <IconWifi size={18} stroke={2} />
+              <IconWifi size={18} stroke={2} aria-hidden="true" />
               Start demo
             </button>
           </div>

@@ -290,7 +290,7 @@ export function FamilyBoard({ homeSetup, autoStart = false, onResetSetup }: Fami
               {latestNote ? translateLogText(latestNote.text) : presentation.lead}
             </p>
             <button type="button" className="reset-floor-btn" onClick={onResetSetup}>
-              <IconAdjustments size={15} stroke={1.9} />
+              <IconAdjustments size={15} stroke={1.9} aria-hidden="true" />
               Adjust demo home
             </button>
           </div>

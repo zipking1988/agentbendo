@@ -63,19 +63,19 @@ export function StatusHero({
       <div className="dashboard-cta-row">
         {mode === "calm" || !playing ? (
           <button type="button" className="play-button dashboard-play" onClick={onPlay}>
-            <IconPlayerPlay size={18} stroke={2} />
+            <IconPlayerPlay size={18} stroke={2} aria-hidden="true" />
             {mode === "calm" ? "Replay the check-in" : "Continue story"}
           </button>
         ) : (
           <button type="button" className="play-button dashboard-play" onClick={onPause}>
-            <IconPlayerPause size={18} stroke={2} />
+            <IconPlayerPause size={18} stroke={2} aria-hidden="true" />
             Pause story
           </button>
         )}
 
         {mode === "replay" ? (
           <button type="button" className="dashboard-ghost" onClick={onRestart}>
-            <IconRefresh size={16} stroke={1.8} />
+            <IconRefresh size={16} stroke={1.8} aria-hidden="true" />
             Restart
           </button>
         ) : null}

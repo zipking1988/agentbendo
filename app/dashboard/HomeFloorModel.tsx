@@ -141,7 +141,7 @@ export function HomeFloorModel({
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
         onKeyDown={canInteract ? handleKeyDown : undefined}
-        role={canInteract ? "application" : undefined}
+        role={canInteract ? "group" : undefined}
         tabIndex={canInteract ? 0 : undefined}
         aria-label={canInteract ? label : undefined}
         aria-description={canInteract ? "Floor plan. Click or drag to move the Wi-Fi router. Use arrow keys for precise placement." : undefined}
@@ -168,7 +168,7 @@ export function HomeFloorModel({
             title="Wi-Fi sensing point"
             aria-label="Wi-Fi router location"
           >
-            <IconWifi size={16} stroke={2} />
+            <IconWifi size={16} stroke={2} aria-hidden="true" />
             <span className="floor-plan-wifi-label">Wi-Fi router</span>
           </div>
         ) : null}
