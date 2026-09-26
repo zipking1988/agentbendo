@@ -362,6 +362,10 @@
   margin: 0;
 }
 
+.familyCopy {
+  min-width: 0;
+}
+
 .familyImage {
   width: min(100%, 470px);
   height: auto;
@@ -515,6 +519,18 @@
 
   .steps {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .careSection,
+  .familySection {
+    grid-template-columns: 1fr;
+    gap: 64px;
+  }
+
+  .familyImage {
+    width: min(100%, 470px);
   }
 }
 
