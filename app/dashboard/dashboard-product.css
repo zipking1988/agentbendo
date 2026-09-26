@@ -256,7 +256,7 @@
   padding: 2px 18px;
   border-left: 1px solid rgba(229, 239, 230, 0.18);
   color: #aeb8b1;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.45;
 }
 
@@ -415,7 +415,7 @@
 .journey-copy small {
   margin-top: 6px;
   color: #aeb8b1;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.42;
 }
 
@@ -751,7 +751,7 @@
 .dashboard-page .setup-steps small {
   margin-top: 5px;
   color: #89968e;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.4;
 }
 
@@ -778,7 +778,7 @@
   max-width: 360px;
   margin-top: 5px;
   color: #8f9b93;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.5;
 }
 
@@ -912,7 +912,7 @@
 .setup-router-readout strong,
 .setup-router-readout span { display: block; }
 .setup-router-readout strong { color: #e2e8e3; font-size: 14px; }
-.setup-router-readout span { margin-top: 3px; color: #94a098; font-size: 12px; line-height: 1.45; }
+.setup-router-readout span { margin-top: 3px; color: #94a098; font-size: 14px; line-height: 1.45; }
 
 .dashboard-page .setup-pin-actions {
   justify-content: flex-end;
@@ -927,7 +927,7 @@
 
 .dashboard-page .setup-pin-note {
   color: #8f9c93;
-  font-size: 12px;
+  font-size: 14px;
   text-align: right;
 }
 .dashboard-page .setup-pin-note.ok { color: #a9b99f; }
@@ -1034,7 +1034,7 @@
     grid-template-columns: 82px minmax(0, 1fr);
     gap: 12px;
   }
-  .dashboard-latest-note > p { padding-right: 0; font-size: 13px; }
+  .dashboard-latest-note > p { padding-right: 0; font-size: 15px; }
   .dashboard-latest-note .reset-floor-btn { grid-column: 1 / -1; justify-self: stretch; justify-content: center; border: 1px solid rgba(184, 255, 84, 0.24); }
   .dashboard-page .dashboard-journey {
     display: block;
@@ -1074,7 +1074,7 @@
   }
   .dashboard-page .setup-copy .dashboard-back { margin-bottom: 26px; }
   .dashboard-page .setup-copy h1 { font-size: clamp(46px, 13vw, 62px); }
-  .dashboard-page .setup-copy .dashboard-lead { margin-top: 22px; font-size: 15px; }
+  .dashboard-page .setup-copy .dashboard-lead { margin-top: 22px; font-size: 16px; }
   .dashboard-page .setup-steps { margin-top: 32px; }
   .dashboard-page .setup-steps small { display: none; }
   .setup-assurance { margin-top: 30px; }
