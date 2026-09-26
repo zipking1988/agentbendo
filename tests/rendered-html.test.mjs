@@ -46,32 +46,36 @@ test("server-renders the Agent Bento experience", async (t) => {
   assert.match(html, /AGENT BENTO/);
   assert.match(html, /A home can/);
   assert.match(html, /ask for help\./);
-  assert.match(html, /Unusual silence detected/);
-  assert.match(html, /Open family demo/);
-  assert.match(html, /Play the story/);
-  assert.match(html, /Interactive demo/);
-  assert.match(html, /No cameras\. No recordings\./);
+  assert.match(html, /Movement looks normal/);
+  assert.match(html, /See the family experience/);
+  assert.match(html, /Technology stays quiet/);
+  assert.match(html, /No cameras\. No microphones\. No recordings\./);
   assert.match(html, /agent-bento-mark\.png/);
-  assert.match(html, /grandma-sample\.png/);
+  assert.match(html, /agent-bento-home-hero-v2\.webp/);
+  assert.match(html, /agent-bento-resident\.webp/);
   assert.match(html, /og\.png/);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton/i);
 });
 
 test("keeps the finished experience accessible and self-contained", async () => {
-  const [page, homeScene, layout, css, packageJson] = await Promise.all([
+  const [page, homeScene, layout, css, landingCss, packageJson] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/HomeScene.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/landing.module.css", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /aria-label="Bathroom check-in story scenes"/);
-  assert.match(page, /aria-pressed/);
-  assert.match(page, /HomeScene/);
-  assert.match(page, /grandma-sample\.png/);
+  assert.match(page, /aria-label="Main navigation"/);
+  assert.match(page, /aria-labelledby="hero-title"/);
+  assert.match(page, /href="\/dashboard"/);
+  assert.match(page, /agent-bento-home-hero-v2\.webp/);
+  assert.match(page, /agent-bento-resident\.webp/);
   assert.doesNotMatch(homeScene, /🏠|🛀|🍱|🍵|👴|🛵|👨‍👩‍👧|✅|📡|📺|🍳/);
   assert.match(css, /prefers-reduced-motion/);
+  assert.match(landingCss, /prefers-reduced-motion/);
+  assert.match(landingCss, /:focus-visible/);
   assert.match(layout, /generateMetadata/);
   assert.match(packageJson, /"@react-three\/fiber"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);

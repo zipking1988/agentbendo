@@ -91,8 +91,8 @@ Model output must use a versioned structured schema, be validated before use, ha
 ### Implemented
 
 - Next.js / React product landing experience.
-- Landing 3D cutaway home (React Three Fiber): Japanese home art direction, three story states, Wi‑Fi signal paths, camera presets, status rail, reduced motion.
-- Landing “Inspired by My Grandma” stylized 3D portrait and why-it-works section.
+- Editorial product landing with realistic Japanese-home photography, restrained navigation, a clear family-demo path, privacy proof, and responsive care-story sections.
+- Landing imagery uses optimized production WebP assets; the old interactive dollhouse is no longer part of the public landing.
 - CTA into the family dashboard (`/dashboard`).
 - Family dashboard home setup (localStorage `agent-bento.home-setup.v4`):
   1. First-time users immediately see a Japanese madori demo plan
@@ -148,8 +148,8 @@ Model output must use a versioned structured schema, be validated before use, ha
 | --- | --- | --- |
 | Application | Next.js 16.3, React 19.2, TypeScript 5.9 | Product UI and server rendering |
 | Build/runtime | Native Next.js on Vercel | Web application and server-side API routes |
-| Landing 3D | Three.js, React Three Fiber, Drei | Cutaway home on `/` only |
-| Effects | React Three Postprocessing | Bloom / vignette on landing |
+| 3D diagnostics | Three.js, React Three Fiber, Drei | Lazy CSI visualization in dashboard technical details |
+| Effects | React Three Postprocessing | Bloom in the lazy CSI diagnostic view |
 | Activity inference | GMI Cloud (`Qwen/Qwen3.8-Max`) | Flagship CSI activity classification from privacy-safe features |
 | Floor-plan vision | Qwen Cloud (`qwen3.7-plus`) | Auto room boxes from upload |
 | Icons | Tabler Icons | Bento and interface symbols |
@@ -222,7 +222,7 @@ Raw CSI storage should be short-lived and optional. Prefer derived movement feat
 - Store timestamps in UTC and render them in the resident's timezone.
 - Never place personal data, addresses, contacts, or credentials in client bundles or logs.
 - Avoid medical claims. Describe observed activity and care actions, not diagnoses.
-- Keep the core flow usable when landing 3D, GMI Cloud, or Qwen Cloud is unavailable.
+- Keep the core flow usable when landing imagery, GMI Cloud, or Qwen Cloud is unavailable.
 - Preserve keyboard access, readable contrast, reduced motion, and mobile layouts.
 - Do not let visual demo state become the source of truth for a real incident.
 - On the dashboard, the user’s uploaded floor plan is the map. Room boxes are invisible presence data only — do not draw colored overlays or room-name chips on the photo. Keep Grandpa high-contrast so he is easy to find.
@@ -251,9 +251,9 @@ Current quality gate (verified 2026-09-23):
 
 Important files:
 
-- `app/page.tsx`: landing story state, why section, and dashboard CTA
-- `app/HomeScene.tsx`: landing 3D scene and story mapping
-- `public/grandma-sample.png`: landing resident portrait asset
+- `app/page.tsx`: editorial product landing and dashboard conversion path
+- `app/landing.module.css`: scoped responsive landing design
+- `public/agent-bento-home-hero-v2.webp`, `public/agent-bento-resident.webp`: production landing imagery
 - `app/dashboard/page.tsx`: family dashboard shell
 - `app/dashboard/DashboardApp.tsx`: setup vs monitoring gate; localStorage setup
 - `app/dashboard/HomeSetupWizard.tsx`: ready-made Japanese demo home or custom upload → Qwen Cloud rooms → Wi‑Fi pin
@@ -269,7 +269,6 @@ Important files:
 - `lib/adapters/gmi.ts`: GMI Cloud CSI activity inference client
 - `lib/csi-edge.ts`: local privacy-safe CSI feature extraction
 - `lib/demo-frames.ts`: demo frame types and English copy
-- `lib/landing-story.ts`: shared landing playback clock and chapter/beat mapping
 - `public/data/demo_frames.json`: simulated care story frames
 - `public/fixtures/test-floor-plan.png`: floor-plan analyze fixture
 - `app/globals.css`: layout and design tokens
@@ -312,6 +311,12 @@ A product feature is done when:
 
 - Product landing with Japanese-home 3D cutaway, three story states, My Grandma block, CTA to `/dashboard`.
 
+### 2026-09-26 — Product landing redesign
+
+- Replaced the toy-like interactive 3D hero with a premium editorial product landing grounded in realistic Japanese-home photography.
+- Added restrained navigation, a clear family-experience CTA, privacy proof, responsive care steps, and a realistic resident story.
+- Preserved the family dashboard and its lazy 3D CSI diagnostic view.
+
 ### 2026-07-24 — Family dashboard + floor-plan model
 
 - Hybrid calm home + simulated `demo_frames.json` replay.
@@ -346,7 +351,7 @@ A product feature is done when:
 5. Add transition tests for normal recovery, dispatch failure, duplicate webhook, family acknowledgement, and timeout escalation.
 6. Build a local event simulator that drives the transition engine through an API.
 7. Persist residents, devices, incidents, actions, and audit transitions.
-8. Connect landing 3D and dashboard monitoring to live incident state.
+8. Connect dashboard monitoring to live incident state.
 9. Add ESP32-S3 event ingestion and device health monitoring.
 10. Add delivery and notification provider adapters with idempotent retries.
 11. Harden Qwen structured output and GMI Cloud inference with schema validation, timeouts, and deterministic fallback telemetry.
@@ -373,5 +378,5 @@ A product feature is done when:
 - Removed the previous worker/Vite build layer and unused database scaffolding.
 - Added `vercel.json`, `.env.example`, native `next dev/build/start` scripts, and a production server-render test.
 - Fixed the React/Three development runtime failure caused by the WebGL post-processing double mount.
-- Verified the 3D landing page, dashboard, service status, and deterministic care API in a real browser.
+- Verified the product landing, dashboard, service status, and deterministic care API in a real browser.
 - Confirmed clean lint, passing tests, and zero dependency audit findings.

@@ -1,50 +1,48 @@
-# Agent Bento design QA
+# Agent Bento product landing design QA
 
-## Evidence and comparison setup
+## Evidence
 
-- Source visual truth: `design/agent-bento-selected-reference.png` (1487 × 1058 px).
-- Rendered implementation: `http://127.0.0.1:3010/` and `http://127.0.0.1:3010/dashboard`.
-- Existing implementation captures used as the pre-pass baseline: `design-qa-evidence/landing-desktop-1280.png`, `design-qa-evidence/dashboard-desktop-1280.png`, `design-qa-evidence/landing-mobile-390.png`, `design-qa-evidence/setup-mobile-390.png`, and `design-qa-evidence/dashboard-mobile-390.png`.
-- Existing combined comparison: `design-qa-evidence/source-vs-revised-landing-2026-09-23.png` and `design-qa-evidence/reference-vs-implementation-2026-09-23.png`.
-- Fresh post-fix comparison: source and implementation were rendered together in the Codex in-app browser on 2026-09-26. The source and live landing were normalized into equal 640 px columns, followed by a focused header comparison. The temporary comparison route was removed after review.
-- Full-view implementation checks: CSS viewports 1280 × 900 and 390 × 844, device scale factor 1.
-- Text-scaling check: 640 × 450 CSS viewport, equivalent to a 1280 px viewport at 200% zoom.
-- Compared state: normal activity for the initial landing, then the unusual-silence chapter to match the source story state. The dashboard was checked at normal, watch, courier-arrival, pending-confirmation, and resolved replay points.
+- Selected visual target: `design/agent-bento-product-landing-selected.png` (1536 × 1024 px).
+- Rendered implementation: `http://127.0.0.1:3010/`.
+- Desktop review: 1440 × 1024 CSS viewport, device scale factor 1.
+- Mobile review: 390 × 844 CSS viewport, device scale factor 1.
+- Zoom-equivalent review: 720 × 512 CSS viewport, equivalent to viewing a 1440 px composition at 200%.
+- Combined comparison: the selected visual and live implementation were rendered together in one in-app-browser view as equal 648 px columns. The live page used a 1440 × 1013 iframe scaled to 0.45. The temporary comparison route was removed after review.
+- Compared state: initial landing state with `Movement looks normal`, matching the selected design.
 
 ## Final findings
 
 - No actionable P0, P1, or P2 findings remain.
-- [P3, accepted] The source uses a photographic home while the implementation uses the existing interactive 3D home. Preserving that 3D home is an explicit product constraint, and its composition, lighting, controls, and status treatment now follow the source's visual language.
+- [P3, accepted] The independently generated production photograph differs in exact foliage, resident pose, and room details from the concept image. It preserves the selected composition, nighttime Japanese-home setting, warm/cool balance, resident placement, router, and subtle sensing field.
 
-## Required fidelity surfaces
+## Fidelity review
 
-- **Typography:** Geist and Geist Mono preserve the source's geometric display type and technical labels. The headline hierarchy and line breaks remain clear on desktop, mobile, and at the zoom-equivalent width. Essential labels are at least 12 px and supporting instructions are at least 14 px.
-- **Spacing and layout:** The opening explanation leads directly to `Open family demo` and `Play the story`. Scene choices follow the actions. The mobile header no longer wraps or hides its privacy statement, and 3D labels no longer collide with camera or status controls. The dashboard keeps family status and care notes before history and diagnostics.
-- **Colors and tokens:** Near-black, paper, lime, amber, and coral remain consistent with the source. The main 3D status panel uses a dark translucent scrim so white and status-colored text stay readable over the scene.
-- **Image quality and assets:** The wordmark now uses a source-faithful four-quadrant bento mark at all routes and as the favicon. The resident section uses the existing high-resolution illustrated portrait instead of a rough code-built placeholder. The original 3D home and bundled floor-plan image remain intact and sharp.
-- **Copy and content:** Both scenarios are named. The simulation disclosure is visible on both routes. Care copy follows the typed eight-stage timeline, including pending confirmation before the all-clear. Replay timestamps are labeled as replay time.
-- **Responsiveness:** The revised header, actions, status panel, map labels, and setup controls remain readable without horizontal clipping at 390 px, 1280 px, and the 200% zoom equivalent.
-- **Interactions:** Story playback, pause, restart, direct chapter selection, setup recovery, keyboard router placement, and the lazy technical-details disclosure were exercised. The 3D diagnostics load only after expansion.
-- **Accessibility:** Scene selectors are labeled native-button groups with `aria-pressed`. Focus indicators are visible, targets are practical for touch, router placement supports arrow keys, meaningful images have useful alt text, decorative icons are hidden from assistive technology, and reduced-motion styling preserves story timing.
-- **Icons:** Emoji controls and floating glyphs were replaced with the existing Tabler icon family. Icon stroke, scale, and alignment now match across camera presets, resident/courier labels, and navigation.
+- **Hierarchy:** The wordmark, restrained navigation, family CTA, headline, supporting copy, dual hero actions, privacy promise, live status, and three-step strip follow the selected visual in the same reading order.
+- **Typography:** The live page uses the project's Geist family with the concept's large geometric headline, compact mono labels, 14–21 px supporting text, and controlled line lengths.
+- **Layout and spacing:** The desktop hero ends near the selected design's fold so the three-step section is visible in the first viewport. The content grid, CTA sizing, status placement, and generous whitespace closely match the reference.
+- **Color and surfaces:** Deep ink, warm ivory, restrained lime, hairline separators, and warm architectural photography reproduce the chosen visual system without game controls, neon HUD treatment, glass panels, or a card wall.
+- **Imagery:** The hero is a dedicated 1536 × 1024 editorial asset optimized to a 168 KB WebP. A realistic resident portrait replaces the previous illustrated landing image. Both assets are responsive and have useful alt text.
+- **Copy:** The headline and core promise match the selected direction. Claims stay within the prototype's actual story and explicitly identify sensing, delivery, and notifications as simulated.
+- **Responsiveness:** The hero, CTAs, status badge, care steps, family section, privacy section, and footer reflow cleanly at 390 px and the 200% zoom equivalent without horizontal clipping.
+- **Accessibility:** Navigation and actions use semantic links, sections have labelled headings, images have descriptive alt text, decorative icons are hidden, focus indicators are visible, reduced-motion rules remove transitions, and touch targets are practical.
+- **Icons:** All UI icons use the existing Tabler family. No emoji, text glyph icons, CSS drawings, or placeholder art remain in the landing.
 
-## Interaction and state checks
+## Interaction checks
 
-- Landing starts at routine activity and uses one playback clock for chapter and internal-beat progression.
-- Pausing freezes the complete story state; restarting returns the scene and copy to normal activity.
-- The dashboard's headline, badge, selected scene, care notes, map activity, and replay time agree at each stage.
-- At 86 seconds the UI reads `Resident responding — confirmation pending`; the all-clear appears only after courier confirmation.
-- `Use demo home` restores the bundled plan, rooms, router position, filename context, and errors. Request-version and abort guards prevent late analysis from replacing the restored sample.
-- Router placement is keyboard reachable; Arrow Right moved the pin from 58% to 60%, and Arrow Left restored it.
-- Technical details are collapsed initially; the CSI canvas is absent until the disclosure is expanded.
-- A fresh in-app-browser session reported no console warnings or errors after the final fixes.
+- The hero and header primary actions navigate to `/dashboard`; browser navigation was verified.
+- `How it works`, `For families`, `Privacy`, and `About` resolve to labelled page sections.
+- Keyboard Tab focuses the wordmark first and uses a visible lime focus outline.
+- The family and privacy CTAs remain available below the fold.
+- A fresh browser tab reported zero console warnings or errors.
 
 ## Iteration history
 
-1. The fresh comparison found source-logo drift, emoji camera controls, a low-fidelity resident illustration, cramped mobile header copy, repeated 3D care callouts, overlapping mobile scene labels, and weak status contrast.
-2. The implementation adopted the source-faithful bento mark, the existing high-resolution resident portrait, Tabler icons, a compact responsive header, one main care-status panel, fewer mobile overlays, and a contrast scrim. Obsolete overlay code and styles were removed.
-3. A combined full-view comparison and focused header comparison confirmed the updated asset fidelity and hierarchy. Desktop, mobile, matched unusual-silence state, dashboard ordering, keyboard behavior, lazy diagnostics, and zoom reflow were rechecked.
-4. The last browser pass found an LCP warning for the resident image. Eager loading removed it; a clean tab then reported zero warnings and errors.
+1. The selected concept established a quiet, premium product direction with an editorial home photograph, simple navigation, one live status, and a three-step care explanation.
+2. The first implementation replaced the interactive 3D toy hero with a photographic product story and preserved the working family dashboard.
+3. The first comparison found the hero was too tall, the step strip appeared too late, extra step icons weakened fidelity, and the old illustrated resident brought the toy feeling back below the fold.
+4. The hero height, content placement, step grid, and typography were aligned to the reference. Extra icons were removed and a realistic resident portrait was added.
+5. The hero asset inherited a compass badge from the old reference; the image was regenerated without that artifact and saved under a new cache-safe filename.
+6. The final combined comparison, desktop/mobile review, zoom reflow, keyboard check, CTA navigation, and clean-console pass found no remaining P0–P2 issues.
 
 ## Validation
 
@@ -53,7 +51,6 @@
 - Focused Node suite — 19 tests passed.
 - Rendered HTML suite — 2 tests passed.
 - `npm run build -- --webpack` — passed.
-- Browser widths — 390 × 844, 1280 × 900, and 640 × 450 zoom equivalent passed.
 
 ## Open questions
 

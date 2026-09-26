@@ -1,252 +1,186 @@
-"use client";
-
-import dynamic from "next/dynamic";
 import Image from "next/image";
-import IconBowlChopsticks from "@tabler/icons-react/dist/esm/icons/IconBowlChopsticks.mjs";
-import IconChevronDown from "@tabler/icons-react/dist/esm/icons/IconChevronDown.mjs";
+import Link from "next/link";
+import IconArrowRight from "@tabler/icons-react/dist/esm/icons/IconArrowRight.mjs";
+import IconCircleCheckFilled from "@tabler/icons-react/dist/esm/icons/IconCircleCheckFilled.mjs";
 import IconHeartHandshake from "@tabler/icons-react/dist/esm/icons/IconHeartHandshake.mjs";
-import IconPlayerPauseFilled from "@tabler/icons-react/dist/esm/icons/IconPlayerPauseFilled.mjs";
-import IconPlayerPlayFilled from "@tabler/icons-react/dist/esm/icons/IconPlayerPlayFilled.mjs";
 import IconShieldCheck from "@tabler/icons-react/dist/esm/icons/IconShieldCheck.mjs";
-import IconUsers from "@tabler/icons-react/dist/esm/icons/IconUsers.mjs";
-import IconWifi from "@tabler/icons-react/dist/esm/icons/IconWifi.mjs";
-import {
-  advanceStoryTime,
-  STORY_CHAPTER_MS,
-  storyPositionAt,
-} from "@/lib/landing-story";
-import { useEffect, useRef, useState } from "react";
+import styles from "./landing.module.css";
 
-const HomeScene = dynamic(
-  () => import("./HomeScene").then((module) => module.HomeScene),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="scene-loading" role="status">
-        <IconBowlChopsticks size={22} />
-        <span>Bringing the home to life…</span>
-      </div>
-    ),
-  },
-);
-
-const STORY = [
+const CARE_STEPS = [
   {
     number: "01",
-    title: "Home is moving normally",
-    detail: "2D Family View shows room-to-room movement analytics across the single-story Japanese home.",
+    title: "Notice a change",
+    body: "Ambient Wi-Fi sensing notices when everyday movement becomes unusually still.",
   },
   {
     number: "02",
-    title: "Unusual silence detected",
-    detail: "In this bathroom check-in example, sustained silence prompts a nearby courier request.",
+    title: "Send a human check-in",
+    body: "A familiar bento delivery creates a warm, natural reason for someone to knock.",
   },
   {
     number: "03",
-    title: "A human checks in",
-    detail: "Bento courier with delivery bag knocks on door. Resident answers. Family receives All Clear update.",
+    title: "Keep family informed",
+    body: "Family gets the context they need, without constant alerts or a camera feed.",
   },
 ];
 
 export default function Home() {
-  const [playing, setPlaying] = useState(false);
-  const [storyFinished, setStoryFinished] = useState(false);
-  const [storyPosition, setStoryPosition] = useState(() => storyPositionAt(0, STORY.length));
-  const storyTimeRef = useRef(0);
-  const storyPositionRef = useRef(storyPosition);
-  const totalStoryTime = STORY.length * STORY_CHAPTER_MS;
-  const { step, phase } = storyPosition;
-
-  useEffect(() => {
-    if (!playing) return;
-    let frame = 0;
-    let last = performance.now();
-    const tick = (now: number) => {
-      const next = advanceStoryTime(storyTimeRef.current, now - last, totalStoryTime);
-      last = now;
-      storyTimeRef.current = next;
-      const nextPosition = storyPositionAt(next, STORY.length);
-      if (
-        nextPosition.step !== storyPositionRef.current.step
-        || nextPosition.phase !== storyPositionRef.current.phase
-      ) {
-        storyPositionRef.current = nextPosition;
-        setStoryPosition(nextPosition);
-      }
-      if (next >= totalStoryTime - 1) {
-        setStoryFinished(true);
-        setPlaying(false);
-        return;
-      }
-      frame = window.requestAnimationFrame(tick);
-    };
-    frame = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(frame);
-  }, [playing, totalStoryTime]);
-
-  const playStory = () => {
-    if (playing) {
-      setPlaying(false);
-      return;
-    }
-    if (storyFinished) {
-      storyTimeRef.current = 0;
-      const start = storyPositionAt(0, STORY.length);
-      storyPositionRef.current = start;
-      setStoryPosition(start);
-      setStoryFinished(false);
-    }
-    setPlaying(true);
-  };
-
-  const selectStep = (nextStep: number) => {
-    setPlaying(false);
-    const nextTime = nextStep * STORY_CHAPTER_MS;
-    const nextPosition = storyPositionAt(nextTime, STORY.length);
-    storyTimeRef.current = nextTime;
-    storyPositionRef.current = nextPosition;
-    setStoryPosition(nextPosition);
-    setStoryFinished(false);
-  };
-
   return (
-    <main className={`experience scene-${step}`}>
-      <header className="site-header">
-        <a className="wordmark" href="#story" aria-label="Agent Bento home">
-          <Image className="wordmark-mark" src="/agent-bento-mark.png" alt="" width={52} height={52} priority />
+    <main className={styles.page}>
+      <header className={styles.header}>
+        <a className={styles.wordmark} href="#top" aria-label="Agent Bento home">
+          <Image src="/agent-bento-mark.png" alt="" width={48} height={48} priority />
           <span>AGENT BENTO</span>
         </a>
-        <div className="trust-notes">
-          <div className="privacy-note">
-            <IconShieldCheck size={17} />
-            <span>No cameras. No recordings.</span>
-          </div>
-          <p className="demo-notice">Interactive demo — sensing, delivery and notifications are simulated.</p>
-        </div>
+
+        <nav className={styles.nav} aria-label="Main navigation">
+          <a href="#how-it-works">How it works</a>
+          <a href="#for-families">For families</a>
+          <a href="#privacy">Privacy</a>
+          <a href="#about">About</a>
+        </nav>
+
+        <Link className={styles.headerCta} href="/dashboard">
+          See the family experience
+          <IconArrowRight size={18} stroke={1.8} aria-hidden="true" />
+        </Link>
       </header>
 
-      <section className="hero" id="story" aria-labelledby="hero-title">
-        <div className="scene-wrap" aria-label="Interactive 3D cutaway home">
-          <HomeScene step={step} phase={phase} />
-          <div className="scene-vignette" />
-          <div className="orbit-hint">DRAG TO LOOK AROUND</div>
-        </div>
+      <section className={styles.hero} id="top" aria-labelledby="hero-title">
+        <Image
+          className={styles.heroImage}
+          src="/agent-bento-home-hero-v2.webp"
+          alt="An older man reading at home in the evening near an ambient Wi-Fi sensing router"
+          fill
+          priority
+          sizes="100vw"
+        />
+        <div className={styles.heroOverlay} aria-hidden="true" />
+        <div className={styles.heroShade} aria-hidden="true" />
 
-        <div className="hero-copy">
-          <p className="eyebrow"><span /> PRIVACY-FIRST CARE</p>
+        <div className={styles.heroContent}>
+          <p className={styles.eyebrow}><span /> Privacy-first care</p>
           <h1 id="hero-title">A home can<br />ask for help.</h1>
-          <p className="explainer">
-            Wi‑Fi notices unusual silence.<br />
-            A warm meal checks in.<br />
-            Family steps in only when needed.
+          <p className={styles.heroBody}>
+            Agent Bento notices unusual stillness through Wi-Fi, sends a familiar human check-in,
+            and keeps family informed—without cameras or wearables.
           </p>
-
-          <div className="hero-actions">
-            <a className="play-button hero-dashboard-cta" href="/dashboard">
-              <IconUsers size={18} />
-              Open family demo
-            </a>
-            <button className="story-play-secondary" type="button" onClick={playStory}>
-              {playing ? <IconPlayerPauseFilled size={18} /> : <IconPlayerPlayFilled size={18} />}
-              {playing ? "Pause the story" : storyFinished ? "Replay the story" : "Play the story"}
-            </button>
+          <div className={styles.heroActions}>
+            <Link className={styles.primaryCta} href="/dashboard">
+              See the family experience
+              <IconArrowRight size={20} stroke={1.8} aria-hidden="true" />
+            </Link>
+            <a className={styles.secondaryCta} href="#how-it-works">How it works</a>
           </div>
-
-          <div className="story-heading">BATHROOM CHECK-IN EXAMPLE · HOW AGENT BENTO HELPS</div>
-          <div className="story-steps" role="group" aria-label="Bathroom check-in story scenes">
-            {STORY.map((item, index) => (
-              <button
-                key={item.number}
-                className={`story-step ${index === step ? "active" : ""} ${index < step ? "complete" : ""}`}
-                onClick={() => selectStep(index)}
-                aria-pressed={index === step}
-              >
-                <span className="step-dot" />
-                <span className="step-number">{item.number}</span>
-                <span className="step-text">
-                  <strong>{item.title}</strong>
-                  <small>{item.detail}</small>
-                </span>
-              </button>
-            ))}
-          </div>
-
-          <p className="scene-description" id="scene-description" aria-live="polite">{STORY[step].detail}</p>
+          <p className={styles.privacyPromise}>
+            <IconShieldCheck size={21} stroke={1.7} aria-hidden="true" />
+            No cameras. No microphones. No recordings.
+          </p>
         </div>
 
-        <a className="scroll-cue" href="#why">
-          <span>See why it works</span>
-          <IconChevronDown size={18} />
-        </a>
+        <div className={styles.homeStatus} role="status">
+          <IconCircleCheckFilled size={17} aria-hidden="true" />
+          <span>Movement looks normal</span>
+        </div>
       </section>
 
-      <section className="why-section" id="why" aria-labelledby="why-title">
-        <div className="why-intro">
-          <p className="eyebrow"><span /> THE SAFETY NET</p>
-          <h2 id="why-title">Technology stays quiet.<br />Human care shows up.</h2>
-          <p>Agent Bento turns ambient Wi‑Fi into a respectful sequence of care—starting with the least intrusive action.</p>
+      <section className={styles.steps} id="how-it-works" aria-labelledby="steps-title">
+        <div className={styles.stepsIntro}>
+          <p className={styles.eyebrow}><span /> How Agent Bento helps</p>
+          <h2 id="steps-title">Simple steps.<br />Real peace of mind.</h2>
         </div>
-
-        <div className="resident-portrait">
-          <figure className="resident-portrait-media">
-            <Image
-              className="resident-portrait-image"
-              src="/grandma-sample.png"
-              alt="Illustrated portrait of Grandma in a soft green kimono"
-              width={1024}
-              height={1536}
-              loading="eager"
-              sizes="(max-width: 800px) 320px, 420px"
-            />
-            <figcaption>Sample resident portrait</figcaption>
-          </figure>
-          <div className="resident-portrait-copy">
-            <p className="eyebrow"><span /> INSPIRED BY</p>
-            <h3>My Grandma.</h3>
-            <ul>
-              <li>Stubborn</li>
-              <li>Doesn&apos;t like to bother anyone</li>
-              <li>Doesn&apos;t like being monitored</li>
-              <li>Falls down a lot</li>
-              <li>Food lover</li>
-            </ul>
-            <p>
-              So Agent Bento never watches with cameras. It only notices unusual silence — then sends care that feels like a meal, not surveillance.
-            </p>
-          </div>
-        </div>
-
-        <div className="why-grid">
-          <article>
-            <span className="why-icon"><IconWifi size={25} /></span>
-            <p>01 · SENSE</p>
-            <h3>No camera required</h3>
-            <span>It reads changes in Wi‑Fi reflections, not faces, voices, or private moments.</span>
-          </article>
-          <article>
-            <span className="why-icon coral"><IconBowlChopsticks size={25} /></span>
-            <p>02 · CHECK</p>
-            <h3>Care arrives as a meal</h3>
-            <span>A hand-delivered bento creates a natural, friendly reason for a person to knock.</span>
-          </article>
-          <article>
-            <span className="why-icon warm"><IconUsers size={25} /></span>
-            <p>03 · PROTECT</p>
-            <h3>The right people know</h3>
-            <span>If nobody answers, family receives the context they need to act—without panic.</span>
-          </article>
-        </div>
-        <div className="closing-line">
-          <IconHeartHandshake size={24} />
-          <span>Designed for independence. Built for peace of mind.</span>
-        </div>
-        <div className="closing-cta">
-          <a className="dashboard-cta" href="/dashboard">
-            <IconUsers size={18} />
-            Open family dashboard
-          </a>
+        <div className={styles.stepList}>
+          {CARE_STEPS.map(({ number, title, body }) => (
+            <article className={styles.step} key={number}>
+              <div className={styles.stepNumber}>{number}</div>
+              <h3>{title}</h3>
+              <p>{body}</p>
+            </article>
+          ))}
         </div>
       </section>
+
+      <section className={styles.careSection} id="about" aria-labelledby="care-title">
+        <div className={styles.careStatement}>
+          <p className={styles.eyebrow}><span /> A respectful safety net</p>
+          <h2 id="care-title">Technology stays quiet.<br />Human care shows up.</h2>
+          <p>
+            Agent Bento is designed for people who value their independence—and for families who
+            want reassurance without turning a home into a surveillance system.
+          </p>
+        </div>
+        <div className={styles.careDetails}>
+          <article>
+            <span>01</span>
+            <h3>Sensing that stays in the background</h3>
+            <p>It reads changes in Wi-Fi reflections, never faces, voices, or private moments.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>A check-in that feels familiar</h3>
+            <p>A warm meal and a friendly knock make care feel human instead of clinical.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Clear context for the right people</h3>
+            <p>Family sees what is happening and can step in only when the situation needs them.</p>
+          </article>
+        </div>
+      </section>
+
+      <section className={styles.familySection} id="for-families" aria-labelledby="family-title">
+        <div className={styles.familyImageWrap}>
+          <Image
+            className={styles.familyImage}
+            src="/agent-bento-resident.webp"
+            alt="An independent older woman at home in a sage kimono-style cardigan"
+            width={1152}
+            height={1536}
+            loading="eager"
+            sizes="(max-width: 760px) 100vw, 42vw"
+          />
+          <span>Inspired by someone who values her independence.</span>
+        </div>
+        <div className={styles.familyCopy}>
+          <p className={styles.eyebrow}><span /> Made for families</p>
+          <h2 id="family-title">Reassurance without hovering.</h2>
+          <p>
+            The family view turns a quiet signal into a clear care story: what changed, who is
+            checking in, and whether your loved one answered.
+          </p>
+          <ul>
+            <li><IconCircleCheckFilled size={18} aria-hidden="true" /> Calm, plain-language status</li>
+            <li><IconCircleCheckFilled size={18} aria-hidden="true" /> Human check-ins before escalation</li>
+            <li><IconCircleCheckFilled size={18} aria-hidden="true" /> Technical details stay out of the way</li>
+          </ul>
+          <Link className={styles.textCta} href="/dashboard">
+            Explore the family demo
+            <IconArrowRight size={19} stroke={1.8} aria-hidden="true" />
+          </Link>
+        </div>
+      </section>
+
+      <section className={styles.privacySection} id="privacy" aria-labelledby="privacy-title">
+        <IconShieldCheck size={34} stroke={1.5} aria-hidden="true" />
+        <div>
+          <p className={styles.eyebrow}>Privacy is the product</p>
+          <h2 id="privacy-title">Motion patterns, never images.</h2>
+          <p>
+            The demo simulates sensing, delivery, and notifications. It does not use a camera,
+            microphone, or recording from a real home.
+          </p>
+        </div>
+        <Link className={styles.secondaryCta} href="/dashboard">Open interactive demo</Link>
+      </section>
+
+      <footer className={styles.footer}>
+        <div className={styles.footerBrand}>
+          <Image src="/agent-bento-mark.png" alt="" width={38} height={38} />
+          <span>AGENT BENTO</span>
+        </div>
+        <p><IconHeartHandshake size={18} aria-hidden="true" /> Designed for independence. Built for peace of mind.</p>
+        <Link href="/dashboard">Family demo <IconArrowRight size={16} aria-hidden="true" /></Link>
+      </footer>
     </main>
   );
 }

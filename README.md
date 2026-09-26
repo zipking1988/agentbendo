@@ -110,14 +110,12 @@ The landing page and deterministic care fallback work without cloud credentials.
 
 ## How to use the demo
 
-### 3D landing story
+### Product landing
 
 1. Open `/`.
-2. Start with **Unusual silence detected** to show the fall scenario.
-3. Select **Home is moving normally** to explain the camera-free baseline.
-4. Select **A human checks in** to show the bento courier response.
-5. Drag or zoom the house to demonstrate that it is a live 3D scene.
-6. Use **Play the story** for the automatic judge presentation.
+2. Review the privacy-first promise and the normal-home status in the hero.
+3. Follow the three care steps: notice a change, send a human check-in, and keep family informed.
+4. Select **See the family experience** to open the interactive dashboard demo.
 
 ### Family dashboard
 
@@ -260,7 +258,7 @@ Vercel cannot connect to a laptop-only `localhost` or LAN `.local` address. Expo
 ## Repository map
 
 ```text
-app/                         Next.js pages, 3D landing, dashboard, and API routes
+app/                         Next.js product landing, dashboard, and API routes
 app/api/                     Vercel-hosted server endpoints
 lib/csi-edge.ts              Local privacy-safe CSI feature extraction
 lib/ai-router.ts             GMI → Qwen → deterministic fallback orchestration
