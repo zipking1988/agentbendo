@@ -1092,6 +1092,7 @@
 @media (max-width: 430px) {
   .dashboard-view-label { display: none; }
   .dashboard-header-actions { gap: 0; }
+  .dashboard-site-link { min-width: 44px; justify-content: center; }
   .dashboard-site-link span { display: none; }
   .dashboard-page .dashboard-shell { padding-inline: 18px; }
   .dashboard-page .status-hero .eyebrow { max-width: 260px; }

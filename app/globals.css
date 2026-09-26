@@ -1105,12 +1105,13 @@ button { color: inherit; }
   overflow: hidden;
   border: 1px solid rgba(184, 255, 84, 0.18);
   background: #08110e;
-  touch-action: none;
+  touch-action: pan-y pinch-zoom;
   user-select: none;
 }
 
 .floor-model-stage.is-interactive {
   cursor: crosshair;
+  touch-action: none;
 }
 
 .floor-model-stage.is-dragging {
