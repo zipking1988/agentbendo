@@ -24,7 +24,7 @@ Never describe simulated sensing, ordering, courier arrival, resident response, 
 
 - Next.js 16 and React 19 product landing.
 - Editorial landing with realistic Japanese-home photography and a clear family-demo path.
-- Landing CTAs open `/dashboard?start=1` and start a saved demo at replay `0:00`.
+- Landing CTAs open `/dashboard?start=1`, preserve an existing saved setup, and otherwise start the bundled sample home at replay `0:00`.
 - Family dashboard setup using the bundled Japanese sample floor plan.
 - Movable, keyboard-accessible router pin.
 - Browser-local setup using `agent-bento.home-setup.v4`.
@@ -134,6 +134,14 @@ A prototype change is done when:
 - documentation matches the shipped interface
 
 ## Worklog
+
+### 2026-09-26 — Direct demo entry and journey review
+
+- Started first-time landing visitors directly in the bundled sample home while preserving existing browser-saved setups.
+- Added distinct courier en-route and arrival milestones to the synchronized care journey.
+- Prevented care notes from showing future events and kept the journey progress line aligned with every replay stage.
+- Restored native keyboard and screen-reader controls for router placement and corrected skip-link destinations.
+- Updated demo instructions and rechecked desktop, mobile, lint, unit, build, and rendered-page behavior.
 
 ### 2026-09-26 — Retired cloud inference and custom analysis
 

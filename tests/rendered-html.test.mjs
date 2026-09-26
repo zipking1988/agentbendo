@@ -75,9 +75,13 @@ test("server-renders the Agent Bento experience", async (t) => {
 });
 
 test("keeps the finished experience accessible and self-contained", async () => {
-  const [page, homeScene, familyBoard, layout, css, landingCss, packageJson] = await Promise.all([
+  const [page, dashboardPage, dashboardApp, homeScene, homeFloorModel, homeSetupWizard, familyBoard, layout, css, landingCss, packageJson] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/DashboardApp.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/HomeScene.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/HomeFloorModel.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/HomeSetupWizard.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/dashboard/FamilyBoard.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
@@ -87,6 +91,8 @@ test("keeps the finished experience accessible and self-contained", async () => 
 
   assert.match(page, /aria-label="Main navigation"/);
   assert.match(page, /aria-labelledby="hero-title"/);
+  assert.match(page, /<section className=\{styles\.hero\} id="main-content" tabIndex=\{-1\}/);
+  assert.match(dashboardPage, /<div id="main-content" tabIndex=\{-1\}>/);
   assert.match(page, /href="\/dashboard\?start=1"/);
   assert.match(page, /agent-bento-home-hero-v2\.webp/);
   assert.match(page, /agent-bento-resident\.webp/);
@@ -95,6 +101,11 @@ test("keeps the finished experience accessible and self-contained", async () => 
   assert.match(landingCss, /prefers-reduced-motion/);
   assert.match(landingCss, /:focus-visible/);
   assert.match(familyBoard, /role="status" aria-live="polite" aria-atomic="true"/);
+  assert.doesNotMatch(dashboardApp, /publishSetup\(demoSetup\)/);
+  assert.doesNotMatch(homeFloorModel, /tabIndex=\{canInteract \? 0/);
+  assert.equal((homeSetupWizard.match(/type="range"/g) ?? []).length, 2);
+  assert.match(homeSetupWizard, /const x = Number\(event\.currentTarget\.value\);\s+setWifi\(\(current\) => \(\{ \.\.\.current, x \}\)\);/);
+  assert.match(homeSetupWizard, /const y = Number\(event\.currentTarget\.value\);\s+setWifi\(\(current\) => \(\{ \.\.\.current, y \}\)\);/);
   assert.match(layout, /generateMetadata/);
   assert.match(packageJson, /"@react-three\/fiber"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);

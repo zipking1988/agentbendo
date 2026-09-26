@@ -18,7 +18,7 @@
 
 ## 3. 打开家庭演示
 
-**操作：** 选择 **Open family demo**，确认示例户型与路由器位置，点击 **Start demo**。
+**操作：** 选择 **See the family experience**。示例户型会直接打开，并从回放 `0:00` 开始播放；需要时可选择 **Adjust demo home** 调整路由器位置。
 
 **讲稿：**
 

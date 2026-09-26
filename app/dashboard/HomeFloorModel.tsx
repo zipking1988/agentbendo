@@ -7,7 +7,6 @@ import { motion, useReducedMotion } from "framer-motion";
 import {
   useRef,
   useState,
-  type KeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 
@@ -115,22 +114,6 @@ export function HomeFloorModel({
     }
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (!canInteract || !onPin || !wifi) return;
-    const step = event.shiftKey ? 4 : 2;
-    const next = { ...wifi };
-    if (event.key === "ArrowLeft") next.x -= step;
-    else if (event.key === "ArrowRight") next.x += step;
-    else if (event.key === "ArrowUp") next.y -= step;
-    else if (event.key === "ArrowDown") next.y += step;
-    else return;
-    event.preventDefault();
-    onPin({
-      x: Math.min(96, Math.max(4, next.x)),
-      y: Math.min(96, Math.max(4, next.y)),
-    });
-  };
-
   return (
     <div className={`home-floor-model status-${status}`} aria-label={canInteract ? undefined : label}>
       <div
@@ -140,11 +123,9 @@ export function HomeFloorModel({
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
-        onKeyDown={canInteract ? handleKeyDown : undefined}
         role={canInteract ? "group" : undefined}
-        tabIndex={canInteract ? 0 : undefined}
         aria-label={canInteract ? label : undefined}
-        aria-description={canInteract ? "Floor plan. Click or drag to move the Wi-Fi router. Use arrow keys for precise placement." : undefined}
+        aria-description={canInteract ? "Interactive floor plan. Click or drag to move the Wi-Fi router. Keyboard position controls follow the plan." : undefined}
       >
         <div className="floor-plan-converted">
           {imageUrl ? (

@@ -28,9 +28,9 @@ export default function Home() {
   return (
     <>
       <a className="skip-link" href="#main-content">Skip to main content</a>
-      <main id="main-content" className={styles.page} tabIndex={-1}>
+      <main className={styles.page}>
       <header className={styles.header}>
-        <a className={styles.wordmark} href="#top" aria-label="Agent Bento home">
+        <a className={styles.wordmark} href="#main-content" aria-label="Agent Bento home">
           <Image src="/agent-bento-mark.png" alt="" width={48} height={48} priority />
           <span>AGENT BENTO</span>
         </a>
@@ -48,7 +48,7 @@ export default function Home() {
         </Link>
       </header>
 
-      <section className={styles.hero} id="top" aria-labelledby="hero-title">
+      <section className={styles.hero} id="main-content" tabIndex={-1} aria-labelledby="hero-title">
         <Image
           className={styles.heroImage}
           src="/agent-bento-home-hero-v2.webp"

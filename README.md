@@ -7,7 +7,7 @@ This repository contains a product prototype. Its sensing, courier dispatch, res
 ## What works
 
 - Responsive product landing with a direct path into the family demo.
-- Synchronized care replay covering normal activity, unusual stillness, a requested check-in, resident response, confirmation, and return to routine.
+- Synchronized care replay covering normal activity, unusual stillness, a requested check-in, courier travel and arrival, resident response, confirmation, and return to routine.
 - Bundled Japanese sample floor plan with movable Wi-Fi router and resident markers.
 - Collapsed technical details with a clearly labeled simulated Wi-Fi movement trace.
 - Browser-local setup stored under `agent-bento.home-setup.v4`.
@@ -29,14 +29,13 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Using the demo
 
-1. Open `/` and select **Open family demo**.
-2. Confirm or reposition the router on the bundled sample plan.
-3. Select **Start demo**.
-4. Play the sofa-nap check-in story or jump between stages in the care journey.
-5. Expand **Technical demo details** to see the simulated movement trace.
-6. Select **Adjust demo home** to revisit router placement.
+1. Open `/` and select **See the family experience**.
+2. The bundled sample home opens and the sofa-nap check-in story starts at replay `0:00`.
+3. Pause the story or jump between stages in the care journey.
+4. Expand **Technical demo details** to see the simulated movement trace.
+5. Select **Adjust demo home** to reposition the router, then select **Start demo**.
 
-Landing links use `/dashboard?start=1`, which starts a saved demo at replay `0:00`. Setup stays in the current browser using the existing `home-setup.v4` storage format.
+Landing links use `/dashboard?start=1`, which keeps an existing saved setup when present and otherwise starts the bundled sample home at replay `0:00`. Setup changes stay in the current browser using the existing `home-setup.v4` storage format.
 
 ## Optional RuView bridge
 

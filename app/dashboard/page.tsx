@@ -22,7 +22,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   return (
     <>
       <a className="skip-link" href="#main-content">Skip to main content</a>
-      <main id="main-content" className="dashboard-page" tabIndex={-1}>
+      <main className="dashboard-page">
       <header className="dashboard-header">
         <div className="dashboard-brand-group">
           <Link className="wordmark" href="/" aria-label="Agent Bento home">
@@ -46,7 +46,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </div>
       </header>
 
-      <DashboardApp autoStart={autoStart} />
+      <div id="main-content" tabIndex={-1}>
+        <DashboardApp autoStart={autoStart} />
+      </div>
       </main>
     </>
   );

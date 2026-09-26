@@ -9,7 +9,7 @@ import {
   saveHomeSetup,
   type HomeSetup,
 } from "@/lib/home-setup";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 
 let cachedSetup: HomeSetup | null | undefined;
 const listeners = new Set<() => void>();
@@ -52,11 +52,8 @@ export function DashboardApp({ autoStart = false }: DashboardAppProps) {
   const [startFreshDemo, setStartFreshDemo] = useState(autoStart);
   const setup = storedSetup ?? demoSetup;
 
-  useEffect(() => {
-    if (!storedSetup && demoSetup) {
-      publishSetup(demoSetup);
-    }
-  }, [demoSetup, storedSetup]);
+  // Keep the automatic sample fallback in memory. Persisting it during hydration
+  // can replace a saved home before useSyncExternalStore reads localStorage.
 
   if (!setup) {
     return (

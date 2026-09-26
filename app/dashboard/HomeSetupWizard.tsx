@@ -108,6 +108,37 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
             />
           </div>
 
+          <div className="setup-router-controls" role="group" aria-label="Router position controls">
+            <label className="setup-router-control">
+              <span>Horizontal position <strong>{Math.round(wifi.x)}%</strong></span>
+              <input
+                type="range"
+                min="4"
+                max="96"
+                step="2"
+                value={wifi.x}
+                onChange={(event) => {
+                  const x = Number(event.currentTarget.value);
+                  setWifi((current) => ({ ...current, x }));
+                }}
+              />
+            </label>
+            <label className="setup-router-control">
+              <span>Vertical position <strong>{Math.round(wifi.y)}%</strong></span>
+              <input
+                type="range"
+                min="4"
+                max="96"
+                step="2"
+                value={wifi.y}
+                onChange={(event) => {
+                  const y = Number(event.currentTarget.value);
+                  setWifi((current) => ({ ...current, y }));
+                }}
+              />
+            </label>
+          </div>
+
           <div className="setup-router-readout ready" role="status" aria-live="polite">
             <IconRoute size={20} stroke={1.7} aria-hidden="true" />
             <p>
@@ -136,7 +167,7 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
           {error ? <p className="setup-error" role="alert">{error}</p> : null}
 
           <p className="setup-pin-note ok">
-            Click the plan to move the router. Focus the plan and use arrow keys for precise placement; hold Shift for larger steps.
+            Click or drag the plan to move the router. For keyboard placement, focus either position slider and use the arrow keys.
           </p>
         </div>
       </div>
