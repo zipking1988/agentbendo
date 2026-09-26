@@ -10,6 +10,15 @@ import {
   RoundedBox,
 } from "@react-three/drei";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
+import IconArmchair2 from "@tabler/icons-react/dist/esm/icons/IconArmchair2.mjs";
+import IconBath from "@tabler/icons-react/dist/esm/icons/IconBath.mjs";
+import IconBowlChopsticks from "@tabler/icons-react/dist/esm/icons/IconBowlChopsticks.mjs";
+import IconCircleCheck from "@tabler/icons-react/dist/esm/icons/IconCircleCheck.mjs";
+import IconHome from "@tabler/icons-react/dist/esm/icons/IconHome.mjs";
+import IconScooter from "@tabler/icons-react/dist/esm/icons/IconScooter.mjs";
+import IconTruckDelivery from "@tabler/icons-react/dist/esm/icons/IconTruckDelivery.mjs";
+import IconUser from "@tabler/icons-react/dist/esm/icons/IconUser.mjs";
+import IconUsers from "@tabler/icons-react/dist/esm/icons/IconUsers.mjs";
 import { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import * as THREE from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
@@ -280,7 +289,7 @@ function FallenGrandpa({ visible }: { visible: boolean }) {
 
       <Html position={[0, 0.9, 0]} scale={0.45} center distanceFactor={8}>
         <div className="grandpa-label-badge">
-          <span className="badge-icon">👴</span>
+          <IconUser className="badge-icon" size={14} stroke={1.8} aria-hidden="true" />
           <span className="badge-text">GRANDPA (FALLEN)</span>
         </div>
       </Html>
@@ -340,7 +349,7 @@ function ResidentFigure({
 
       <Html position={[0, 2.15, 0]} center distanceFactor={7.2}>
         <div className={`grandpa-door-badge ${highlight ? "highlight" : ""}`}>
-          <span className="badge-icon">👴</span>
+          <IconUser className="badge-icon" size={14} stroke={1.8} aria-hidden="true" />
           <span className="badge-text">{label}</span>
         </div>
       </Html>
@@ -350,9 +359,9 @@ function ResidentFigure({
 
 /* ─── Moving Grandpa — cycles between rooms with activity labels (Scenario 01) ─── */
 const GRANDPA_ACTIVITIES = [
-  { pos: [-0.6, 0.1, -0.6] as Vec3, rot: [0, 0.3, 0] as Vec3, icon: "📺", label: "Watching TV", room: "Living Room" },
-  { pos: [3.0, 0.1, -1.2] as Vec3, rot: [0, -0.5, 0] as Vec3, icon: "🍳", label: "Cooking", room: "Kitchen" },
-  { pos: [1.5, 0.1, 2.0] as Vec3, rot: [0, 0, 0] as Vec3, icon: "🍵", label: "Drinking tea", room: "Engawa" },
+  { pos: [-0.6, 0.1, -0.6] as Vec3, rot: [0, 0.3, 0] as Vec3, label: "Watching TV", room: "Living Room" },
+  { pos: [3.0, 0.1, -1.2] as Vec3, rot: [0, -0.5, 0] as Vec3, label: "Cooking", room: "Kitchen" },
+  { pos: [1.5, 0.1, 2.0] as Vec3, rot: [0, 0, 0] as Vec3, label: "Drinking tea", room: "Engawa" },
 ];
 
 function MovingGrandpa({ visible, onActivityChange }: { visible: boolean; onActivityChange?: (idx: number) => void }) {
@@ -361,7 +370,6 @@ function MovingGrandpa({ visible, onActivityChange }: { visible: boolean; onActi
   const timerRef = useRef(0);
   const currentPos = useRef(new THREE.Vector3(...GRANDPA_ACTIVITIES[0].pos));
   const currentRot = useRef(new THREE.Euler(...GRANDPA_ACTIVITIES[0].rot));
-  const [activityIdx, setActivityIdx] = useState(0);
 
   useFrame((_, delta) => {
     if (!visible || !groupRef.current) return;
@@ -373,7 +381,6 @@ function MovingGrandpa({ visible, onActivityChange }: { visible: boolean; onActi
       timerRef.current = 0;
       const next = (activityRef.current + 1) % GRANDPA_ACTIVITIES.length;
       activityRef.current = next;
-      setActivityIdx(next);
       onActivityChange?.(next);
     }
 
@@ -392,7 +399,6 @@ function MovingGrandpa({ visible, onActivityChange }: { visible: boolean; onActi
 
   if (!visible) return null;
 
-  const activity = GRANDPA_ACTIVITIES[activityIdx];
   const skin = "#dcae8c";
   const whiteHair = "#f0f0f0";
   const clothesColor = "#4a637d";
@@ -436,13 +442,6 @@ function MovingGrandpa({ visible, onActivityChange }: { visible: boolean; onActi
         <SignalRing key={`g-${i}`} index={i} position={[0, 0.08, 0]} color="#b8ff54" />
       ))}
 
-      {/* Activity Label Badge */}
-      <Html position={[0, 2.05, 0]} center distanceFactor={8}>
-        <div className="grandpa-activity-badge">
-          <span className="badge-icon">{activity.icon}</span>
-          <span className="badge-text">GRANDPA · {activity.label}</span>
-        </div>
-      </Html>
     </group>
   );
 }
@@ -499,7 +498,7 @@ function BentoCourier({
 
         <Html position={[0, 0, -0.21]} transform rotation={[0, Math.PI, 0]} scale={0.45} center>
           <div className="courier-bag-badge">
-            <span className="badge-icon">🍱</span>
+            <IconBowlChopsticks className="badge-icon" size={14} stroke={1.8} aria-hidden="true" />
             <span className="badge-text">BENTO COURIER</span>
           </div>
         </Html>
@@ -577,15 +576,6 @@ function KitchenStation({ step, phase }: { step: number; phase: number }) {
   const lightIntensity = alerting || confirming ? 7.5 : resolved ? 5.5 : monitoring ? 3.2 : 1.5;
   const lightColor = alerting || confirming ? "#ff7650" : resolved ? "#ffbd69" : "#b7ff4a";
 
-  const agentStatus =
-    step === 1
-      ? "DISPATCHING"
-      : resolved
-        ? "ALL CLEAR"
-        : confirming
-          ? "CONFIRMING"
-          : "MONITORING";
-
   return (
     <group position={[3.4, 0.1, -1.2]}>
       <Block size={[1.6, 0.85, 0.7]} position={[0, 0.42, 0]} color="#423024" radius={0.03} />
@@ -601,15 +591,6 @@ function KitchenStation({ step, phase }: { step: number; phase: number }) {
         ))}
         <pointLight color={lightColor} intensity={lightIntensity} distance={3.5} />
 
-        <Html position={[0, 0.85, 0]} center distanceFactor={8}>
-          <div className={`bento-agent-badge step-${step}`}>
-            <span className="badge-icon" aria-hidden="true">📡</span>
-            <span className="badge-copy">
-              <strong>BENTO AGENT</strong>
-              <small>{agentStatus}</small>
-            </span>
-          </div>
-        </Html>
       </group>
     </group>
   );
@@ -752,7 +733,7 @@ function CourierDispatchNode({ visible }: { visible: boolean }) {
 
       <Html position={[0, 1.35, 0]} center distanceFactor={8}>
         <div className="dispatch-node-badge">
-          <span className="badge-icon">🛵</span>
+          <IconScooter className="badge-icon" size={14} stroke={1.8} aria-hidden="true" />
           <span className="badge-copy">
             <strong>BENTO COURIER</strong>
             <small>COMBINI · DELIVERY NET</small>
@@ -796,7 +777,9 @@ function FamilyContactNode({ visible, safe = false }: { visible: boolean; safe?:
 
       <Html position={[0, 1.3, 0]} center distanceFactor={8}>
         <div className={`family-node-badge ${safe ? "safe" : ""}`}>
-          <span className="badge-icon">{safe ? "✅" : "👨‍👩‍👧"}</span>
+          {safe
+            ? <IconCircleCheck className="badge-icon" size={14} stroke={1.8} aria-hidden="true" />
+            : <IconUsers className="badge-icon" size={14} stroke={1.8} aria-hidden="true" />}
           <span className="badge-copy">
             <strong>{safe ? "FAMILY UPDATE" : "FAMILY ALERT"}</strong>
             <small>{safe ? "ALL CLEAR · SAFE" : "TRUSTED CONTACTS"}</small>
@@ -1048,57 +1031,6 @@ function JapaneseHouse({
       <CourierDispatchNode visible={showCourierDispatch} />
       <FamilyContactNode visible={showFamilySafe} safe />
       <JapaneseRoof />
-
-      {/* Callouts — timed with sequence */}
-      {step === 1 && phase === 0 && (
-        <Html position={[-3.3, 1.8, -0.2]} center distanceFactor={7.5}>
-          <div className="scene-callout alert-callout">
-            <b>UNUSUAL SILENCE DETECTED</b>
-            <span>Agent Bento is checking the change in routine</span>
-          </div>
-        </Html>
-      )}
-      {step === 1 && phase === 1 && (
-        <Html position={[5.2, 1.6, 3.0]} center distanceFactor={7.5}>
-          <div className="scene-callout courier-callout">
-            <b>DISPATCHING BENTO COURIER</b>
-            <span>Combini / delivery network contacted</span>
-          </div>
-        </Html>
-      )}
-      {step === 1 && phase >= 2 && (
-        <Html position={[5.2, 1.6, 3.0]} center distanceFactor={7.5}>
-          <div className="scene-callout courier-callout">
-            <b>CHECK-IN REQUESTED</b>
-            <span>Awaiting a response from the courier network</span>
-          </div>
-        </Html>
-      )}
-
-      {step === 2 && phase === 0 && (
-        <Html position={[0, 2.2, 3.2]} center distanceFactor={7.5}>
-          <div className="scene-callout courier-callout">
-            <b>COURIER AT THE DOOR</b>
-            <span>Friendly meal check-in arriving</span>
-          </div>
-        </Html>
-      )}
-      {step === 2 && phase === 1 && (
-        <Html position={[0, 2.2, 3.2]} center distanceFactor={7.5}>
-          <div className="scene-callout courier-callout">
-            <b>RESIDENT RESPONDING</b>
-            <span>Grandpa answered · confirmation pending</span>
-          </div>
-        </Html>
-      )}
-      {step === 2 && phase >= 2 && (
-        <Html position={[6.6, 1.6, 1.0]} center distanceFactor={7.5}>
-          <div className="scene-callout family-safe-callout">
-            <b>FAMILY ALL CLEAR</b>
-            <span>Grandpa is safe · trusted contacts updated</span>
-          </div>
-        </Html>
-      )}
     </group>
   );
 }
@@ -1239,7 +1171,7 @@ export function HomeScene({
             onClick={() => setCurrentView("overview")}
             title="Overview of Single-Story Japanese House"
           >
-            <span className="preset-icon">🏠</span>
+            <IconHome className="preset-icon" size={16} stroke={1.8} aria-hidden="true" />
             <span className="preset-label">Full House</span>
           </button>
           <button
@@ -1248,7 +1180,7 @@ export function HomeScene({
             onClick={() => setCurrentView("bathroom")}
             title="Zoom into Bathroom & Fallen Grandpa"
           >
-            <span className="preset-icon">🛀</span>
+            <IconBath className="preset-icon" size={16} stroke={1.8} aria-hidden="true" />
             <span className="preset-label">Bathroom</span>
           </button>
           <button
@@ -1257,7 +1189,7 @@ export function HomeScene({
             onClick={() => setCurrentView("courier")}
             title="Zoom into Entrance & Bento Courier"
           >
-            <span className="preset-icon">🍱</span>
+            <IconTruckDelivery className="preset-icon" size={16} stroke={1.8} aria-hidden="true" />
             <span className="preset-label">Bento Courier</span>
           </button>
           <button
@@ -1266,7 +1198,7 @@ export function HomeScene({
             onClick={() => setCurrentView("living")}
             title="Zoom into Tatami Living Room"
           >
-            <span className="preset-icon">🍵</span>
+            <IconArmchair2 className="preset-icon" size={16} stroke={1.8} aria-hidden="true" />
             <span className="preset-label">Living Room</span>
           </button>
         </div>

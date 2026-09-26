@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import IconBowlChopsticks from "@tabler/icons-react/dist/esm/icons/IconBowlChopsticks.mjs";
 import IconChevronDown from "@tabler/icons-react/dist/esm/icons/IconChevronDown.mjs";
 import IconHeartHandshake from "@tabler/icons-react/dist/esm/icons/IconHeartHandshake.mjs";
@@ -26,14 +27,6 @@ const HomeScene = dynamic(
         <span>Bringing the home to life…</span>
       </div>
     ),
-  },
-);
-
-const GrandmaPortrait = dynamic(
-  () => import("./GrandmaPortrait").then((module) => module.GrandmaPortrait),
-  {
-    ssr: false,
-    loading: () => <div className="grandma-portrait-scene grandma-portrait-loading" />,
   },
 );
 
@@ -120,9 +113,7 @@ export default function Home() {
     <main className={`experience scene-${step}`}>
       <header className="site-header">
         <a className="wordmark" href="#story" aria-label="Agent Bento home">
-          <span className="wordmark-icon" aria-hidden="true">
-            <IconBowlChopsticks size={25} stroke={1.7} />
-          </span>
+          <Image className="wordmark-mark" src="/agent-bento-mark.png" alt="" width={52} height={52} priority />
           <span>AGENT BENTO</span>
         </a>
         <div className="trust-notes">
@@ -198,8 +189,16 @@ export default function Home() {
 
         <div className="resident-portrait">
           <figure className="resident-portrait-media">
-            <GrandmaPortrait />
-            <figcaption>Sample resident · live 3D</figcaption>
+            <Image
+              className="resident-portrait-image"
+              src="/grandma-sample.png"
+              alt="Illustrated portrait of Grandma in a soft green kimono"
+              width={1024}
+              height={1536}
+              loading="eager"
+              sizes="(max-width: 800px) 320px, 420px"
+            />
+            <figcaption>Sample resident portrait</figcaption>
           </figure>
           <div className="resident-portrait-copy">
             <p className="eyebrow"><span /> INSPIRED BY</p>

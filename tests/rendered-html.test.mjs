@@ -51,13 +51,16 @@ test("server-renders the Agent Bento experience", async (t) => {
   assert.match(html, /Play the story/);
   assert.match(html, /Interactive demo/);
   assert.match(html, /No cameras\. No recordings\./);
+  assert.match(html, /agent-bento-mark\.png/);
+  assert.match(html, /grandma-sample\.png/);
   assert.match(html, /og\.png/);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton/i);
 });
 
 test("keeps the finished experience accessible and self-contained", async () => {
-  const [page, layout, css, packageJson] = await Promise.all([
+  const [page, homeScene, layout, css, packageJson] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/HomeScene.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
@@ -66,6 +69,8 @@ test("keeps the finished experience accessible and self-contained", async () => 
   assert.match(page, /aria-label="Bathroom check-in story scenes"/);
   assert.match(page, /aria-pressed/);
   assert.match(page, /HomeScene/);
+  assert.match(page, /grandma-sample\.png/);
+  assert.doesNotMatch(homeScene, /🏠|🛀|🍱|🍵|👴|🛵|👨‍👩‍👧|✅|📡|📺|🍳/);
   assert.match(css, /prefers-reduced-motion/);
   assert.match(layout, /generateMetadata/);
   assert.match(packageJson, /"@react-three\/fiber"/);

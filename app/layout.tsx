@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     icons: {
-      icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+      icon: [{ url: "/agent-bento-mark.png", type: "image/png" }],
     },
     openGraph: {
       title,

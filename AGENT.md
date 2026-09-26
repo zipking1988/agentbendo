@@ -253,7 +253,7 @@ Important files:
 
 - `app/page.tsx`: landing story state, why section, and dashboard CTA
 - `app/HomeScene.tsx`: landing 3D scene and story mapping
-- `app/GrandmaPortrait.tsx`: landing grandma sample
+- `public/grandma-sample.png`: landing resident portrait asset
 - `app/dashboard/page.tsx`: family dashboard shell
 - `app/dashboard/DashboardApp.tsx`: setup vs monitoring gate; localStorage setup
 - `app/dashboard/HomeSetupWizard.tsx`: ready-made Japanese demo home or custom upload → Qwen Cloud rooms → Wi‑Fi pin

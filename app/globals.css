@@ -21,8 +21,8 @@ button { color: inherit; }
 
 .experience { min-height: 100vh; overflow-x: hidden; background: var(--night); }
 .site-header { position: absolute; inset: 0 0 auto; z-index: 20; height: 88px; padding: 0 4vw; display: flex; justify-content: space-between; align-items: center; }
-.wordmark { color: var(--paper); text-decoration: none; display: inline-flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 760; letter-spacing: .18em; }
-.wordmark-icon { width: 43px; height: 43px; border: 1px solid rgba(184, 255, 84, .56); border-radius: 12px; display: grid; place-items: center; color: var(--lime); background: rgba(8, 18, 14, .68); box-shadow: inset 0 0 20px rgba(184,255,84,.04); }
+.wordmark { color: var(--paper); text-decoration: none; display: inline-flex; align-items: center; flex: none; gap: 12px; font-size: 13px; font-weight: 760; letter-spacing: .18em; white-space: nowrap; }
+.wordmark-mark { display: block; width: 43px; height: 43px; flex: none; object-fit: contain; filter: drop-shadow(0 8px 20px rgba(0, 0, 0, .28)); }
 .privacy-note { display: inline-flex; align-items: center; gap: 8px; color: #bec8c0; font-size: 12px; }
 .privacy-note svg { color: var(--lime); }
 .trust-notes { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
@@ -69,12 +69,6 @@ button { color: inherit; }
 .scene-description { min-height: 40px; margin: 10px 0 0; max-width: 405px; color: #9da9a1; font-size: 14px; line-height: 1.45; }
 .scroll-cue { position: absolute; z-index: 7; left: 50%; bottom: 24px; transform: translateX(-50%); color: #96a39a; text-decoration: none; display: grid; justify-items: center; gap: 3px; font-size: 10px; letter-spacing: .05em; }
 .scroll-cue svg { color: var(--lime); animation: nudge 2s ease-in-out infinite; }
-
-.scene-callout { min-width: 170px; border: 1px solid rgba(184,255,84,.48); background: rgba(6,14,10,.88); backdrop-filter: blur(10px); padding: 10px 12px; color: var(--lime); white-space: nowrap; box-shadow: 0 14px 45px rgba(0,0,0,.35); }
-.scene-callout b, .scene-callout span { display: block; font-family: var(--font-geist-mono), monospace; }
-.scene-callout b { font-size: 8px; letter-spacing: .13em; }
-.scene-callout span { margin-top: 5px; color: #d8dfd9; font-size: 6px; letter-spacing: .1em; }
-.courier-callout { color: var(--coral); border-color: rgba(255,118,80,.5); }
 
 /* 3D Scene Controls & Viewport Preset Overlay */
 .scene-camera-controls {
@@ -130,8 +124,15 @@ button { color: inherit; }
 }
 
 .preset-icon {
-  font-size: 13px;
-  line-height: 1;
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.preset-btn:focus-visible,
+.zoom-btn:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 3px;
 }
 
 .zoom-actions-group {
@@ -277,90 +278,7 @@ button { color: inherit; }
   letter-spacing: 0.11em;
 }
 
-/* Grandpa Activity Badge (animated, above moving grandpa) */
-.grandpa-activity-badge {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  background: rgba(13, 30, 42, 0.92);
-  border: 1px solid #5ecbff;
-  border-radius: 5px;
-  color: #b8e8ff;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55), 0 0 12px rgba(94, 203, 255, 0.15);
-  user-select: none;
-  white-space: nowrap;
-  animation: badgePop 0.35s ease-out;
-}
-.grandpa-activity-badge .badge-icon { font-size: 15px; line-height: 1; }
-.grandpa-activity-badge .badge-text {
-  font-family: var(--font-geist-mono), monospace;
-  font-weight: 800;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-}
 @keyframes badgePop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
-/* Bento Agent label above Wi-Fi router (all scenarios) */
-.bento-agent-badge {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 6px 10px;
-  background: rgba(8, 18, 14, 0.92);
-  border: 1px solid rgba(184, 255, 84, 0.55);
-  border-radius: 6px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55), 0 0 14px rgba(184, 255, 84, 0.18);
-  user-select: none;
-  white-space: nowrap;
-  animation: badgePop 0.35s ease-out;
-}
-
-.bento-agent-badge .badge-icon {
-  font-size: 14px;
-  line-height: 1;
-}
-
-.bento-agent-badge .badge-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.bento-agent-badge strong {
-  font-family: var(--font-geist-mono), monospace;
-  font-weight: 800;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  color: var(--lime);
-  line-height: 1;
-}
-
-.bento-agent-badge small {
-  font-family: var(--font-geist-mono), monospace;
-  font-size: 8px;
-  letter-spacing: 0.14em;
-  color: #a8b8a6;
-  line-height: 1;
-}
-
-.bento-agent-badge.step-1 {
-  border-color: rgba(255, 118, 80, 0.6);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55), 0 0 14px rgba(255, 118, 80, 0.22);
-  background: rgba(22, 10, 8, 0.92);
-}
-
-.bento-agent-badge.step-1 strong { color: var(--coral); }
-.bento-agent-badge.step-1 small { color: #d8a898; }
-
-.bento-agent-badge.step-2 {
-  border-color: rgba(255, 189, 105, 0.6);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55), 0 0 14px rgba(255, 189, 105, 0.22);
-  background: rgba(20, 14, 8, 0.92);
-}
-
-.bento-agent-badge.step-2 strong { color: var(--amber); }
-.bento-agent-badge.step-2 small { color: #d4c0a0; }
 
 /* Outdoor courier / combini dispatch node */
 .dispatch-node-badge {
@@ -470,12 +388,12 @@ button { color: inherit; }
   display: grid;
   grid-template-columns: 3px 1fr;
   gap: 14px;
-  padding: 0;
-  background: transparent;
+  padding: 18px 16px 18px 0;
+  background: linear-gradient(90deg, rgba(3, 8, 9, .16), rgba(3, 8, 9, .86) 18%, rgba(3, 8, 9, .92));
   border: 0;
   border-radius: 0;
-  backdrop-filter: none;
-  box-shadow: none;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .22);
   pointer-events: none;
   animation: scenarioBarIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -528,9 +446,6 @@ button { color: inherit; }
 .scenario-bar.checkin .sb-pulse { top: 22%; }
 .scenario-bar.checkin.phase-1 .sb-pulse { top: 48%; }
 .scenario-bar.checkin.phase-2 .sb-pulse { top: 78%; }
-
-.family-callout { color: #5ecbff; border-color: rgba(94, 203, 255, 0.5); }
-.family-safe-callout { color: var(--lime); border-color: rgba(184, 255, 84, 0.5); }
 
 @keyframes sbPulse {
   0% { box-shadow: 0 0 0 0 var(--sb-glow); transform: scale(1); }
@@ -668,25 +583,16 @@ button { color: inherit; }
   max-width: 420px;
 }
 
-.grandma-portrait-scene {
+.resident-portrait-image {
+  display: block;
   width: 100%;
   max-width: 420px;
   aspect-ratio: 3 / 4;
   height: auto;
-  min-height: 0;
-  overflow: hidden;
-  background: #7f8c7c;
+  object-fit: cover;
+  object-position: center 14%;
+  background: #9b9c82;
   border: 1px solid #6d7a6a;
-}
-
-.grandma-portrait-scene canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-.grandma-portrait-loading {
-  background:
-    linear-gradient(120deg, #7f8c7c 0%, #93a08f 45%, #7f8c7c 100%);
 }
 
 .resident-portrait-media figcaption {
@@ -1491,8 +1397,9 @@ button { color: inherit; }
 
 @media (max-width: 800px) {
   .dashboard-header {
-    height: 72px;
-    padding: 0 18px;
+    height: 88px;
+    padding: 10px 18px 0;
+    align-items: flex-start;
   }
 
   .dashboard-shell {
@@ -2211,14 +2118,15 @@ button { color: inherit; }
 }
 
 @media (max-width: 800px) {
-  .site-header { height: 72px; padding: 0 18px; }
-  .wordmark { font-size: 11px; }
-  .wordmark-icon { width: 38px; height: 38px; border-radius: 10px; }
-  .privacy-note span { display: none; }
-  .trust-notes { max-width: 235px; }
-  .demo-notice { font-size: 11px; }
+  .site-header { height: 88px; padding: 10px 18px 0; align-items: flex-start; }
+  .wordmark { gap: 8px; padding-top: 2px; font-size: 10px; letter-spacing: .14em; }
+  .wordmark-mark { width: 36px; height: 36px; }
+  .privacy-note { gap: 4px; font-size: 10px; white-space: nowrap; }
+  .privacy-note svg { width: 14px; height: 14px; }
+  .trust-notes { max-width: 210px; gap: 3px; }
+  .demo-notice { max-width: 210px; font-size: 10px; line-height: 1.25; }
   .hero { min-height: 100svh; display: block; padding-bottom: 560px; }
-  .hero-copy { width: auto; margin: 0; padding: 112px 22px 0; }
+  .hero-copy { width: auto; margin: 0; padding: 124px 22px 0; }
   .hero h1 { font-size: clamp(48px, 15vw, 68px); }
   .explainer { font-size: 16px; }
   .hero-actions { align-items: stretch; flex-direction: column; max-width: 420px; }
@@ -2238,7 +2146,7 @@ button { color: inherit; }
     padding-bottom: 48px;
   }
   .resident-portrait-media,
-  .grandma-portrait-scene {
+  .resident-portrait-image {
     max-width: 320px;
   }
   .why-grid { grid-template-columns: 1fr; }
@@ -2257,6 +2165,13 @@ button { color: inherit; }
   .sb-word { font-size: 32px; }
   .sb-detail { max-width: none; }
   .sb-beats { display: none; }
+  .dispatch-node-badge,
+  .family-node-badge,
+  .courier-bag-badge,
+  .grandpa-label-badge,
+  .resident-label-badge {
+    display: none;
+  }
 }
 
 @media (max-width: 440px) {
