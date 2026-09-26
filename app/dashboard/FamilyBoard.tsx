@@ -36,32 +36,42 @@ const CARE_JOURNEY: ReadonlyArray<{
   {
     stage: "routine",
     label: "Normal activity",
-    description: "Movement follows Grandpa’s usual morning routine.",
+    description: "Usual morning movement.",
   },
   {
     stage: "checking_stillness",
     label: "Routine went quiet",
-    description: "Wi-Fi noticed a change in movement patterns.",
+    description: "The movement pattern changed.",
   },
   {
     stage: "arranging_check_in",
     label: "Check-in requested",
-    description: "Agent Bento arranged a friendly human visit.",
+    description: "A friendly visit was requested.",
+  },
+  {
+    stage: "courier_en_route",
+    label: "Courier on the way",
+    description: "A courier accepted the request.",
+  },
+  {
+    stage: "courier_at_door",
+    label: "Courier at the door",
+    description: "The courier arrived and is knocking.",
   },
   {
     stage: "resident_responding",
     label: "Resident responding",
-    description: "Movement returned while confirmation was pending.",
+    description: "Movement returned; confirmation is pending.",
   },
   {
     stage: "check_in_complete",
     label: "All clear",
-    description: "The courier confirmed Grandpa answered safely.",
+    description: "The courier confirmed Grandpa answered.",
   },
   {
     stage: "back_to_routine",
     label: "Back to routine",
-    description: "Ordinary movement resumed after the confirmed check-in.",
+    description: "Ordinary movement resumed.",
   },
 ];
 

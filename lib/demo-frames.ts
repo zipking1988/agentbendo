@@ -217,23 +217,10 @@ export function demoCarePresentation(stage: DemoCareStage): DemoCarePresentation
   return DEMO_CARE_PRESENTATION[stage];
 }
 
-export type DemoCareJourneyStage =
-  | "routine"
-  | "checking_stillness"
-  | "arranging_check_in"
-  | "resident_responding"
-  | "check_in_complete"
-  | "back_to_routine";
+export type DemoCareJourneyStage = DemoCareStage;
 
-export function demoCareJourneyStage(stage: DemoCareStage): DemoCareJourneyStage | null {
-  if (stage === "routine") return stage;
-  if (stage === "checking_stillness") return stage;
-  if (["arranging_check_in", "courier_en_route", "courier_at_door"].includes(stage)) {
-    return "arranging_check_in";
-  }
-  if (stage === "resident_responding") return stage;
-  if (stage === "check_in_complete") return stage;
-  return "back_to_routine";
+export function demoCareJourneyStage(stage: DemoCareStage): DemoCareJourneyStage {
+  return stage;
 }
 
 export function demoCareJourneyProgress(
@@ -289,7 +276,7 @@ export function frameAt(frames: DemoFrame[], t: number): DemoFrame {
 }
 
 export function logsUpTo(log: DemoLogEntry[], t: number): DemoLogEntry[] {
-  return log.filter((entry) => entry.t <= t + 0.05);
+  return log.filter((entry) => entry.t <= t);
 }
 
 export async function loadDemoFrames(): Promise<DemoFramesData> {

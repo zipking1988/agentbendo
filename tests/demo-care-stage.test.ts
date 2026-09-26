@@ -8,6 +8,7 @@ import {
   demoCareStageAt,
   frameAt,
   latestCheckInNote,
+  logsUpTo,
   type DemoFrame,
   type DemoFramesData,
 } from "../lib/demo-frames.ts";
@@ -54,12 +55,12 @@ test("presentation copy follows demo progress instead of sensor severity", () =>
   assert.equal(demoCarePresentation(demoCareStageAt(100, timeline)).title, "Check-in complete — Grandpa answered");
 });
 
-test("care journey groups delivery progress without losing the care stage", () => {
+test("care journey exposes every user-facing care stage", () => {
   assert.equal(demoCareJourneyStage("routine"), "routine");
   assert.equal(demoCareJourneyStage("checking_stillness"), "checking_stillness");
   assert.equal(demoCareJourneyStage("arranging_check_in"), "arranging_check_in");
-  assert.equal(demoCareJourneyStage("courier_en_route"), "arranging_check_in");
-  assert.equal(demoCareJourneyStage("courier_at_door"), "arranging_check_in");
+  assert.equal(demoCareJourneyStage("courier_en_route"), "courier_en_route");
+  assert.equal(demoCareJourneyStage("courier_at_door"), "courier_at_door");
   assert.equal(demoCareJourneyStage("resident_responding"), "resident_responding");
   assert.equal(demoCareJourneyStage("check_in_complete"), "check_in_complete");
   assert.equal(demoCareJourneyStage("back_to_routine"), "back_to_routine");
@@ -70,18 +71,20 @@ test("care journey progress follows the shared replay clock", () => {
     "routine",
     "checking_stillness",
     "arranging_check_in",
+    "courier_en_route",
+    "courier_at_door",
     "resident_responding",
     "check_in_complete",
     "back_to_routine",
   ] as const;
 
   assert.equal(demoCareJourneyProgress(0, timeline, stages), 0);
-  assert.equal(Math.round(demoCareJourneyProgress(28, timeline, stages)), 19);
-  assert.equal(demoCareJourneyProgress(30, timeline, stages), 20);
-  assert.equal(Math.round(demoCareJourneyProgress(40, timeline, stages)), 30);
-  assert.equal(Math.round(demoCareJourneyProgress(68, timeline, stages)), 50);
-  assert.equal(Math.round(demoCareJourneyProgress(93, timeline, stages)), 70);
-  assert.equal(demoCareJourneyProgress(100, timeline, stages), 80);
+  assert.equal(Math.round(demoCareJourneyProgress(28, timeline, stages)), 13);
+  assert.equal(Math.round(demoCareJourneyProgress(30, timeline, stages)), 14);
+  assert.equal(Math.round(demoCareJourneyProgress(40, timeline, stages)), 21);
+  assert.equal(Math.round(demoCareJourneyProgress(68, timeline, stages)), 48);
+  assert.equal(Math.round(demoCareJourneyProgress(93, timeline, stages)), 79);
+  assert.equal(Math.round(demoCareJourneyProgress(100, timeline, stages)), 86);
   assert.equal(demoCareJourneyProgress(120, timeline, stages), 100);
   assert.equal(demoCareJourneyProgress(149.9, timeline, stages), 100);
 });
@@ -93,6 +96,13 @@ test("latest check-in note follows replay progress and stops at confirmation", (
   assert.equal(latestCheckInNote(notes.filter((entry) => entry.t <= 92), timeline)?.t, 92);
   assert.equal(latestCheckInNote(notes, timeline)?.t, 100);
   assert.equal(latestCheckInNote([], timeline), undefined);
+});
+
+test("care notes never appear before their replay timestamp", () => {
+  const notes = fixture.meta.bendoLog;
+
+  assert.equal(logsUpTo(notes, 49.99).some((entry) => entry.t === 50), false);
+  assert.equal(logsUpTo(notes, 50).some((entry) => entry.t === 50), true);
 });
 
 test("care notes match the watch, response, and confirmation stages", async () => {

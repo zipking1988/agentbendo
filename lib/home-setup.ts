@@ -37,6 +37,22 @@ export type HomeSetup = {
   savedAt: string;
 };
 
+export function createDemoHomeSetup(
+  wifi: WifiPin = DEMO_WIFI,
+  savedAt = new Date().toISOString(),
+): HomeSetup {
+  return {
+    floorPlanDataUrl: DEMO_FLOOR_PLAN_URL,
+    fileName: "Japanese demo home",
+    wifi: { ...wifi },
+    rooms: DEMO_ROOMS.map((room) => ({
+      ...room,
+      bbox: { ...room.bbox },
+    })),
+    savedAt,
+  };
+}
+
 const STORAGE_KEY = "agent-bento.home-setup.v4";
 
 export function loadHomeSetup(): HomeSetup | null {

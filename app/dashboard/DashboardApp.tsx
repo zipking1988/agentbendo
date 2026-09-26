@@ -4,11 +4,12 @@ import { FamilyBoard } from "@/app/dashboard/FamilyBoard";
 import { HomeSetupWizard } from "@/app/dashboard/HomeSetupWizard";
 import {
   clearHomeSetup,
+  createDemoHomeSetup,
   loadHomeSetup,
   saveHomeSetup,
   type HomeSetup,
 } from "@/lib/home-setup";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 let cachedSetup: HomeSetup | null | undefined;
 const listeners = new Set<() => void>();
@@ -44,8 +45,18 @@ type DashboardAppProps = {
 };
 
 export function DashboardApp({ autoStart = false }: DashboardAppProps) {
-  const setup = useSyncExternalStore(subscribe, getClientSetup, getServerSetup);
+  const storedSetup = useSyncExternalStore(subscribe, getClientSetup, getServerSetup);
+  const [demoSetup, setDemoSetup] = useState<HomeSetup | null>(() => (
+    autoStart ? createDemoHomeSetup() : null
+  ));
   const [startFreshDemo, setStartFreshDemo] = useState(autoStart);
+  const setup = storedSetup ?? demoSetup;
+
+  useEffect(() => {
+    if (!storedSetup && demoSetup) {
+      publishSetup(demoSetup);
+    }
+  }, [demoSetup, storedSetup]);
 
   if (!setup) {
     return (
@@ -67,6 +78,7 @@ export function DashboardApp({ autoStart = false }: DashboardAppProps) {
       autoStart={startFreshDemo}
       onResetSetup={() => {
         setStartFreshDemo(false);
+        setDemoSetup(null);
         publishSetup(null);
       }}
     />

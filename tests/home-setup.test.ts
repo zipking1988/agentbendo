@@ -2,9 +2,22 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   clearHomeSetup,
+  createDemoHomeSetup,
   saveHomeSetup,
   type HomeSetup,
 } from "../lib/home-setup.ts";
+
+test("bundled demo setup is complete and isolated from shared defaults", () => {
+  const first = createDemoHomeSetup({ x: 42, y: 51 }, "2026-09-26T00:00:00.000Z");
+  const second = createDemoHomeSetup(undefined, "2026-09-26T00:00:01.000Z");
+
+  assert.equal(first.floorPlanDataUrl, "/fixtures/test-floor-plan.png");
+  assert.equal(first.fileName, "Japanese demo home");
+  assert.deepEqual(first.wifi, { x: 42, y: 51 });
+  assert.equal(first.rooms.length, 4);
+  assert.notEqual(first.rooms, second.rooms);
+  assert.notEqual(first.rooms[0].bbox, second.rooms[0].bbox);
+});
 
 const setup: HomeSetup = {
   floorPlanDataUrl: "/fixtures/test-floor-plan.png",

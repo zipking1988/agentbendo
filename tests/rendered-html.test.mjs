@@ -66,6 +66,12 @@ test("server-renders the Agent Bento experience", async (t) => {
   assert.match(dashboardHtml, /Place the Wi‑Fi router\./);
   assert.match(dashboardHtml, /Private by design/);
   assert.match(dashboardHtml, /Start demo/);
+
+  const directDemoResponse = await fetch(`${baseUrl}/dashboard?start=1`);
+  assert.equal(directDemoResponse.status, 200);
+  const directDemoHtml = await directDemoResponse.text();
+  assert.match(directDemoHtml, /Loading simulated care feed/);
+  assert.doesNotMatch(directDemoHtml, /Place the Wi‑Fi router\./);
 });
 
 test("keeps the finished experience accessible and self-contained", async () => {

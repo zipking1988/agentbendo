@@ -5,6 +5,7 @@ import {
   DEMO_FLOOR_PLAN_URL,
   DEMO_ROOMS,
   DEMO_WIFI,
+  createDemoHomeSetup,
   pointInBBox,
   type HomeSetup,
   type WifiPin,
@@ -29,13 +30,7 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
   const routerPosition = `${routerRoom?.label ?? "Router placed"} · ${Math.round(wifi.x)}% from left, ${Math.round(wifi.y)}% from top`;
 
   const finish = () => {
-    const saveError = onComplete({
-      floorPlanDataUrl: DEMO_FLOOR_PLAN_URL,
-      fileName: "Japanese demo home",
-      wifi,
-      rooms: DEMO_ROOMS,
-      savedAt: new Date().toISOString(),
-    });
+    const saveError = onComplete(createDemoHomeSetup(wifi));
     setError(saveError);
   };
 
