@@ -111,7 +111,7 @@
 .dashboard-page .status-hero .eyebrow {
   margin-bottom: 28px;
   color: #bdc7bf;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.35;
   letter-spacing: 0.2em;
 }
@@ -247,7 +247,7 @@
 .latest-note-label strong { font-size: 13px; font-weight: 620; }
 .latest-note-label span {
   color: #aeb8b1;
-  font: 650 11px/1.2 var(--font-geist-mono), monospace;
+  font: 650 12px/1.2 var(--font-geist-mono), monospace;
 }
 
 .dashboard-latest-note > p {
@@ -274,7 +274,7 @@
 .dashboard-journey .dashboard-panel-kicker {
   margin: 0 0 10px;
   color: #aeb8b1;
-  font: 700 10px/1.2 var(--font-geist-mono), monospace;
+  font: 700 12px/1.2 var(--font-geist-mono), monospace;
   letter-spacing: 0.2em;
 }
 
@@ -356,7 +356,7 @@
   display: grid;
   grid-template-columns: 26px minmax(0, 1fr);
   gap: 15px;
-  min-height: 92px;
+  min-height: 82px;
   padding: 9px 0 12px;
   border: 0;
   background: transparent;
@@ -393,7 +393,7 @@
 .journey-time {
   margin-bottom: 7px;
   color: #93a099;
-  font: 650 11px/1.2 var(--font-geist-mono), monospace;
+  font: 650 12px/1.2 var(--font-geist-mono), monospace;
 }
 
 .care-journey-item.active .journey-time { color: var(--lime); }
@@ -471,7 +471,7 @@
 .signal-overview-head p {
   margin-bottom: 8px;
   color: var(--signal-color);
-  font: 700 10px/1.2 var(--font-geist-mono), monospace;
+  font: 700 12px/1.2 var(--font-geist-mono), monospace;
   letter-spacing: 0.16em;
 }
 
@@ -487,7 +487,7 @@
   padding: 6px 9px;
   border: 1px solid color-mix(in srgb, var(--signal-color) 42%, transparent);
   color: var(--signal-color);
-  font: 700 10px/1 var(--font-geist-mono), monospace;
+  font: 700 11px/1 var(--font-geist-mono), monospace;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -562,7 +562,7 @@
   right: 24px;
   bottom: 16px;
   color: #8e9a92;
-  font: 600 10px/1 var(--font-geist-mono), monospace;
+  font: 600 12px/1 var(--font-geist-mono), monospace;
   letter-spacing: 0.05em;
 }
 
@@ -871,6 +871,17 @@
   line-height: 1.6;
 }
 
+.dashboard-page .setup-dropzone > .setup-upload-disclosure {
+  max-width: 470px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(229, 239, 230, 0.14);
+  background: rgba(229, 239, 230, 0.035);
+  color: #b8c2ba;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .dashboard-page .setup-dropzone .dashboard-play {
   width: auto;
   min-width: 210px;
@@ -1034,7 +1045,7 @@
   .dashboard-page .dashboard-status h1 { font-size: 50px; }
   .dashboard-latest-note { grid-template-columns: 110px 1fr; }
   .dashboard-latest-note .reset-floor-btn { grid-column: 2; justify-self: start; border-left: 0; }
-  .care-journey-item { min-height: 92px; }
+  .care-journey-item { min-height: 82px; }
 
   .dashboard-page .setup-shell {
     grid-template-columns: minmax(280px, 0.62fr) minmax(500px, 1.2fr);
@@ -1202,7 +1213,7 @@
   .family-board .floor-plan-human-label { font-size: 9px; }
   .signal-overview-head { align-items: start; padding: 18px; }
   .signal-overview-head h3 { font-size: 21px; }
-  .signal-overview-head > span { padding: 5px 7px; font-size: 9px; }
+  .signal-overview-head > span { padding: 5px 7px; font-size: 11px; }
   .signal-metric { min-height: 76px; padding: 14px 12px; }
   .signal-metric > span { font-size: 12px; }
   .signal-metric strong { font-size: 21px; }
@@ -1215,7 +1226,7 @@
   .setup-panel-status { display: none; }
   .dashboard-page .setup-shell { padding-inline: 16px; }
   .dashboard-page .setup-copy h1 { font-size: 44px; }
-  .dashboard-page .setup-steps strong { font-size: 11px; }
+  .dashboard-page .setup-steps strong { font-size: 13px; }
   .setup-router-readout { align-items: start; }
 }
 

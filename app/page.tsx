@@ -40,7 +40,7 @@ export default function Home() {
           <a href="#about">About</a>
         </nav>
 
-        <Link className={styles.headerCta} href="/dashboard">
+        <Link className={styles.headerCta} href="/dashboard?start=1">
           See the family experience
           <IconArrowRight size={18} stroke={1.8} aria-hidden="true" />
         </Link>
@@ -66,7 +66,7 @@ export default function Home() {
             and keeps family informed—without cameras or wearables.
           </p>
           <div className={styles.heroActions}>
-            <Link className={styles.primaryCta} href="/dashboard">
+            <Link className={styles.primaryCta} href="/dashboard?start=1">
               See the family experience
               <IconArrowRight size={20} stroke={1.8} aria-hidden="true" />
             </Link>
@@ -153,7 +153,7 @@ export default function Home() {
             <li><IconCircleCheckFilled size={18} aria-hidden="true" /> Human check-ins before escalation</li>
             <li><IconCircleCheckFilled size={18} aria-hidden="true" /> Technical details stay out of the way</li>
           </ul>
-          <Link className={styles.textCta} href="/dashboard">
+          <Link className={styles.textCta} href="/dashboard?start=1">
             Explore the family demo
             <IconArrowRight size={19} stroke={1.8} aria-hidden="true" />
           </Link>
@@ -170,7 +170,7 @@ export default function Home() {
             microphone, or recording from a real home.
           </p>
         </div>
-        <Link className={styles.secondaryCta} href="/dashboard">Open interactive demo</Link>
+        <Link className={styles.secondaryCta} href="/dashboard?start=1">Open interactive demo</Link>
       </section>
 
       <footer className={styles.footer}>
@@ -179,7 +179,7 @@ export default function Home() {
           <span>AGENT BENTO</span>
         </div>
         <p><IconHeartHandshake size={18} aria-hidden="true" /> Designed for independence. Built for peace of mind.</p>
-        <Link href="/dashboard">Family demo <IconArrowRight size={16} aria-hidden="true" /></Link>
+        <Link href="/dashboard?start=1">Family demo <IconArrowRight size={16} aria-hidden="true" /></Link>
       </footer>
     </main>
   );

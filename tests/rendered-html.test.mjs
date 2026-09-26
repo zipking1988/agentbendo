@@ -81,7 +81,7 @@ test("keeps the finished experience accessible and self-contained", async () => 
 
   assert.match(page, /aria-label="Main navigation"/);
   assert.match(page, /aria-labelledby="hero-title"/);
-  assert.match(page, /href="\/dashboard"/);
+  assert.match(page, /href="\/dashboard\?start=1"/);
   assert.match(page, /agent-bento-home-hero-v2\.webp/);
   assert.match(page, /agent-bento-resident\.webp/);
   assert.doesNotMatch(homeScene, /🏠|🛀|🍱|🍵|👴|🛵|👨‍👩‍👧|✅|📡|📺|🍳/);

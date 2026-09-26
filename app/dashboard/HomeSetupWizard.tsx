@@ -31,6 +31,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 type Step = "upload" | "analyzing" | "review" | "wifi";
 
 type HomeSetupWizardProps = {
+  initialStep?: "upload" | "wifi";
   onComplete: (setup: HomeSetup) => void;
 };
 
@@ -78,14 +79,15 @@ async function buildRoomModel(imageDataUrl: string, signal: AbortSignal): Promis
   return floorPlanRoomsFromResponse(await response.json(), response.ok);
 }
 
-export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
+export function HomeSetupWizard({ initialStep = "wifi", onComplete }: HomeSetupWizardProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const analysisGuard = useMemo(() => new FloorPlanAnalysisRequestGuard(), []);
-  const [step, setStep] = useState<Step>("wifi");
-  const [imageUrl, setImageUrl] = useState<string | null>(DEMO_FLOOR_PLAN_URL);
-  const [fileName, setFileName] = useState("Japanese demo home");
-  const [rooms, setRooms] = useState<RoomRegion[]>(DEMO_ROOMS);
-  const [wifi, setWifi] = useState<WifiPin | null>(DEMO_WIFI);
+  const startsWithDemo = initialStep === "wifi";
+  const [step, setStep] = useState<Step>(initialStep);
+  const [imageUrl, setImageUrl] = useState<string | null>(startsWithDemo ? DEMO_FLOOR_PLAN_URL : null);
+  const [fileName, setFileName] = useState(startsWithDemo ? "Japanese demo home" : "");
+  const [rooms, setRooms] = useState<RoomRegion[]>(startsWithDemo ? DEMO_ROOMS : []);
+  const [wifi, setWifi] = useState<WifiPin | null>(startsWithDemo ? DEMO_WIFI : null);
   const [error, setError] = useState<string | null>(null);
   const [draggingFile, setDraggingFile] = useState(false);
 
@@ -217,7 +219,7 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
           <IconShieldLock size={19} stroke={1.7} />
           <p>
             <strong>Private by design</strong>
-            <span>No cameras, microphones or recordings. The saved setup stays in this browser after room analysis.</span>
+            <span>No cameras, microphones or recordings. Uploaded plans are processed by the configured room-analysis provider; the finished setup is saved in this browser.</span>
           </p>
         </div>
       </div>
@@ -252,6 +254,9 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
             <span className="setup-dropzone-icon"><IconPhoto size={28} stroke={1.6} /></span>
             <h3>Use your own floor plan</h3>
             <p>Drop a PNG, JPG or WebP here, or choose an image from your device. Maximum 4.5 MB.</p>
+            <p className="setup-upload-disclosure">
+              Your image is sent to the configured room-analysis provider to identify rooms before the setup is saved in this browser.
+            </p>
             <button
               type="button"
               className="play-button dashboard-play"

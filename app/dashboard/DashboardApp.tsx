@@ -36,14 +36,21 @@ function publishSetup(next: HomeSetup | null) {
   for (const listener of listeners) listener();
 }
 
-export function DashboardApp() {
+type DashboardAppProps = {
+  autoStart?: boolean;
+};
+
+export function DashboardApp({ autoStart = false }: DashboardAppProps) {
   const setup = useSyncExternalStore(subscribe, getClientSetup, getServerSetup);
-  const [startFreshDemo, setStartFreshDemo] = useState(false);
+  const [startFreshDemo, setStartFreshDemo] = useState(autoStart);
+  const [chooseFloorPlan, setChooseFloorPlan] = useState(false);
 
   if (!setup) {
     return (
       <HomeSetupWizard
+        initialStep={chooseFloorPlan ? "upload" : "wifi"}
         onComplete={(next) => {
+          setChooseFloorPlan(false);
           setStartFreshDemo(true);
           publishSetup(next);
         }}
@@ -57,6 +64,7 @@ export function DashboardApp() {
       autoStart={startFreshDemo}
       onResetSetup={() => {
         setStartFreshDemo(false);
+        setChooseFloorPlan(true);
         publishSetup(null);
       }}
     />

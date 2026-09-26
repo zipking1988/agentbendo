@@ -26,7 +26,7 @@ import { useEffect, useEffectEvent, useRef, useState } from "react";
 
 type Mode = "calm" | "replay";
 
-const IDLE_T = 149.9;
+const IDLE_T = 120;
 
 const CARE_JOURNEY: ReadonlyArray<{
   stage: DemoCareJourneyStage;
@@ -56,7 +56,12 @@ const CARE_JOURNEY: ReadonlyArray<{
   {
     stage: "check_in_complete",
     label: "All clear",
-    description: "The check-in was confirmed and routine resumed.",
+    description: "The courier confirmed Grandpa answered safely.",
+  },
+  {
+    stage: "back_to_routine",
+    label: "Back to routine",
+    description: "Ordinary movement resumed after the confirmed check-in.",
   },
 ];
 
@@ -66,6 +71,12 @@ function formatReplayTime(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
   const remaining = Math.floor(seconds % 60);
   return `${minutes}:${String(remaining).padStart(2, "0")}`;
+}
+
+function formatDuration(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const remaining = seconds % 60;
+  return minutes > 0 ? `${minutes}m ${String(remaining).padStart(2, "0")}s` : `${remaining}s`;
 }
 
 function buildSignalPoints(t: number, motion: number, change: number): string {
@@ -295,7 +306,11 @@ export function FamilyBoard({ homeSetup, autoStart = false, onResetSetup }: Fami
           <span className="journey-clock" aria-hidden="true">Replay {formatReplayTime(viewT)}</span>
         </div>
         <div className="care-journey-list" role="group" aria-label="Sofa-nap check-in care journey">
-          <span className="journey-progress-line" style={{ height: `${journeyProgress * 0.78}%` }} aria-hidden="true" />
+          <span
+            className="journey-progress-line"
+            style={{ height: `calc((100% - 76px) * ${journeyProgress / 100})` }}
+            aria-hidden="true"
+          />
           {CARE_JOURNEY.map((item) => {
             const timelineItem = data.meta.careTimeline.find((entry) => entry.stage === item.stage);
             const itemIndex = data.meta.careTimeline.findIndex((entry) => entry.stage === item.stage);
@@ -347,11 +362,11 @@ export function FamilyBoard({ homeSetup, autoStart = false, onResetSetup }: Fami
                 <strong>{motionPct}<small>%</small></strong>
               </div>
               <div className="signal-metric">
-                <span>Stillness</span>
-                <strong>{stillSeconds}<small>s</small></strong>
+                <span>Quiet history</span>
+                <strong>{formatDuration(stillSeconds)}</strong>
               </div>
               <div className="signal-metric">
-                <span>Change score</span>
+                <span>Change from baseline</span>
                 <strong>{changePct}<small>%</small></strong>
               </div>
             </div>
@@ -379,7 +394,7 @@ export function FamilyBoard({ homeSetup, autoStart = false, onResetSetup }: Fami
             </div>
 
             <p className="signal-disclaimer">
-              This demo represents movement patterns only. It does not infer clinical vital signs.
+              These simulated inputs include sensing history that can begin before the replay clock. They represent movement patterns only, not clinical vital signs.
             </p>
           </section>
         </div>

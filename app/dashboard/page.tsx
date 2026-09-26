@@ -11,7 +11,14 @@ export const metadata: Metadata = {
   description: "Set up your home floor plan, label rooms, pin Wi‑Fi sensing, and watch Grandpa’s care status.",
 };
 
-export default function DashboardPage() {
+type DashboardPageProps = {
+  searchParams: Promise<{ start?: string | string[] }>;
+};
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const params = await searchParams;
+  const autoStart = params.start === "1";
+
   return (
     <main className="dashboard-page">
       <header className="dashboard-header">
@@ -37,7 +44,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <DashboardApp />
+      <DashboardApp autoStart={autoStart} />
     </main>
   );
 }

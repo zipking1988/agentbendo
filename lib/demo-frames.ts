@@ -222,7 +222,8 @@ export type DemoCareJourneyStage =
   | "checking_stillness"
   | "arranging_check_in"
   | "resident_responding"
-  | "check_in_complete";
+  | "check_in_complete"
+  | "back_to_routine";
 
 export function demoCareJourneyStage(stage: DemoCareStage): DemoCareJourneyStage | null {
   if (stage === "routine") return stage;
@@ -231,7 +232,8 @@ export function demoCareJourneyStage(stage: DemoCareStage): DemoCareJourneyStage
     return "arranging_check_in";
   }
   if (stage === "resident_responding") return stage;
-  return "check_in_complete";
+  if (stage === "check_in_complete") return stage;
+  return "back_to_routine";
 }
 
 export function demoCareJourneyProgress(
