@@ -331,7 +331,7 @@
 
 .careDetails span {
   grid-row: 1 / span 2;
-  color: #68766d;
+  color: #536159;
   font: 700 12px/1 var(--font-geist-mono), monospace;
 }
 
@@ -495,6 +495,10 @@
 .footer a:focus-visible {
   outline: 2px solid var(--landing-lime);
   outline-offset: 4px;
+}
+
+.familySection .textCta:focus-visible {
+  outline-color: #101817;
 }
 
 @media (max-width: 1040px) {
