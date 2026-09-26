@@ -77,27 +77,11 @@ export type DemoFramesData = {
   frames: DemoFrame[];
 };
 
-export type ActivityTrailItem = {
-  timeLabel: string;
-  room: string;
-  note: string;
-  t: number;
-};
-
 const ROOM_LABELS: Record<string, string> = {
   living: "Living room",
   kitchen: "Kitchen",
   bedroom: "Bedroom",
   bathroom: "Bathroom",
-};
-
-const ZONE_LABELS: Record<string, string> = {
-  bed: "bed",
-  sink: "sink",
-  sofa: "sofa",
-  stove: "stove",
-  table: "table",
-  tv: "TV",
 };
 
 const ACTIVITY_LABELS: Record<string, string> = {
@@ -136,10 +120,6 @@ const LOG_TRANSLATIONS: Record<string, string> = {
 
 export function roomLabel(room: string): string {
   return ROOM_LABELS[room] ?? room;
-}
-
-export function zoneLabel(zone: string): string {
-  return ZONE_LABELS[zone] ?? zone;
 }
 
 export function activityLabel(activity: string): string {
@@ -237,6 +217,31 @@ export function demoCarePresentation(stage: DemoCareStage): DemoCarePresentation
   return DEMO_CARE_PRESENTATION[stage];
 }
 
+export type DemoCareJourneyStage =
+  | "checking_stillness"
+  | "arranging_check_in"
+  | "resident_responding"
+  | "check_in_complete";
+
+export function demoCareJourneyStage(stage: DemoCareStage): DemoCareJourneyStage | null {
+  if (stage === "routine") return null;
+  if (stage === "checking_stillness") return stage;
+  if (["arranging_check_in", "courier_en_route", "courier_at_door"].includes(stage)) {
+    return "arranging_check_in";
+  }
+  if (stage === "resident_responding") return stage;
+  return "check_in_complete";
+}
+
+export function latestCheckInNote(
+  entries: ReadonlyArray<DemoLogEntry>,
+  timeline: ReadonlyArray<DemoCareTimelineItem>,
+): DemoLogEntry | undefined {
+  const confirmationStart = timeline.find((item) => item.stage === "check_in_complete")?.start;
+  if (confirmationStart === undefined) return entries.at(-1);
+  return entries.findLast((entry) => entry.t <= confirmationStart);
+}
+
 export function frameAt(frames: DemoFrame[], t: number): DemoFrame {
   if (frames.length === 0) {
     throw new Error("No demo frames loaded");
@@ -262,28 +267,6 @@ export function frameAt(frames: DemoFrame[], t: number): DemoFrame {
 
 export function logsUpTo(log: DemoLogEntry[], t: number): DemoLogEntry[] {
   return log.filter((entry) => entry.t <= t + 0.05);
-}
-
-export function buildActivityTrail(frames: DemoFrame[], limit = 5): ActivityTrailItem[] {
-  const trail: ActivityTrailItem[] = [];
-  let lastKey = "";
-
-  for (const frame of frames) {
-    const key = `${frame.room}|${frame.activity}|${frame.zone}`;
-    if (key === lastKey) continue;
-    lastKey = key;
-
-    const hours = 8 + Math.floor(frame.t / 60);
-    const minutes = Math.floor(frame.t % 60);
-    trail.push({
-      t: frame.t,
-      timeLabel: `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`,
-      room: roomLabel(frame.room),
-      note: `${activityLabel(frame.activity)} · ${zoneLabel(frame.zone)}`,
-    });
-  }
-
-  return trail.slice(-limit).reverse();
 }
 
 export async function loadDemoFrames(): Promise<DemoFramesData> {

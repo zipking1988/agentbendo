@@ -31,11 +31,11 @@ export function StatusHero({
   onRestart,
 }: StatusHeroProps) {
   const reduceMotion = useReducedMotion();
-  const { title, lead, chip, tone } = demoCarePresentation(stage);
+  const { title, lead, tone } = demoCarePresentation(stage);
 
   return (
     <div className={`status-hero status-${tone}`}>
-      <p className="eyebrow"><span /> FAMILY VIEW · SOFA-NAP CHECK-IN EXAMPLE</p>
+      <p className="eyebrow"><span /> SOFA-NAP CHECK-IN EXAMPLE</p>
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {title}. {lead}
       </p>
@@ -54,16 +54,6 @@ export function StatusHero({
 
       <p className="dashboard-lead">{lead}</p>
 
-      <motion.div
-        className="dashboard-live"
-        key={chip}
-        initial={reduceMotion ? false : { opacity: 0.5 }}
-        animate={{ opacity: 1 }}
-      >
-        <span className="status-pulse" />
-        {chip}
-      </motion.div>
-
       <div className="current-location" aria-label={`Current room: ${currentRoom}. ${currentActivity}`}>
         <span>CURRENT ROOM</span>
         <strong>{currentRoom}</strong>
@@ -74,7 +64,7 @@ export function StatusHero({
         {mode === "calm" || !playing ? (
           <button type="button" className="play-button dashboard-play" onClick={onPlay}>
             <IconPlayerPlay size={18} stroke={2} />
-            {mode === "calm" ? "Replay the sofa-nap check-in" : "Continue story"}
+            {mode === "calm" ? "Replay the check-in" : "Continue story"}
           </button>
         ) : (
           <button type="button" className="play-button dashboard-play" onClick={onPause}>

@@ -1,27 +1,28 @@
 "use client";
 
-import { CareLog } from "@/app/dashboard/CareLog";
 import { HomeFloorModel } from "@/app/dashboard/HomeFloorModel";
 import { ServiceStatusPanel } from "@/app/dashboard/ServiceStatusPanel";
 import { StatusHero } from "@/app/dashboard/StatusHero";
 import {
   activityLabel,
-  buildActivityTrail,
+  demoCareJourneyStage,
   demoCarePresentation,
   demoCareStageAt,
   frameAt,
   loadDemoFrames,
+  latestCheckInNote,
   logsUpTo,
   roomLabel,
+  translateLogText,
   translateStatusReason,
-  type ActivityTrailItem,
+  type DemoCareStage,
   type DemoFramesData,
 } from "@/lib/demo-frames";
 import { DEMO_FLOOR_PLAN_URL, mapPresence, type HomeSetup } from "@/lib/home-setup";
-import IconArrowLeft from "@tabler/icons-react/dist/esm/icons/IconArrowLeft.mjs";
+import IconChevronRight from "@tabler/icons-react/dist/esm/icons/IconChevronRight.mjs";
+import IconShieldCheck from "@tabler/icons-react/dist/esm/icons/IconShieldCheck.mjs";
 import IconUpload from "@tabler/icons-react/dist/esm/icons/IconUpload.mjs";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 
 const CsiSignalField = dynamic(
@@ -40,6 +41,39 @@ type Mode = "calm" | "replay";
 
 const IDLE_T = 149.9;
 
+const CARE_JOURNEY: ReadonlyArray<{
+  stage: DemoCareStage;
+  label: string;
+  description: string;
+}> = [
+  {
+    stage: "checking_stillness",
+    label: "Routine went quiet",
+    description: "Wi-Fi noticed a change in movement patterns.",
+  },
+  {
+    stage: "arranging_check_in",
+    label: "Check-in requested",
+    description: "Agent Bento arranged a friendly human visit.",
+  },
+  {
+    stage: "resident_responding",
+    label: "Resident responding",
+    description: "Movement returned while confirmation was pending.",
+  },
+  {
+    stage: "check_in_complete",
+    label: "All clear",
+    description: "The check-in was confirmed and routine resumed.",
+  },
+];
+
+function formatReplayTime(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const remaining = Math.floor(seconds % 60);
+  return `${minutes}:${String(remaining).padStart(2, "0")}`;
+}
+
 type FamilyBoardProps = {
   homeSetup: HomeSetup;
   onResetSetup: () => void;
@@ -52,7 +86,6 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
   const [playing, setPlaying] = useState(false);
   const [technicalOpen, setTechnicalOpen] = useState(false);
   const [t, setT] = useState(IDLE_T);
-  const [trail, setTrail] = useState<ActivityTrailItem[]>([]);
 
   const tRef = useRef(IDLE_T);
   const lastStampRef = useRef<number | null>(null);
@@ -64,7 +97,6 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
       .then((payload) => {
         if (cancelled) return;
         setData(payload);
-        setTrail(buildActivityTrail(payload.frames, 5));
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -189,15 +221,13 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
   const mapSource = homeSetup.floorPlanDataUrl === DEMO_FLOOR_PLAN_URL
     ? "Sample floor plan"
     : "Your uploaded floor plan";
+  const stageIndex = data.meta.careTimeline.findIndex((item) => item.stage === stage);
+  const activeJourneyStage = demoCareJourneyStage(stage);
+  const latestNote = latestCheckInNote(logs, data.meta.careTimeline);
 
   return (
-    <section className={`dashboard-shell mode-${mode} status-${status}`}>
+    <section className={`dashboard-shell family-board mode-${mode} status-${status}`}>
       <div className="dashboard-status">
-        <Link className="dashboard-back" href="/">
-          <IconArrowLeft size={16} />
-          Back to the story
-        </Link>
-
         <StatusHero
           stage={stage}
           currentRoom={roomLabel(presence.room)}
@@ -215,10 +245,6 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
         <div className={`monitor-plan status-${status}`}>
           <div className="monitor-plan-toolbar">
             <p className="monitor-plan-kicker">{mapSource.toUpperCase()}</p>
-            <button type="button" className="reset-floor-btn" onClick={onResetSetup}>
-              <IconUpload size={15} stroke={1.9} />
-              Change floor plan
-            </button>
           </div>
           <HomeFloorModel
             imageUrl={homeSetup.floorPlanDataUrl}
@@ -229,60 +255,51 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
             compactWifi
             label={mapSource}
           />
-          <p className="home-map-caption">
-            <strong>{roomLabel(presence.room)}</strong>
-            <span>{displayedActivity}</span>
-          </p>
-          <p className="home-map-source">{mapSource}</p>
+          <div className="dashboard-latest-note">
+            <div className="latest-note-label">
+              <strong>Latest check-in note</strong>
+              <span>{latestNote ? formatReplayTime(latestNote.t) : "0:00"} replay time</span>
+            </div>
+            <p role="status" aria-live="polite" aria-atomic="true">
+              {latestNote ? translateLogText(latestNote.text) : presentation.lead}
+            </p>
+            <button type="button" className="reset-floor-btn" onClick={onResetSetup}>
+              <IconUpload size={15} stroke={1.9} />
+              Change floor plan
+            </button>
+          </div>
         </div>
       </aside>
 
-      <div className="dashboard-care">
-        <CareLog entries={logs} mode={mode} />
-      </div>
-
-      <div className="dashboard-story">
-        <div className="dashboard-panel-head dashboard-story-head">
-          <p className="dashboard-panel-kicker">{mode === "replay" ? "REPLAY" : "TODAY"}</p>
-          <h2>{mode === "replay" ? "Care story scenes" : "Movement history"}</h2>
+      <aside className="dashboard-journey" aria-labelledby="care-journey-heading">
+        <p className="dashboard-panel-kicker">TODAY</p>
+        <h2 id="care-journey-heading">Care journey</h2>
+        <p className="journey-intro">A simple story, in replay time.</p>
+        <div className="care-journey-list" role="group" aria-label="Sofa-nap check-in care journey">
+          {CARE_JOURNEY.map((item) => {
+            const timelineItem = data.meta.careTimeline.find((entry) => entry.stage === item.stage);
+            const itemIndex = data.meta.careTimeline.findIndex((entry) => entry.stage === item.stage);
+            const active = activeJourneyStage === item.stage;
+            const complete = stageIndex > itemIndex;
+            return (
+              <button
+                key={item.stage}
+                type="button"
+                aria-pressed={active}
+                className={`care-journey-item ${active ? "active" : ""} ${complete && !active ? "complete" : ""}`}
+                onClick={() => jumpToScene(timelineItem?.start ?? 0)}
+              >
+                <span className="journey-node" aria-hidden="true" />
+                <span className="journey-copy">
+                  <span className="journey-time">{formatReplayTime(timelineItem?.start ?? 0)}</span>
+                  <strong>{item.label}</strong>
+                  <small>{item.description}</small>
+                </span>
+              </button>
+            );
+          })}
         </div>
-        {mode === "replay" ? (
-          <div className="scene-rail" role="group" aria-label="Sofa-nap check-in story scenes">
-            {data.meta.careTimeline.map((item) => {
-              const copy = demoCarePresentation(item.stage);
-              const active = stage === item.stage;
-              const complete = viewT >= item.end;
-              return (
-                <button
-                  key={item.stage}
-                  type="button"
-                  aria-pressed={active}
-                  className={`scene-rail-item ${active ? "active" : ""} ${complete && !active ? "complete" : ""}`}
-                  onClick={() => jumpToScene(item.start)}
-                >
-                  <span className="scene-rail-id">{`${Math.floor(item.start / 60)}:${String(item.start % 60).padStart(2, "0")}`}</span>
-                  <span className="scene-rail-text">
-                    <strong>{copy.title}</strong>
-                    <small>{copy.lead}</small>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <ol className="dashboard-trail calm-trail" aria-label="Today’s movement trail">
-            {trail.map((item, index) => (
-              <li key={`${item.t}-${item.room}`} className={index === 0 ? "on" : ""}>
-                <span className="act-time">{item.timeLabel}</span>
-                <div className="act-copy">
-                  <strong>{item.room}</strong>
-                  <span>{item.note}</span>
-                </div>
-              </li>
-            ))}
-          </ol>
-        )}
-      </div>
+      </aside>
 
       <details
         className="technical-details"
@@ -290,8 +307,9 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
         onToggle={(event) => setTechnicalOpen(event.currentTarget.open)}
       >
         <summary>
+          <IconChevronRight size={20} stroke={1.7} aria-hidden="true" />
           <span>Technical demo details</span>
-          <small>Simulated signal field and service status</small>
+          <small>{technicalOpen ? "Hide details" : "Show details"}</small>
         </summary>
         <div className="technical-details-body">
           <div className="sensing-meters" aria-label="Movement sensing">
@@ -324,6 +342,17 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
           <ServiceStatusPanel />
         </div>
       </details>
+
+      <footer className="dashboard-footer">
+        <div>
+          <strong>AGENT BENTO</strong>
+          <span>Privacy-first care for independent living.</span>
+        </div>
+        <p>
+          <IconShieldCheck size={22} stroke={1.7} aria-hidden="true" />
+          <span>No cameras. No microphones. No recordings.<br />This is a simulated demo.</span>
+        </p>
+      </footer>
     </section>
   );
 }

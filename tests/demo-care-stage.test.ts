@@ -3,8 +3,10 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   demoCarePresentation,
+  demoCareJourneyStage,
   demoCareStageAt,
   frameAt,
+  latestCheckInNote,
   type DemoFrame,
   type DemoFramesData,
 } from "../lib/demo-frames.ts";
@@ -54,6 +56,26 @@ test("presentation copy follows demo progress instead of sensor severity", () =>
   assert.equal(demoCarePresentation(demoCareStageAt(80, timeline)).title, "Courier at the door");
   assert.equal(demoCarePresentation(demoCareStageAt(86, timeline)).chip, "SIMULATED · CONFIRMATION PENDING");
   assert.equal(demoCarePresentation(demoCareStageAt(100, timeline)).title, "Check-in complete — Grandpa answered");
+});
+
+test("care journey groups delivery progress without losing the care stage", () => {
+  assert.equal(demoCareJourneyStage("routine"), null);
+  assert.equal(demoCareJourneyStage("checking_stillness"), "checking_stillness");
+  assert.equal(demoCareJourneyStage("arranging_check_in"), "arranging_check_in");
+  assert.equal(demoCareJourneyStage("courier_en_route"), "arranging_check_in");
+  assert.equal(demoCareJourneyStage("courier_at_door"), "arranging_check_in");
+  assert.equal(demoCareJourneyStage("resident_responding"), "resident_responding");
+  assert.equal(demoCareJourneyStage("check_in_complete"), "check_in_complete");
+  assert.equal(demoCareJourneyStage("back_to_routine"), "check_in_complete");
+});
+
+test("latest check-in note follows replay progress and stops at confirmation", () => {
+  const notes = fixture.meta.bendoLog;
+
+  assert.equal(latestCheckInNote(notes.filter((entry) => entry.t <= 48), timeline)?.t, 48);
+  assert.equal(latestCheckInNote(notes.filter((entry) => entry.t <= 92), timeline)?.t, 92);
+  assert.equal(latestCheckInNote(notes, timeline)?.t, 100);
+  assert.equal(latestCheckInNote([], timeline), undefined);
 });
 
 test("care notes match the watch, response, and confirmation stages", async () => {

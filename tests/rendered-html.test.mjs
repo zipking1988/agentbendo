@@ -55,12 +55,20 @@ test("server-renders the Agent Bento experience", async (t) => {
   assert.match(html, /agent-bento-resident\.webp/);
   assert.match(html, /og\.png/);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton/i);
+
+  const dashboardResponse = await fetch(`${baseUrl}/dashboard`);
+  assert.equal(dashboardResponse.status, 200);
+  const dashboardHtml = await dashboardResponse.text();
+  assert.match(dashboardHtml, /<title>Family Dashboard — Agent Bento<\/title>/i);
+  assert.match(dashboardHtml, /Family view/);
+  assert.match(dashboardHtml, /Interactive demo — sensing, delivery and notifications are simulated\./);
 });
 
 test("keeps the finished experience accessible and self-contained", async () => {
-  const [page, homeScene, layout, css, landingCss, packageJson] = await Promise.all([
+  const [page, homeScene, familyBoard, layout, css, landingCss, packageJson] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/HomeScene.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/dashboard/FamilyBoard.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/landing.module.css", import.meta.url), "utf8"),
@@ -76,6 +84,7 @@ test("keeps the finished experience accessible and self-contained", async () => 
   assert.match(css, /prefers-reduced-motion/);
   assert.match(landingCss, /prefers-reduced-motion/);
   assert.match(landingCss, /:focus-visible/);
+  assert.match(familyBoard, /role="status" aria-live="polite" aria-atomic="true"/);
   assert.match(layout, /generateMetadata/);
   assert.match(packageJson, /"@react-three\/fiber"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
