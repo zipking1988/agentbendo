@@ -13,13 +13,15 @@ All six highest-impact recommendations were implemented after this review:
 
 Post-fix checks covered the 390px mobile layout, 1280px desktop layout, replay jumps, setup recovery, console errors, lint, TypeScript, unit tests, production build, and rendered-page assertions.
 
+The sections below preserve the original pre-fix observations and screenshots as audit evidence. Their “needs refinement” labels describe the captured version, while the resolution status above records the implemented outcome.
+
 ## Audit scope
 
 Combined UX and accessibility review of the production landing page, returning-family dashboard, setup recovery, demo-home path, replay states, care journey, and technical disclosure at `https://agentbendo.vercel.app`.
 
 The intended user goal is to understand the privacy-first care promise, enter the family experience with confidence, configure a home without fear of losing progress, and understand what is happening during a check-in. The accessibility target is a clear, keyboard-reachable experience with readable status communication for family caregivers, including people with reduced vision or motion sensitivity.
 
-## Overall verdict
+## Pre-fix audit verdict
 
 The product now feels coherent and credible. The landing page is especially strong: it leads with a human need, shows the product in a realistic home, and makes privacy part of the proposition. Setup and the dashboard share the same visual language, and the replay is internally synchronized.
 
@@ -29,7 +31,7 @@ Three experience gaps keep it from feeling fully finished:
 2. **Change floor plan** opens router placement before the plan chooser.
 3. The upload step does not clearly disclose, before selection, that the image is sent to a configured room-analysis provider.
 
-## Captured flow
+## Pre-fix captured flow
 
 ### Step 1 — Landing hero · Healthy
 
@@ -106,7 +108,7 @@ Three experience gaps keep it from feeling fully finished:
 - Dashboard states, map markers, care stages, notes, and replay controls stay synchronized.
 - Native links, buttons, headings, disclosure semantics, selected-state information, live status text, and reduced-motion handling are present in the implementation.
 
-## Highest-impact recommendations
+## Pre-fix highest-impact recommendations
 
 1. Make **See the family experience** start at normal activity at replay 0:00, while preserving a separate returning-family route or current-state view if needed.
 2. Make **Change floor plan** open the plan chooser, or rename it **Edit home setup** when it opens the current router step.

@@ -1,9 +1,9 @@
 import {
   hasAllRequiredRooms,
   type RoomRegion,
-} from "@/lib/floor-plan-rooms";
+} from "./floor-plan-rooms.ts";
 
-export type { RoomBBox, RoomId, RoomRegion } from "@/lib/floor-plan-rooms";
+export type { RoomBBox, RoomId, RoomRegion } from "./floor-plan-rooms.ts";
 export {
   REQUIRED_ROOMS,
   hasAllRequiredRooms,
@@ -12,7 +12,7 @@ export {
   pointInBBox,
   roomMeta,
   upsertRoom,
-} from "@/lib/floor-plan-rooms";
+} from "./floor-plan-rooms.ts";
 
 export type WifiPin = {
   /** Percent from left edge of the floor-plan image (0–100) */
@@ -24,7 +24,7 @@ export type WifiPin = {
 export const DEMO_FLOOR_PLAN_URL = "/fixtures/test-floor-plan.png";
 
 export type HomeSetup = {
-  /** User upload as a data URL — the visual map (kept local in the browser) */
+  /** User upload as a data URL — sent to the analysis route during setup, then retained as the browser-side visual map. */
   floorPlanDataUrl: string;
   fileName: string;
   wifi: WifiPin;
@@ -34,6 +34,7 @@ export type HomeSetup = {
 };
 
 const STORAGE_KEY = "agent-bento.home-setup.v4";
+export const MAX_FLOOR_PLAN_FILE_BYTES = 3_000_000;
 
 export function loadHomeSetup(): HomeSetup | null {
   if (typeof window === "undefined") return null;
@@ -49,15 +50,24 @@ export function loadHomeSetup(): HomeSetup | null {
   }
 }
 
-export function saveHomeSetup(setup: HomeSetup): void {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(setup));
+export function saveHomeSetup(setup: HomeSetup): boolean {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(setup));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function clearHomeSetup(): void {
-  window.localStorage.removeItem(STORAGE_KEY);
-  window.localStorage.removeItem("agent-bento.home-setup.v3");
-  window.localStorage.removeItem("agent-bento.home-setup.v2");
-  window.localStorage.removeItem("agent-bento.home-setup.v1");
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem("agent-bento.home-setup.v3");
+    window.localStorage.removeItem("agent-bento.home-setup.v2");
+    window.localStorage.removeItem("agent-bento.home-setup.v1");
+  } catch {
+    // The in-memory setup can still be reset when browser storage is unavailable.
+  }
 }
 
 export function readImageAsDataUrl(file: File): Promise<string> {
@@ -74,6 +84,6 @@ export function readImageAsDataUrl(file: File): Promise<string> {
 
 export function isAllowedFloorPlanFile(file: File): boolean {
   if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) return false;
-  // Keep localStorage payloads reasonable (~4MB binary → larger as base64)
-  return file.size <= 4_500_000;
+  // Base64 adds roughly one third; keep the stored data URL below common 5 MB quotas.
+  return file.size <= MAX_FLOOR_PLAN_FILE_BYTES;
 }

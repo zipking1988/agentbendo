@@ -32,7 +32,7 @@ type Step = "upload" | "analyzing" | "review" | "wifi";
 
 type HomeSetupWizardProps = {
   initialStep?: "upload" | "wifi";
-  onComplete: (setup: HomeSetup) => void;
+  onComplete: (setup: HomeSetup) => string | null;
 };
 
 const DEMO_WIFI: WifiPin = { x: 58, y: 56 };
@@ -134,7 +134,7 @@ export function HomeSetupWizard({ initialStep = "wifi", onComplete }: HomeSetupW
 
     if (!isAllowedFloorPlanFile(file)) {
       analysisGuard.cancel();
-      setError("Use an image under 4.5MB (PNG, JPG, or WebP).");
+      setError("Use an image up to 3 MB (PNG, JPG, or WebP).");
       return;
     }
 
@@ -155,13 +155,14 @@ export function HomeSetupWizard({ initialStep = "wifi", onComplete }: HomeSetupW
 
   const finish = () => {
     if (!imageUrl || !wifi || !roomsReady) return;
-    onComplete({
+    const saveError = onComplete({
       floorPlanDataUrl: imageUrl,
       fileName,
       wifi,
       rooms,
       savedAt: new Date().toISOString(),
     });
+    if (saveError) setError(saveError);
   };
 
   const routerRoom = wifi
@@ -253,7 +254,7 @@ export function HomeSetupWizard({ initialStep = "wifi", onComplete }: HomeSetupW
           >
             <span className="setup-dropzone-icon"><IconPhoto size={28} stroke={1.6} /></span>
             <h3>Use your own floor plan</h3>
-            <p>Drop a PNG, JPG or WebP here, or choose an image from your device. Maximum 4.5 MB.</p>
+            <p>Drop a PNG, JPG or WebP here, or choose an image from your device. Maximum 3 MB.</p>
             <p className="setup-upload-disclosure">
               Your image is sent to the configured room-analysis provider to identify rooms before the setup is saved in this browser.
             </p>
@@ -408,6 +409,8 @@ export function HomeSetupWizard({ initialStep = "wifi", onComplete }: HomeSetupW
                 Start demo
               </button>
             </div>
+
+            {error ? <p className="setup-error" role="alert">{error}</p> : null}
 
             {!wifi ? (
               <p className="setup-pin-note">

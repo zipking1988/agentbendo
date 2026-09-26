@@ -26,7 +26,7 @@ import { useEffect, useEffectEvent, useRef, useState } from "react";
 
 type Mode = "calm" | "replay";
 
-const IDLE_T = 120;
+const IDLE_T = 149.9;
 
 const CARE_JOURNEY: ReadonlyArray<{
   stage: DemoCareJourneyStage;
@@ -306,11 +306,9 @@ export function FamilyBoard({ homeSetup, autoStart = false, onResetSetup }: Fami
           <span className="journey-clock" aria-hidden="true">Replay {formatReplayTime(viewT)}</span>
         </div>
         <div className="care-journey-list" role="group" aria-label="Sofa-nap check-in care journey">
-          <span
-            className="journey-progress-line"
-            style={{ height: `calc((100% - 76px) * ${journeyProgress / 100})` }}
-            aria-hidden="true"
-          />
+          <span className="journey-progress-track" aria-hidden="true">
+            <span className="journey-progress-line" style={{ height: `${journeyProgress}%` }} />
+          </span>
           {CARE_JOURNEY.map((item) => {
             const timelineItem = data.meta.careTimeline.find((entry) => entry.stage === item.stage);
             const itemIndex = data.meta.careTimeline.findIndex((entry) => entry.stage === item.stage);

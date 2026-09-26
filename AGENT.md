@@ -93,7 +93,7 @@ Model output must use a versioned structured schema, be validated before use, ha
 - Next.js / React product landing experience.
 - Editorial product landing with realistic Japanese-home photography, restrained navigation, a clear family-demo path, privacy proof, and responsive care-story sections.
 - Landing imagery uses optimized production WebP assets; the old interactive dollhouse is no longer part of the public landing.
-- CTA into the family dashboard (`/dashboard`).
+- Landing demo CTAs open `/dashboard?start=1`, starting a saved family demo at normal activity and replay `0:00`.
 - Family dashboard home setup (localStorage `agent-bento.home-setup.v4`):
   1. First-time users immediately see a Japanese madori demo plan
   2. A labeled Wi‑Fi router is already pinned in the living room and can be moved by click or drag
@@ -101,9 +101,10 @@ Model output must use a versioned structured schema, be validated before use, ha
   4. **Use my own plan** switches to upload mode; Qwen Cloud vision detects living / kitchen / bedroom / bathroom boxes before Wi‑Fi placement
 - **Monitoring map = the selected floor-plan image** (the included demo plan or the user’s upload), with no colored room overlays, room-name chips, fake grid, AI redraw, or dashboard 3D.
 - Room regions stay as invisible data for presence: simulated story beats map Grandpa into those boxes via `mapPresence()`.
-- Monitoring shows a high-contrast Grandpa marker (lime + dark outline + label) and the labeled Wi‑Fi pin on the selected plan; **Change floor plan** clears setup.
+- Monitoring shows a high-contrast Grandpa marker (lime + dark outline + label) and the labeled Wi‑Fi pin on the selected plan; **Change floor plan** clears setup and opens the plan chooser.
 - Family monitoring hybrid: calm “is Grandpa OK?” view plus simulated story replay from `demo_frames.json`.
-- Dashboard **CSI field** (Three.js): Matrix-style wire skeletons + cyan wave spheres + lime heatmap grid + particle fog + HUD — synthetic RF from demo motion (**Simulated**; not live CSI / not clinical vitals).
+- Collapsed technical details show a compact SVG Wi‑Fi movement trace, quiet history, and change from baseline (**Simulated**; not live CSI or clinical vitals).
+- Custom floor-plan selection discloses provider processing before upload, limits images to 3 MB for browser storage, and reports storage failures without crashing the setup flow.
 - Local privacy-safe CSI feature extraction (`lib/csi-edge.ts`) and a GMI Cloud inference adapter with deterministic fallback.
 - Qwen Cloud adapters for floor-plan vision, structured care decisions, and Japanese delivery instructions, all called from server-side routes.
 - Native Next.js route handlers designed to run as Vercel Functions; provider credentials stay server-side.
@@ -117,7 +118,7 @@ Model output must use a versioned structured schema, be validated before use, ha
 - Qwen Cloud vision floor-plan → room boxes (`/api/floor-plan/analyze`; needs `QWEN_API_KEY`)
 - Preloaded Japanese demo floor plan, detected room regions, and living-room Wi‑Fi point
 - Browser-only custom floor-plan upload, room model, and Wi‑Fi pin (not device calibration)
-- CSI visual field from synthetic multipath / Doppler-style rules + demo `motionLevel` / stillness / anomaly (not ESP32 CSI)
+- Compact Wi‑Fi movement trace from demo `motionLevel`, stillness, and anomaly values (not ESP32 CSI)
 - Live GMI and Qwen responses when their environment variables are absent; the application uses labeled deterministic fallbacks instead.
 
 ### Planned
@@ -148,8 +149,7 @@ Model output must use a versioned structured schema, be validated before use, ha
 | --- | --- | --- |
 | Application | Next.js 16.3, React 19.2, TypeScript 5.9 | Product UI and server rendering |
 | Build/runtime | Native Next.js on Vercel | Web application and server-side API routes |
-| 3D diagnostics | Three.js, React Three Fiber, Drei | Lazy CSI visualization in dashboard technical details |
-| Effects | React Three Postprocessing | Bloom in the lazy CSI diagnostic view |
+| Dashboard diagnostics | SVG + CSS | Compact simulated movement trace inside a collapsed disclosure |
 | Activity inference | GMI Cloud (`Qwen/Qwen3.8-Max`) | Flagship CSI activity classification from privacy-safe features |
 | Floor-plan vision | Qwen Cloud (`qwen3.7-plus`) | Auto room boxes from upload |
 | Icons | Tabler Icons | Bento and interface symbols |
@@ -240,9 +240,9 @@ npm run test:floor-plan  # analyze regression vs fixture (needs dev server)
 
 Node.js 22.13 or newer is required.
 
-Current quality gate (verified 2026-09-23):
+Current quality gate (verified 2026-09-26):
 
-- `npm test`: 19 tests plus the native Next.js production build pass.
+- `npm test`: 21 unit tests, the native Next.js production build, and two rendered-page checks pass.
 - `npm run lint`: clean.
 - `npm audit`: 0 known vulnerabilities.
 - Browser verification: `/`, `/dashboard`, `/api/service-status`, and `/api/care-summary` load successfully.
@@ -288,6 +288,17 @@ A product feature is done when:
 - the demo uses the same implementation or adapter contract
 
 ## 13. Worklog
+
+### 2026-09-26 — Post-launch code review and resilience fixes
+
+- Reviewed the landing-to-dashboard entry, setup recovery, replay journey, technical details, browser persistence, responsive layout, and documentation against the production behavior.
+- Replaced the care-journey progress calculation with a percentage inside a bounded track, avoiding unsupported CSS arithmetic while keeping it synchronized with replay time.
+- Kept the resolved dashboard on the final replay frame so completing the story no longer jumps backward from `2:29` to `2:00`.
+- Reduced custom floor-plan uploads to 3 MB so base64 storage remains below common browser quotas.
+- Added graceful handling and visible recovery copy when browser storage is unavailable or full; reset remains usable when storage access is blocked.
+- Added focused storage and file-limit regression tests.
+- Updated `README.md` and this engineering worklog to remove the retired 3D diagnostics description and document the current replay, setup, and technical-detail behavior.
+- Verified lint, TypeScript, 21 unit tests, the production build, two rendered-page tests, 390px and 1280px layouts, setup recovery, and the final replay transition.
 
 ### 2026-08-11 — Hackathon-ready onboarding and delivery
 

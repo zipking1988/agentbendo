@@ -29,11 +29,14 @@ function getServerSetup(): HomeSetup | null {
   return null;
 }
 
-function publishSetup(next: HomeSetup | null) {
+function publishSetup(next: HomeSetup | null): string | null {
+  if (next && !saveHomeSetup(next)) {
+    return "Could not save this plan in the browser. Choose a smaller image or free browser storage, then try again.";
+  }
+  if (!next) clearHomeSetup();
   cachedSetup = next;
-  if (next) saveHomeSetup(next);
-  else clearHomeSetup();
   for (const listener of listeners) listener();
+  return null;
 }
 
 type DashboardAppProps = {
@@ -50,9 +53,12 @@ export function DashboardApp({ autoStart = false }: DashboardAppProps) {
       <HomeSetupWizard
         initialStep={chooseFloorPlan ? "upload" : "wifi"}
         onComplete={(next) => {
-          setChooseFloorPlan(false);
-          setStartFreshDemo(true);
-          publishSetup(next);
+          const error = publishSetup(next);
+          if (!error) {
+            setChooseFloorPlan(false);
+            setStartFreshDemo(true);
+          }
+          return error;
         }}
       />
     );

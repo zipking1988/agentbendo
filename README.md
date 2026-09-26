@@ -2,7 +2,7 @@
 
 Agent Bento is a privacy-first home safety demo for older adults who live independently. It uses ambient Wi-Fi movement signals to notice unusual silence, asks for a friendly human check-in through a bento delivery, and alerts family only when the situation remains unresolved.
 
-The hackathon experience combines an interactive 3D Japanese home, a visible fall scenario, a family dashboard, privacy-safe CSI feature processing, and a deterministic escalation policy.
+The hackathon experience combines a realistic product landing, an interactive family dashboard, privacy-safe CSI feature processing, and a deterministic escalation policy.
 
 ## Architecture
 
@@ -33,8 +33,8 @@ Raw API keys are never sent to the browser. The safety policy remains determinis
 ## What works
 
 - Responsive landing experience that explains the product immediately.
-- Interactive 3D cutaway Japanese house with normal, fall, and courier states.
-- Visible resident, Wi-Fi signal paths, bento courier check-in, and family all-clear story.
+- A synchronized family care replay with normal activity, unusual stillness, a human check-in, confirmation, and return to routine.
+- Visible resident and router markers on the selected floor plan, plus a plain-language care journey.
 - Floor-plan upload and room detection through Qwen Cloud.
 - Privacy-safe local CSI preprocessing before GMI Cloud inference.
 - GMI Cloud activity classification with deterministic fallback behavior.
@@ -119,11 +119,11 @@ The landing page and deterministic care fallback work without cloud credentials.
 
 ### Family dashboard
 
-1. Open `/dashboard` or select **Open family demo**.
-2. Review the preloaded sample floor plan and router position, then select **Start demo**.
+1. Open `/dashboard` or select **Open family demo**. Landing-page demo links use `/dashboard?start=1` so a saved demo starts from replay `0:00`.
+2. First-time visitors review the preloaded sample floor plan and router position, then select **Start demo**.
 3. Replay the sofa-nap check-in and watch the resident marker move through the mapped rooms.
-4. Open **Technical demo details** to inspect the simulated Wi-Fi movement trace, stillness, and change score.
-5. To use another layout, choose **Change floor plan**, then **Use my own plan** and upload a PNG, JPG, or WebP image.
+4. Open **Technical demo details** to inspect the simulated Wi-Fi movement trace, quiet history, and change from baseline.
+5. To use another layout, choose **Change floor plan** and upload a PNG, JPG, or WebP image up to 3 MB.
 6. Qwen Cloud identifies the living room, kitchen, bedroom, and bathroom before router placement.
 
 Dashboard setup is stored only in the current browser under `agent-bento.home-setup.v4`. Clear that `localStorage` entry to repeat onboarding from the beginning.
