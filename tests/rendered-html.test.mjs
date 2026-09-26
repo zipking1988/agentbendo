@@ -62,6 +62,10 @@ test("server-renders the Agent Bento experience", async (t) => {
   assert.match(dashboardHtml, /<title>Family Dashboard — Agent Bento<\/title>/i);
   assert.match(dashboardHtml, /Family view/);
   assert.match(dashboardHtml, /Interactive demo — sensing, delivery and notifications are simulated\./);
+  assert.match(dashboardHtml, /PRIVATE HOME SETUP/);
+  assert.match(dashboardHtml, /Place the Wi‑Fi router\./);
+  assert.match(dashboardHtml, /Private by design/);
+  assert.match(dashboardHtml, /Start demo/);
 });
 
 test("keeps the finished experience accessible and self-contained", async () => {

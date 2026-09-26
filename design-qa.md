@@ -1,8 +1,11 @@
-# Agent Bento family dashboard design QA
+# Agent Bento product experience design QA
 
 ## Evidence
 
 - Selected visual target: `design/agent-bento-family-dashboard-selected.png` (1487 × 1058 px).
+- Setup desktop capture: `design/agent-bento-setup-desktop.png` (1280 × 900 px).
+- Setup mobile capture: `design/agent-bento-setup-mobile.png` (390 × 844 px).
+- Setup zoom-equivalent capture: `design/agent-bento-setup-zoom-200.png` (720 × 512 px).
 - Rendered implementation: `http://127.0.0.1:3010/dashboard`.
 - Desktop review: 1280 × 900 CSS viewport.
 - Mobile review: 390 × 844 CSS viewport.
@@ -14,6 +17,7 @@
 
 - No actionable P0, P1, P2, or P3 findings remain.
 - The final code review found and fixed inaccurate pending-response copy, setup-style leakage, a nameless mobile return link, a narrow-tablet overflow, drifting map markers under height constraints, stale check-in-note selection, missing live announcements, duplicated stage ordering, and dead dashboard code.
+- The setup review also fixed the prototype-like four-step hierarchy, competing upload actions, vague router confirmation, inaccurate plan-privacy wording, and a start action that previously opened the completed replay state.
 
 ## Fidelity review
 
@@ -26,6 +30,9 @@
 - **Responsiveness:** The layout reflows to two columns by 1040 px and one column by 720 px. Checks at 976, 720, and 390 px reported no horizontal overflow.
 - **Accessibility:** Controls are native buttons with `aria-pressed`; the return link keeps an accessible name when its visible text is hidden; the latest note is a polite atomic live region; focus states, touch targets, disclosure semantics, and reduced-motion rules are present.
 - **Simulation disclosure:** The full simulated-demo statement remains visible on desktop and mobile, with the privacy promise repeated in the footer.
+- **Setup hierarchy:** Home setup now has three clear steps: add the home, confirm rooms, and place the router. The sample path is immediately usable, while custom upload remains recoverable from upload, analysis, review, and router placement.
+- **Setup trust:** The screen distinguishes camera-free sensing, browser-saved setup data, and provider-based room analysis. It no longer implies that an uploaded image never leaves the browser during analysis.
+- **Setup responsiveness:** True device-metrics captures reported `scrollWidth` equal to viewport width at 390 px and at the 720 px / 200%-zoom equivalent.
 
 ## Interaction checks
 
@@ -36,6 +43,9 @@
 - The technical disclosure lazily loaded one CSI canvas and the service-status panel.
 - The final desktop, mobile, tablet-edge, and zoom-equivalent views had no horizontal clipping.
 - A fresh browser tab reported zero console warnings or errors.
+- Keyboard router placement was exercised in the browser: focusing the map and pressing Right moved the stored position from 50% to 52%.
+- `Start demo` was exercised after setup and now opens normal activity at replay 0:00, begins playback, and keeps the first care-journey stage selected.
+- Setup recovery was exercised before upload; the existing request guard tests cover cancellation and rejection of aborted or late analysis results.
 
 ## Validation
 

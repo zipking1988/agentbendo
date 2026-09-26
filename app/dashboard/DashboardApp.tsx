@@ -8,7 +8,7 @@ import {
   saveHomeSetup,
   type HomeSetup,
 } from "@/lib/home-setup";
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 
 let cachedSetup: HomeSetup | null | undefined;
 const listeners = new Set<() => void>();
@@ -38,11 +38,13 @@ function publishSetup(next: HomeSetup | null) {
 
 export function DashboardApp() {
   const setup = useSyncExternalStore(subscribe, getClientSetup, getServerSetup);
+  const [startFreshDemo, setStartFreshDemo] = useState(false);
 
   if (!setup) {
     return (
       <HomeSetupWizard
         onComplete={(next) => {
+          setStartFreshDemo(true);
           publishSetup(next);
         }}
       />
@@ -52,7 +54,9 @@ export function DashboardApp() {
   return (
     <FamilyBoard
       homeSetup={setup}
+      autoStart={startFreshDemo}
       onResetSetup={() => {
+        setStartFreshDemo(false);
         publishSetup(null);
       }}
     />

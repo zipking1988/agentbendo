@@ -1366,17 +1366,6 @@ button { color: inherit; }
   gap: 14px;
 }
 
-.setup-pin-hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #aab4ac;
-  font-size: 14px;
-  letter-spacing: 0.02em;
-}
-
-.setup-pin-hint svg { color: var(--lime); }
-
 .setup-pin-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1428,63 +1417,6 @@ button { color: inherit; }
 
 .setup-analyzing svg {
   animation: wifiCoachPulse 1.6s ease-in-out infinite;
-}
-
-.room-picker {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.room-picker-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border: 1px solid rgba(229, 239, 230, 0.14);
-  background: rgba(5, 13, 10, 0.55);
-  color: #aab4ac;
-  font-size: 13px;
-  font-weight: 560;
-  letter-spacing: -0.01em;
-  cursor: pointer;
-  text-align: left;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
-}
-
-.room-picker-item:hover {
-  border-color: rgba(184, 255, 84, 0.35);
-  color: var(--paper);
-}
-
-.room-picker-item.active {
-  border-color: rgba(184, 255, 84, 0.55);
-  background: rgba(184, 255, 84, 0.08);
-  color: var(--lime);
-}
-
-.room-picker-item.done {
-  color: #d5e0d6;
-}
-
-.room-picker-item:focus-visible {
-  outline: 2px solid var(--paper);
-  outline-offset: 2px;
-}
-
-.room-picker-check {
-  display: grid;
-  place-items: center;
-  width: 16px;
-  height: 16px;
-  border: 1px solid rgba(184, 255, 84, 0.35);
-  color: var(--lime);
-  font-size: 10px;
-  line-height: 1;
-}
-
-.room-picker-item.done .room-picker-check {
-  background: rgba(184, 255, 84, 0.18);
 }
 
 /* Converted floor plan = the user's upload as the real map */

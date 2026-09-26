@@ -17,7 +17,11 @@ import {
   type WifiPin,
 } from "@/lib/home-setup";
 import IconArrowLeft from "@tabler/icons-react/dist/esm/icons/IconArrowLeft.mjs";
+import IconCheck from "@tabler/icons-react/dist/esm/icons/IconCheck.mjs";
+import IconHome from "@tabler/icons-react/dist/esm/icons/IconHome.mjs";
 import IconPhoto from "@tabler/icons-react/dist/esm/icons/IconPhoto.mjs";
+import IconRoute from "@tabler/icons-react/dist/esm/icons/IconRoute.mjs";
+import IconShieldLock from "@tabler/icons-react/dist/esm/icons/IconShieldLock.mjs";
 import IconSparkles from "@tabler/icons-react/dist/esm/icons/IconSparkles.mjs";
 import IconUpload from "@tabler/icons-react/dist/esm/icons/IconUpload.mjs";
 import IconWifi from "@tabler/icons-react/dist/esm/icons/IconWifi.mjs";
@@ -39,23 +43,29 @@ const DEMO_ROOMS: RoomRegion[] = [
 ];
 
 function stepTitle(step: Step): string {
-  if (step === "upload") return "Show us the home.";
-  if (step === "analyzing") return "Building the room model.";
-  if (step === "review") return "Room model ready.";
-  return "Place the Wi‑Fi.";
+  if (step === "upload") return "Bring the home into view.";
+  if (step === "analyzing") return "Understanding the floor plan.";
+  if (step === "review") return "The home is ready to review.";
+  return "Place the Wi‑Fi router.";
 }
 
 function stepLead(step: Step): string {
   if (step === "upload") {
-    return "Upload your floor-plan photo. We keep your picture as the map and build a quiet room model underneath so Grandpa’s story matches real rooms.";
+    return "Add a floor-plan image so care updates can use familiar room names. The finished setup is saved in this browser.";
   }
   if (step === "analyzing") {
-    return "Qwen Cloud is finding the living room, kitchen, bedroom, and bathroom.";
+    return "The configured room-analysis provider is identifying the main rooms used in the care story. Your original image remains unchanged.";
   }
   if (step === "review") {
-    return "Your photo is the map. Room boxes stay in the background for Grandpa’s story — nothing drawn on top. Re-upload if something feels wrong.";
+    return "Check the source image and the rooms we found, then place the router that anchors the demo.";
   }
-  return "Click or drag on your plan to place the router. That pin is the sensing origin — not a camera.";
+  return "Mark the router’s real position. This gives the demo a clear sensing origin without adding a camera.";
+}
+
+function setupStep(step: Step): number {
+  if (step === "upload" || step === "analyzing") return 1;
+  if (step === "review") return 2;
+  return 3;
 }
 
 async function buildRoomModel(imageDataUrl: string, signal: AbortSignal): Promise<RoomRegion[]> {
@@ -158,60 +168,72 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
   const routerPosition = wifi
     ? `${routerRoom?.label ?? "Unlabeled area"} · ${Math.round(wifi.x)}% from left, ${Math.round(wifi.y)}% from top`
     : null;
+  const currentStep = setupStep(step);
+  const panelTitle = step === "upload"
+    ? "Choose a floor plan"
+    : step === "analyzing"
+      ? "Reading your floor plan"
+      : step === "review"
+        ? "Review the room model"
+        : "Confirm the sensing point";
 
   return (
     <section className="setup-shell">
       <div className="setup-copy">
         <Link className="dashboard-back" href="/">
           <IconArrowLeft size={16} />
-          Back to the story
+          Back to site
         </Link>
 
-        <p className="eyebrow"><span /> HOME SETUP</p>
+        <p className="eyebrow"><span /> PRIVATE HOME SETUP</p>
         <h1>{stepTitle(step)}</h1>
         <p className="dashboard-lead">{stepLead(step)}</p>
 
         <ol className="setup-steps" aria-label="Setup progress">
-          <li className={step === "upload" ? "active" : step === "analyzing" ? "active" : "complete"}>
-            <span className="setup-step-num">01</span>
+          <li className={currentStep === 1 ? "active" : currentStep > 1 ? "complete" : ""} aria-current={currentStep === 1 ? "step" : undefined}>
+            <span className="setup-step-num">{currentStep > 1 ? <IconCheck size={14} /> : "01"}</span>
             <span>
-              <strong>Floor plan photo</strong>
-              <small>Your upload is the visual map</small>
+              <strong>Add the home</strong>
+              <small>Use the sample or upload a plan</small>
             </span>
           </li>
-          <li
-            className={
-              step === "analyzing" || step === "review"
-                ? "active"
-                : step === "wifi" || roomsReady
-                  ? "complete"
-                  : ""
-            }
-          >
-            <span className="setup-step-num">02</span>
+          <li className={currentStep === 2 ? "active" : currentStep > 2 ? "complete" : ""} aria-current={currentStep === 2 ? "step" : undefined}>
+            <span className="setup-step-num">{currentStep > 2 ? <IconCheck size={14} /> : "02"}</span>
             <span>
-              <strong>Room model</strong>
+              <strong>Confirm the rooms</strong>
               <small>Rooms identified in the background</small>
             </span>
           </li>
-          <li className={step === "wifi" ? "active" : ""}>
+          <li className={currentStep === 3 ? "active" : ""} aria-current={currentStep === 3 ? "step" : undefined}>
             <span className="setup-step-num">03</span>
             <span>
-              <strong>Wi‑Fi point</strong>
-              <small>Click or drag to place</small>
-            </span>
-          </li>
-          <li>
-            <span className="setup-step-num">04</span>
-            <span>
-              <strong>Watch Grandpa</strong>
-              <small>Story maps into room regions</small>
+              <strong>Place the router</strong>
+              <small>Start the interactive family demo</small>
             </span>
           </li>
         </ol>
+
+        <div className="setup-assurance" aria-label="Privacy information">
+          <IconShieldLock size={19} stroke={1.7} />
+          <p>
+            <strong>Private by design</strong>
+            <span>No cameras, microphones or recordings. The saved setup stays in this browser after room analysis.</span>
+          </p>
+        </div>
       </div>
 
-      <aside className="setup-panel">
+      <div className="setup-panel">
+        <div className="setup-panel-head">
+          <div>
+            <span>STEP {currentStep} OF 3</span>
+            <h2>{panelTitle}</h2>
+          </div>
+          <span className="setup-panel-status">
+            <span aria-hidden="true" />
+            Interactive demo
+          </span>
+        </div>
+
         {step === "upload" ? (
           <div
             className={`setup-dropzone ${draggingFile ? "dragging" : ""}`}
@@ -227,9 +249,9 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
               void handleFile(event.dataTransfer.files?.[0]);
             }}
           >
-            <IconPhoto size={28} stroke={1.6} />
-            <h2>Drop a floor plan</h2>
-            <p>Hand-drawn, scanned, or a clean Japanese madori layout.</p>
+            <span className="setup-dropzone-icon"><IconPhoto size={28} stroke={1.6} /></span>
+            <h3>Use your own floor plan</h3>
+            <p>Drop a PNG, JPG or WebP here, or choose an image from your device. Maximum 4.5 MB.</p>
             <button
               type="button"
               className="play-button dashboard-play"
@@ -245,27 +267,32 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
               hidden
               onChange={(event) => void handleFile(event.target.files?.[0])}
             />
-            {error ? <p className="setup-error">{error}</p> : null}
-            <button type="button" className="dashboard-ghost setup-demo-return" onClick={restoreDemoHome}>
-              Use demo home
-            </button>
+            {error ? <p className="setup-error" role="alert">{error}</p> : null}
+            <div className="setup-demo-option">
+              <span>Want to explore first?</span>
+              <button type="button" className="dashboard-ghost setup-demo-return" onClick={restoreDemoHome}>
+                <IconHome size={17} stroke={1.8} />
+                Use demo home
+              </button>
+            </div>
           </div>
         ) : null}
 
         {step === "analyzing" && imageUrl ? (
           <div className="setup-pin-stage">
-            <p className="setup-plan-label">Your uploaded floor plan</p>
             <div className="setup-analyzing" role="status" aria-live="polite">
               <IconSparkles size={22} stroke={1.7} />
-              <strong>Building 2D room model…</strong>
-              <span>Finding living, kitchen, bedroom, bathroom on your plan</span>
+              <p>
+                <strong>Finding the essential rooms…</strong>
+                <span>Living room, kitchen, bedroom and bathroom</span>
+              </p>
             </div>
-            <HomeFloorModel
-              imageUrl={imageUrl}
-              wifi={null}
-              label="Reading your floor plan upload"
-            />
+            <div className="setup-plan-frame">
+              <p className="setup-plan-label">Your uploaded floor plan</p>
+              <HomeFloorModel imageUrl={imageUrl} wifi={null} label="Reading your floor plan upload" />
+            </div>
             <button type="button" className="dashboard-ghost setup-demo-return" onClick={restoreDemoHome}>
+              <IconHome size={17} stroke={1.8} />
               Use demo home
             </button>
           </div>
@@ -273,13 +300,19 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
 
         {step === "review" && imageUrl ? (
           <div className="setup-pin-stage">
-            <p className="setup-plan-label">Your uploaded floor plan</p>
-            <HomeFloorModel
-              imageUrl={imageUrl}
-              wifi={null}
-              rooms={rooms}
-              label="Your floor plan"
-            />
+            <div className="setup-plan-frame">
+              <div className="setup-plan-heading">
+                <p className="setup-plan-label">Your uploaded floor plan</p>
+                <span><IconCheck size={14} /> 4 rooms found</span>
+              </div>
+              <HomeFloorModel imageUrl={imageUrl} wifi={null} rooms={rooms} label="Your floor plan" />
+            </div>
+
+            <div className="setup-room-summary" aria-label="Identified rooms">
+              {rooms.map((room) => (
+                <span key={room.id}><IconCheck size={13} /> {room.label}</span>
+              ))}
+            </div>
 
             <div className="setup-pin-actions">
               <button
@@ -295,6 +328,7 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
                 Re-upload
               </button>
               <button type="button" className="dashboard-ghost" onClick={restoreDemoHome}>
+                <IconHome size={17} stroke={1.8} />
                 Use demo home
               </button>
               <button
@@ -304,29 +338,40 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
                 onClick={() => setStep("wifi")}
               >
                 <IconSparkles size={18} stroke={2} />
-                Looks good — place Wi‑Fi
+                Continue to router
               </button>
             </div>
 
-            <p className="setup-pin-note ok">
-              Your photo · room model stays invisible
-            </p>
+            <p className="setup-pin-note">Room regions stay behind the image and only guide the demo.</p>
           </div>
         ) : null}
 
         {step === "wifi" && imageUrl ? (
           <div className="setup-pin-stage">
-            <p className="setup-plan-label">
-              {usingDemoHome ? "Sample floor plan" : "Your uploaded floor plan"}
-            </p>
-            <HomeFloorModel
-              imageUrl={imageUrl}
-              wifi={wifi}
-              rooms={rooms}
-              interactive
-              onPin={setWifi}
-              label="Place Wi‑Fi on your floor plan"
-            />
+            <div className="setup-plan-frame">
+              <div className="setup-plan-heading">
+                <p className="setup-plan-label">
+                  {usingDemoHome ? "Sample floor plan" : "Your uploaded floor plan"}
+                </p>
+                <span><IconCheck size={14} /> Rooms ready</span>
+              </div>
+              <HomeFloorModel
+                imageUrl={imageUrl}
+                wifi={wifi}
+                rooms={rooms}
+                interactive
+                onPin={setWifi}
+                label="Place Wi‑Fi on your floor plan"
+              />
+            </div>
+
+            <div className={`setup-router-readout ${wifi ? "ready" : ""}`} role="status" aria-live="polite">
+              <IconRoute size={20} stroke={1.7} />
+              <p>
+                <strong>{wifi ? routerRoom?.label ?? "Router placed" : "Router position needed"}</strong>
+                <span>{wifi ? routerPosition : "Click the plan, then use arrow keys for precise placement."}</span>
+              </p>
+            </div>
 
             <div className="setup-pin-actions">
               <button
@@ -344,6 +389,7 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
               </button>
               {!usingDemoHome ? (
                 <button type="button" className="dashboard-ghost" onClick={restoreDemoHome}>
+                  <IconHome size={17} stroke={1.8} />
                   Use demo home
                 </button>
               ) : null}
@@ -360,18 +406,16 @@ export function HomeSetupWizard({ onComplete }: HomeSetupWizardProps) {
 
             {!wifi ? (
               <p className="setup-pin-note">
-                Click the plan to place the router. With the map focused, use arrow keys to adjust it.
+                Select the map and press Enter to place the router. Arrow keys move it; hold Shift for larger steps.
               </p>
             ) : (
               <p className="setup-pin-note ok">
-                {usingDemoHome
-                  ? `Sample floor plan · router in ${routerPosition} · use arrow keys to adjust`
-                  : `Your uploaded floor plan · router in ${routerPosition} · use arrow keys to adjust`}
+                Ready to start. The family dashboard will use this plan and router position.
               </p>
             )}
           </div>
         ) : null}
-      </aside>
+      </div>
     </section>
   );
 }

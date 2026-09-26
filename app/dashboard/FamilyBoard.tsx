@@ -84,18 +84,19 @@ function formatReplayTime(seconds: number): string {
 
 type FamilyBoardProps = {
   homeSetup: HomeSetup;
+  autoStart?: boolean;
   onResetSetup: () => void;
 };
 
-export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
+export function FamilyBoard({ homeSetup, autoStart = false, onResetSetup }: FamilyBoardProps) {
   const [data, setData] = useState<DemoFramesData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<Mode>("calm");
+  const [mode, setMode] = useState<Mode>(autoStart ? "replay" : "calm");
   const [playing, setPlaying] = useState(false);
   const [technicalOpen, setTechnicalOpen] = useState(false);
-  const [t, setT] = useState(IDLE_T);
+  const [t, setT] = useState(autoStart ? 0 : IDLE_T);
 
-  const tRef = useRef(IDLE_T);
+  const tRef = useRef(autoStart ? 0 : IDLE_T);
   const lastStampRef = useRef<number | null>(null);
   const lastUiRef = useRef(0);
 
@@ -105,6 +106,7 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
       .then((payload) => {
         if (cancelled) return;
         setData(payload);
+        if (autoStart) setPlaying(true);
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -113,7 +115,7 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [autoStart]);
 
   const onFrame = useEffectEvent((now: number): boolean => {
     if (!data) return false;
