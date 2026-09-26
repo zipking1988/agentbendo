@@ -233,6 +233,26 @@ export function demoCareJourneyStage(stage: DemoCareStage): DemoCareJourneyStage
   return "check_in_complete";
 }
 
+export function demoCareJourneyProgress(
+  replayTime: number,
+  timeline: ReadonlyArray<DemoCareTimelineItem>,
+  stages: ReadonlyArray<DemoCareJourneyStage>,
+): number {
+  const anchors = stages
+    .map((stage) => timeline.find((item) => item.stage === stage)?.start)
+    .filter((start): start is number => start !== undefined);
+
+  if (anchors.length < 2) return 0;
+  if (replayTime <= anchors[0]) return 0;
+  if (replayTime >= anchors.at(-1)!) return 100;
+
+  const segment = anchors.findIndex((start) => replayTime < start) - 1;
+  const start = anchors[segment];
+  const end = anchors[segment + 1];
+  const withinSegment = (replayTime - start) / (end - start);
+  return ((segment + withinSegment) / (anchors.length - 1)) * 100;
+}
+
 export function latestCheckInNote(
   entries: ReadonlyArray<DemoLogEntry>,
   timeline: ReadonlyArray<DemoCareTimelineItem>,

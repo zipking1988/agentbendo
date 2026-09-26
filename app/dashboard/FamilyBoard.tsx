@@ -5,6 +5,7 @@ import { ServiceStatusPanel } from "@/app/dashboard/ServiceStatusPanel";
 import { StatusHero } from "@/app/dashboard/StatusHero";
 import {
   activityLabel,
+  demoCareJourneyProgress,
   demoCareJourneyStage,
   demoCarePresentation,
   demoCareStageAt,
@@ -15,7 +16,7 @@ import {
   roomLabel,
   translateLogText,
   translateStatusReason,
-  type DemoCareStage,
+  type DemoCareJourneyStage,
   type DemoFramesData,
 } from "@/lib/demo-frames";
 import { DEMO_FLOOR_PLAN_URL, mapPresence, type HomeSetup } from "@/lib/home-setup";
@@ -42,7 +43,7 @@ type Mode = "calm" | "replay";
 const IDLE_T = 149.9;
 
 const CARE_JOURNEY: ReadonlyArray<{
-  stage: DemoCareStage;
+  stage: DemoCareJourneyStage;
   label: string;
   description: string;
 }> = [
@@ -67,6 +68,8 @@ const CARE_JOURNEY: ReadonlyArray<{
     description: "The check-in was confirmed and routine resumed.",
   },
 ];
+
+const CARE_JOURNEY_STAGES = CARE_JOURNEY.map((item) => item.stage);
 
 function formatReplayTime(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
@@ -223,6 +226,11 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
     : "Your uploaded floor plan";
   const stageIndex = data.meta.careTimeline.findIndex((item) => item.stage === stage);
   const activeJourneyStage = demoCareJourneyStage(stage);
+  const journeyProgress = demoCareJourneyProgress(
+    viewT,
+    data.meta.careTimeline,
+    CARE_JOURNEY_STAGES,
+  );
   const latestNote = latestCheckInNote(logs, data.meta.careTimeline);
 
   return (
@@ -274,8 +282,12 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
       <aside className="dashboard-journey" aria-labelledby="care-journey-heading">
         <p className="dashboard-panel-kicker">TODAY</p>
         <h2 id="care-journey-heading">Care journey</h2>
-        <p className="journey-intro">A simple story, in replay time.</p>
+        <div className="journey-intro-row">
+          <p className="journey-intro">A simple story, in replay time.</p>
+          <span className="journey-clock" aria-hidden="true">Replay {formatReplayTime(viewT)}</span>
+        </div>
         <div className="care-journey-list" role="group" aria-label="Sofa-nap check-in care journey">
+          <span className="journey-progress-line" style={{ height: `${journeyProgress * 0.75}%` }} aria-hidden="true" />
           {CARE_JOURNEY.map((item) => {
             const timelineItem = data.meta.careTimeline.find((entry) => entry.stage === item.stage);
             const itemIndex = data.meta.careTimeline.findIndex((entry) => entry.stage === item.stage);

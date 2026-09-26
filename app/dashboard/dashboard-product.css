@@ -286,11 +286,27 @@
   font-weight: 570;
 }
 
-.journey-intro {
+.journey-intro-row {
   margin: 15px 0 22px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.journey-intro {
+  margin: 0;
   color: #aeb8b1;
   font-size: 15px;
   line-height: 1.4;
+}
+
+.journey-clock {
+  color: var(--lime);
+  font: 650 12px/1.2 var(--font-geist-mono), monospace;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .care-journey-list {
@@ -309,6 +325,32 @@
   background: #42515a;
 }
 
+.journey-progress-line {
+  position: absolute;
+  z-index: 1;
+  left: 12px;
+  top: 18px;
+  width: 1px;
+  min-height: 0;
+  background: var(--lime);
+  box-shadow: 0 0 10px rgba(184, 255, 84, 0.55);
+  pointer-events: none;
+  transition: height 0.1s linear;
+}
+
+.journey-progress-line::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  width: 7px;
+  height: 7px;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: var(--lime);
+  box-shadow: 0 0 10px rgba(184, 255, 84, 0.8);
+}
+
 .care-journey-item {
   position: relative;
   display: grid;
@@ -322,19 +364,6 @@
   text-align: left;
   cursor: pointer;
 }
-
-.care-journey-item::before {
-  content: "";
-  position: absolute;
-  left: 12px;
-  top: 22px;
-  bottom: -10px;
-  width: 1px;
-  background: transparent;
-}
-
-.care-journey-item.complete::before,
-.care-journey-item.active::before { background: rgba(184, 255, 84, 0.55); }
 
 .journey-node {
   position: relative;
@@ -477,8 +506,8 @@
   }
   .dashboard-journey h2,
   .dashboard-journey .dashboard-panel-kicker,
-  .journey-intro { grid-column: 1; }
-  .journey-intro { margin-bottom: 0; }
+  .journey-intro-row { grid-column: 1; }
+  .journey-intro-row { margin-bottom: 0; }
   .care-journey-list { grid-column: 2; grid-row: 1 / span 3; }
 }
 
@@ -559,5 +588,6 @@
 @media (prefers-reduced-motion: reduce) {
   .dashboard-page .care-journey-item,
   .dashboard-page .journey-node,
+  .dashboard-page .journey-progress-line,
   .dashboard-page .technical-details summary svg { transition: none; }
 }

@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   demoCarePresentation,
+  demoCareJourneyProgress,
   demoCareJourneyStage,
   demoCareStageAt,
   frameAt,
@@ -67,6 +68,23 @@ test("care journey groups delivery progress without losing the care stage", () =
   assert.equal(demoCareJourneyStage("resident_responding"), "resident_responding");
   assert.equal(demoCareJourneyStage("check_in_complete"), "check_in_complete");
   assert.equal(demoCareJourneyStage("back_to_routine"), "check_in_complete");
+});
+
+test("care journey progress follows the shared replay clock", () => {
+  const stages = [
+    "checking_stillness",
+    "arranging_check_in",
+    "resident_responding",
+    "check_in_complete",
+  ] as const;
+
+  assert.equal(demoCareJourneyProgress(0, timeline, stages), 0);
+  assert.equal(demoCareJourneyProgress(30, timeline, stages), 0);
+  assert.equal(Math.round(demoCareJourneyProgress(40, timeline, stages)), 17);
+  assert.equal(Math.round(demoCareJourneyProgress(68, timeline, stages)), 50);
+  assert.equal(Math.round(demoCareJourneyProgress(93, timeline, stages)), 83);
+  assert.equal(demoCareJourneyProgress(100, timeline, stages), 100);
+  assert.equal(demoCareJourneyProgress(149.9, timeline, stages), 100);
 });
 
 test("latest check-in note follows replay progress and stops at confirmation", () => {

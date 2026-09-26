@@ -30,6 +30,7 @@
 ## Interaction checks
 
 - Replay, pause, restart, and all four care-journey jump buttons were exercised in the in-app browser.
+- The care-journey clock and progress line use the same replay time as the map and status; both freeze on pause and resume together.
 - Each selected journey step produced the matching stage headline and `aria-pressed` state.
 - The technical disclosure lazily loaded one CSI canvas and the service-status panel.
 - The final desktop, mobile, tablet-edge, and zoom-equivalent views had no horizontal clipping.
@@ -39,7 +40,7 @@
 
 - `npm run lint` — passed.
 - `npx tsc --noEmit --incremental false` — passed.
-- Focused Node suite — 21 tests passed.
+- Focused Node suite — 22 tests passed.
 - Rendered HTML suite — 2 tests passed, including `/dashboard`.
 - `npm run build -- --webpack` — passed.
 - `git diff --check` — passed.
