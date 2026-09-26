@@ -1,7 +1,6 @@
 "use client";
 
 import { HomeFloorModel } from "@/app/dashboard/HomeFloorModel";
-import { ServiceStatusPanel } from "@/app/dashboard/ServiceStatusPanel";
 import { StatusHero } from "@/app/dashboard/StatusHero";
 import {
   activityLabel,
@@ -23,20 +22,7 @@ import { DEMO_FLOOR_PLAN_URL, mapPresence, type HomeSetup } from "@/lib/home-set
 import IconChevronRight from "@tabler/icons-react/dist/esm/icons/IconChevronRight.mjs";
 import IconShieldCheck from "@tabler/icons-react/dist/esm/icons/IconShieldCheck.mjs";
 import IconUpload from "@tabler/icons-react/dist/esm/icons/IconUpload.mjs";
-import dynamic from "next/dynamic";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
-
-const CsiSignalField = dynamic(
-  () => import("./CsiSignalField").then((m) => m.CsiSignalField),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="csi-field-loading" aria-hidden>
-        Loading CSI field…
-      </div>
-    ),
-  },
-);
 
 type Mode = "calm" | "replay";
 
@@ -80,6 +66,19 @@ function formatReplayTime(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
   const remaining = Math.floor(seconds % 60);
   return `${minutes}:${String(remaining).padStart(2, "0")}`;
+}
+
+function buildSignalPoints(t: number, motion: number, change: number): string {
+  return Array.from({ length: 64 }, (_, index) => {
+    const progress = index / 63;
+    const x = progress * 720;
+    const amplitude = 4 + motion * 34 + change * 10;
+    const envelope = 0.45 + Math.abs(Math.sin(index * 0.18)) * 0.55;
+    const wave = Math.sin(index * 0.72 + t * 0.18) * amplitude * envelope;
+    const detail = Math.sin(index * 1.83 + t * 0.31) * (2 + motion * 4);
+    const y = Math.max(18, Math.min(142, 80 + wave + detail));
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
 }
 
 type FamilyBoardProps = {
@@ -219,6 +218,8 @@ export function FamilyBoard({ homeSetup, autoStart = false, onResetSetup }: Fami
   const logs = logsUpTo(data.meta.bendoLog, mode === "calm" ? data.meta.duration : viewT);
   const motionPct = Math.round(Math.max(0, Math.min(1, frame.motionLevel)) * 100);
   const stillSeconds = Math.max(0, Math.round(frame.stillDuration));
+  const changePct = Math.round(Math.max(0, Math.min(1, frame.anomalyScore)) * 100);
+  const signalPoints = buildSignalPoints(viewT, frame.motionLevel, frame.anomalyScore);
   const statusReason = translateStatusReason(frame.statusReason);
   const stage = demoCareStageAt(viewT, data.meta.careTimeline);
   const presentation = demoCarePresentation(stage);
@@ -331,34 +332,56 @@ export function FamilyBoard({ homeSetup, autoStart = false, onResetSetup }: Fami
           <small>{technicalOpen ? "Hide details" : "Show details"}</small>
         </summary>
         <div className="technical-details-body">
-          <div className="sensing-meters" aria-label="Movement sensing">
-            <div className="meter">
-              <div className="meter-head"><span>Motion</span><strong>{motionPct}%</strong></div>
-              <div className="meter-track"><div className="meter-fill motion" style={{ width: `${motionPct}%` }} /></div>
-            </div>
-            <div className="meter">
-              <div className="meter-head"><span>Stillness</span><strong>{stillSeconds}s</strong></div>
-              <div className="meter-track">
-                <div className="meter-fill still" style={{ width: `${Math.min(100, (stillSeconds / 510) * 100)}%` }} />
+          <section className="signal-overview" aria-labelledby="signal-overview-title">
+            <header className="signal-overview-head">
+              <div>
+                <p>WI-FI MOVEMENT SIGNAL</p>
+                <h3 id="signal-overview-title">Room activity pattern</h3>
+              </div>
+              <span>Simulated</span>
+            </header>
+
+            <div className="signal-metric-grid" aria-label="Current sensing values">
+              <div className="signal-metric">
+                <span>Movement</span>
+                <strong>{motionPct}<small>%</small></strong>
+              </div>
+              <div className="signal-metric">
+                <span>Stillness</span>
+                <strong>{stillSeconds}<small>s</small></strong>
+              </div>
+              <div className="signal-metric">
+                <span>Change score</span>
+                <strong>{changePct}<small>%</small></strong>
               </div>
             </div>
-            {statusReason ? <p className="sensing-reason">{statusReason}</p> : null}
-          </div>
 
-          {technicalOpen ? (
-            <CsiSignalField
-              motionLevel={frame.motionLevel}
-              stillDuration={frame.stillDuration}
-              anomalyScore={frame.anomalyScore}
-              status={status}
-              t={viewT}
-              presenceX={presence.x}
-              presenceY={presence.y}
-              wifiX={homeSetup.wifi.x}
-              wifiY={homeSetup.wifi.y}
-            />
-          ) : null}
-          <ServiceStatusPanel />
+            <div className="signal-trace" aria-hidden="true">
+              <svg viewBox="0 0 720 160" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="signal-fill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="currentColor" stopOpacity="0.22" />
+                    <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <line x1="0" y1="40" x2="720" y2="40" />
+                <line x1="0" y1="80" x2="720" y2="80" />
+                <line x1="0" y1="120" x2="720" y2="120" />
+                <polygon points={`0,160 ${signalPoints} 720,160`} fill="url(#signal-fill)" />
+                <polyline className="signal-trace-line" points={signalPoints} />
+              </svg>
+              <span>Replay {formatReplayTime(viewT)}</span>
+            </div>
+
+            <div className="signal-reading">
+              <span>Current reading</span>
+              <p>{statusReason || "Movement is within the expected range."}</p>
+            </div>
+
+            <p className="signal-disclaimer">
+              This demo represents movement patterns only. It does not infer clinical vital signs.
+            </p>
+          </section>
         </div>
       </details>
 

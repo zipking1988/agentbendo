@@ -122,7 +122,7 @@ The landing page and deterministic care fallback work without cloud credentials.
 1. Open `/dashboard` or select **Open family demo**.
 2. Review the preloaded sample floor plan and router position, then select **Start demo**.
 3. Replay the sofa-nap check-in and watch the resident marker move through the mapped rooms.
-4. Open **Technical demo details** to inspect the simulated CSI field and provider status.
+4. Open **Technical demo details** to inspect the simulated Wi-Fi movement trace, stillness, and change score.
 5. To use another layout, choose **Change floor plan**, then **Use my own plan** and upload a PNG, JPG, or WebP image.
 6. Qwen Cloud identifies the living room, kitchen, bedroom, and bathroom before router placement.
 

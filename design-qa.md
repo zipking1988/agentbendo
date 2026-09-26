@@ -6,6 +6,7 @@
 - Setup desktop capture: `design/agent-bento-setup-desktop.png` (1280 × 900 px).
 - Setup mobile capture: `design/agent-bento-setup-mobile.png` (390 × 844 px).
 - Setup zoom-equivalent capture: `design/agent-bento-setup-zoom-200.png` (720 × 512 px).
+- Technical movement summary capture: `design/agent-bento-technical-mobile.png` (390 × 526 px).
 - Rendered implementation: `http://127.0.0.1:3010/dashboard`.
 - Desktop review: 1280 × 900 CSS viewport.
 - Mobile review: 390 × 844 CSS viewport.
@@ -40,7 +41,8 @@
 - The care-journey clock and progress line use the same replay time as the map and status; both freeze on pause and resume together.
 - A timed Playwright run verified the previously broken 0:28 state: normal activity stayed selected, the line advanced toward 0:30, the resident moved from Bedroom to Living room, and the clock read 0:28.
 - Each selected journey step produced the matching stage headline and `aria-pressed` state.
-- The technical disclosure lazily loaded one CSI canvas and the service-status panel.
+- The technical disclosure presents one compact Wi-Fi movement trace with movement, stillness, and change values. It excludes medical-style vital signs and unused provider status.
+- A fresh 390 px Chrome run expanded the disclosure, started replay, and confirmed the journey and signal clocks both read `Replay 0:01`; the document and viewport widths both measured 390 px.
 - The final desktop, mobile, tablet-edge, and zoom-equivalent views had no horizontal clipping.
 - A fresh browser tab reported zero console warnings or errors.
 - Keyboard router placement was exercised in the browser: focusing the map and pressing Right moved the stored position from 50% to 52%.
@@ -51,7 +53,7 @@
 
 - `npm run lint` — passed.
 - `npx tsc --noEmit --incremental false` — passed.
-- Focused Node suite — 22 tests passed.
+- Focused Node suite — 18 tests passed.
 - Rendered HTML suite — 2 tests passed, including `/dashboard`.
 - `npm run build -- --webpack` — passed.
 - `git diff --check` — passed.

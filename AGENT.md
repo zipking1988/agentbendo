@@ -258,9 +258,7 @@ Important files:
 - `app/dashboard/DashboardApp.tsx`: setup vs monitoring gate; localStorage setup
 - `app/dashboard/HomeSetupWizard.tsx`: ready-made Japanese demo home or custom upload → Qwen Cloud rooms → Wi‑Fi pin
 - `app/dashboard/HomeFloorModel.tsx`: upload as map; room / Wi‑Fi / Grandpa overlays
-- `app/dashboard/FamilyBoard.tsx`: calm home + simulated story replay
-- `app/dashboard/CsiSignalField.tsx`: simulated CSI → visual dimensions canvas
-- `lib/csi-sim.ts`: synthetic CSI sample generator (RF-inspired, deterministic)
+- `app/dashboard/FamilyBoard.tsx`: care dashboard, replay controls, floor-plan view, and compact Wi-Fi movement trace
 - `app/api/floor-plan/analyze/route.ts`: Qwen Cloud vision analyze endpoint
 - `lib/home-setup.ts`: `HomeSetup` + localStorage v4 helpers
 - `lib/home-setup-analysis.ts`: custom-plan analysis cancellation and response validation
@@ -272,7 +270,7 @@ Important files:
 - `public/data/demo_frames.json`: simulated care story frames
 - `public/fixtures/test-floor-plan.png`: floor-plan analyze fixture
 - `app/globals.css`: layout and design tokens
-- `tests/floor-plan-rooms.test.ts`, `tests/parse-floor-plan-rooms.test.ts`, `tests/csi-sim.test.ts`, `tests/demo-care-stage.test.ts`
+- `tests/floor-plan-rooms.test.ts`, `tests/parse-floor-plan-rooms.test.ts`, `tests/demo-care-stage.test.ts`
 - `tests/rendered-html.test.mjs`: build and server-render checks
 
 ## 12. Definition of done
@@ -337,10 +335,10 @@ A product feature is done when:
 
 - Replaced pale white Grandpa stick figure with lime body, dark outline, ground halo, and stronger label so he is easy to find on light floor-plan photos.
 
-### 2026-07-24 — Simulated CSI visual field (reference match)
+### 2026-09-26 — Technical movement summary refinement
 
-- Dashboard CSI panel restyled to reference Matrix look: lime wire skeletons (red joints), cyan concentric wave spheres from AP box, lime occupancy grid, particle fog, bloom, dual HUD (vital-sign *sim* + Wi‑Fi metrics / PRESENT).
-- Still driven by `lib/csi-sim.ts` from demo frames. Labeled **Simulated**; HUD BPM/RPM are synthetic micro-motion readouts, not clinical vitals.
+- Replaced the dense 3D CSI field with a compact 2D trace driven by the existing demo-frame movement, stillness, and change values.
+- Removed the unused provider-status panel and all synthetic heart-rate and respiration readouts from the family dashboard.
 
 ## 14. Next work, in order
 

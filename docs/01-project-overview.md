@@ -136,16 +136,9 @@ npm run dev   # http://localhost:3000/
 
 ---
 
-## 与「CSI 可视化」的关系
+## 与「Wi‑Fi 活动摘要」的关系
 
-仪表盘里的 CSI 场是 **把「看不见的 Wi‑Fi 信道状态」翻译成可演示画面**：
-
-- 振幅感 → 颜色 / 亮度  
-- 相位感 → 青色扩散球面  
-- 运动能量 → 粒子密度  
-- 微动 / 「似生命体征」→ 光晕与 HUD 数字（一律标 **Simulated**）
-
-它帮助观众理解 **为什么不需要摄像头也能谈「有人在动」**；它不是临床试验界面。
+仪表盘把演示帧翻译成一条克制的二维趋势线，并同时显示运动强度、静止时长和变化分数。它帮助观众理解 **为什么不需要摄像头也能谈「有人在动」**，但不展示或暗示心率、呼吸等临床生命体征。
 
 ---
 
@@ -169,7 +162,7 @@ npm run dev   # http://localhost:3000/
 - `README.md` — 英文总览  
 - `app/page.tsx` / `app/HomeScene.tsx` — 落地故事  
 - `app/dashboard/*` — 家人仪表盘  
-- `lib/csi-sim.ts` — 合成 CSI  
+- `app/dashboard/FamilyBoard.tsx` — 家人视图、故事回放与 Wi‑Fi 活动摘要
 - `public/data/demo_frames.json` — 演示故事帧（勿整包喂 NotebookLM，体积过大）  
 - `docs/02-ppt-deck.md` — PPT 大纲  
 - `docs/03-notebooklm-faq.md` — FAQ
@@ -178,4 +171,4 @@ npm run dev   # http://localhost:3000/
 
 ## 给 NotebookLM 的摘要卡（可直接引用）
 
-Agent Bento 帮助家人在不装摄像头的前提下，用环境 Wi‑Fi 运动信号发现独居老人「异常沉默」，先通过便当上门做人工确认，再在需要时通知信任联系人。当前仓库是可演示的网页原型：落地页讲故事，仪表盘用上传的户型图监测模拟 Grandpa，并展示合成 CSI 可视化。硬件传感、真实下单与完整事件引擎仍属 Planned / Simulated，演示时必须诚实标注。
+Agent Bento 帮助家人在不装摄像头的前提下，用环境 Wi‑Fi 运动信号发现独居老人「异常沉默」，先通过便当上门做人工确认，再在需要时通知信任联系人。当前仓库是可演示的网页原型：落地页讲故事，仪表盘用上传的户型图监测模拟 Grandpa，并用简洁的活动趋势呈现回放数据。硬件传感、真实下单与完整事件引擎仍属 Planned / Simulated，演示时必须诚实标注。
