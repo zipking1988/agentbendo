@@ -26,7 +26,9 @@ const CARE_STEPS = [
 
 export default function Home() {
   return (
-    <main className={styles.page}>
+    <>
+      <a className="skip-link" href="#main-content">Skip to main content</a>
+      <main id="main-content" className={styles.page} tabIndex={-1}>
       <header className={styles.header}>
         <a className={styles.wordmark} href="#top" aria-label="Agent Bento home">
           <Image src="/agent-bento-mark.png" alt="" width={48} height={48} priority />
@@ -181,6 +183,7 @@ export default function Home() {
         <p><IconHeartHandshake size={18} aria-hidden="true" /> Designed for independence. Built for peace of mind.</p>
         <Link href="/dashboard?start=1">Family demo <IconArrowRight size={16} aria-hidden="true" /></Link>
       </footer>
-    </main>
+      </main>
+    </>
   );
 }

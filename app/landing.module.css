@@ -23,6 +23,7 @@
 
 .wordmark,
 .footerBrand {
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   gap: 13px;
@@ -480,6 +481,7 @@
 
 .footer > a {
   justify-self: end;
+  min-height: 44px;
   color: #dbe1dc;
   text-decoration: none;
 }
@@ -553,7 +555,7 @@
 
   .headerCta {
     min-width: 0;
-    min-height: 42px;
+    min-height: 44px;
     padding: 0 15px;
     font-size: 12px;
   }

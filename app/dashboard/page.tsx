@@ -20,7 +20,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const autoStart = params.start === "1";
 
   return (
-    <main className="dashboard-page">
+    <>
+      <a className="skip-link" href="#main-content">Skip to main content</a>
+      <main id="main-content" className="dashboard-page" tabIndex={-1}>
       <header className="dashboard-header">
         <div className="dashboard-brand-group">
           <Link className="wordmark" href="/" aria-label="Agent Bento home">
@@ -32,7 +34,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <div className="dashboard-header-actions">
           <div className="trust-notes">
             <div className="privacy-note">
-              <IconShieldCheck size={17} />
+              <IconShieldCheck size={17} aria-hidden="true" />
               <span>No cameras. No recordings.</span>
             </div>
             <p className="demo-notice">Interactive demo — sensing, delivery and notifications are simulated.</p>
@@ -45,6 +47,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       </header>
 
       <DashboardApp autoStart={autoStart} />
-    </main>
+      </main>
+    </>
   );
 }
