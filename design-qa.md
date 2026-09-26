@@ -22,7 +22,7 @@
 - **Layout and spacing:** The essential family view stays above the first desktop fold. The latest check-in note sits directly below the map, technical details collapse into one quiet row, and the privacy footer closes the surface.
 - **Color and surfaces:** Deep ink, ivory, lime, hairline separators, and the paper floor plan preserve the established Agent Bento product system without the previous card-heavy dashboard treatment.
 - **Floor plan:** The original uploaded or bundled image remains the source of truth. Router and resident markers keep their stored coordinates and remain aligned because the map establishes its own aspect ratio.
-- **Care clarity:** The journey says “Resident responding” while courier confirmation is pending. “All clear” appears only at confirmation, and the latest check-in note stops at the confirmed outcome rather than later administrative reporting.
+- **Care clarity:** The journey begins with “Normal activity” at replay 0:00, says “Resident responding” while courier confirmation is pending, and reserves “All clear” for confirmation. The latest check-in note stops at the confirmed outcome rather than later administrative reporting.
 - **Responsiveness:** The layout reflows to two columns by 1040 px and one column by 720 px. Checks at 976, 720, and 390 px reported no horizontal overflow.
 - **Accessibility:** Controls are native buttons with `aria-pressed`; the return link keeps an accessible name when its visible text is hidden; the latest note is a polite atomic live region; focus states, touch targets, disclosure semantics, and reduced-motion rules are present.
 - **Simulation disclosure:** The full simulated-demo statement remains visible on desktop and mobile, with the privacy promise repeated in the footer.
@@ -31,6 +31,7 @@
 
 - Replay, pause, restart, and all four care-journey jump buttons were exercised in the in-app browser.
 - The care-journey clock and progress line use the same replay time as the map and status; both freeze on pause and resume together.
+- A timed Playwright run verified the previously broken 0:28 state: normal activity stayed selected, the line advanced toward 0:30, the resident moved from Bedroom to Living room, and the clock read 0:28.
 - Each selected journey step produced the matching stage headline and `aria-pressed` state.
 - The technical disclosure lazily loaded one CSI canvas and the service-status panel.
 - The final desktop, mobile, tablet-edge, and zoom-equivalent views had no horizontal clipping.

@@ -60,7 +60,7 @@ test("presentation copy follows demo progress instead of sensor severity", () =>
 });
 
 test("care journey groups delivery progress without losing the care stage", () => {
-  assert.equal(demoCareJourneyStage("routine"), null);
+  assert.equal(demoCareJourneyStage("routine"), "routine");
   assert.equal(demoCareJourneyStage("checking_stillness"), "checking_stillness");
   assert.equal(demoCareJourneyStage("arranging_check_in"), "arranging_check_in");
   assert.equal(demoCareJourneyStage("courier_en_route"), "arranging_check_in");
@@ -72,6 +72,7 @@ test("care journey groups delivery progress without losing the care stage", () =
 
 test("care journey progress follows the shared replay clock", () => {
   const stages = [
+    "routine",
     "checking_stillness",
     "arranging_check_in",
     "resident_responding",
@@ -79,10 +80,11 @@ test("care journey progress follows the shared replay clock", () => {
   ] as const;
 
   assert.equal(demoCareJourneyProgress(0, timeline, stages), 0);
-  assert.equal(demoCareJourneyProgress(30, timeline, stages), 0);
-  assert.equal(Math.round(demoCareJourneyProgress(40, timeline, stages)), 17);
-  assert.equal(Math.round(demoCareJourneyProgress(68, timeline, stages)), 50);
-  assert.equal(Math.round(demoCareJourneyProgress(93, timeline, stages)), 83);
+  assert.equal(Math.round(demoCareJourneyProgress(28, timeline, stages)), 23);
+  assert.equal(demoCareJourneyProgress(30, timeline, stages), 25);
+  assert.equal(Math.round(demoCareJourneyProgress(40, timeline, stages)), 38);
+  assert.equal(Math.round(demoCareJourneyProgress(68, timeline, stages)), 63);
+  assert.equal(Math.round(demoCareJourneyProgress(93, timeline, stages)), 88);
   assert.equal(demoCareJourneyProgress(100, timeline, stages), 100);
   assert.equal(demoCareJourneyProgress(149.9, timeline, stages), 100);
 });

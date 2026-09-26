@@ -48,6 +48,11 @@ const CARE_JOURNEY: ReadonlyArray<{
   description: string;
 }> = [
   {
+    stage: "routine",
+    label: "Normal activity",
+    description: "Movement follows Grandpa’s usual morning routine.",
+  },
+  {
     stage: "checking_stillness",
     label: "Routine went quiet",
     description: "Wi-Fi noticed a change in movement patterns.",
@@ -287,7 +292,7 @@ export function FamilyBoard({ homeSetup, onResetSetup }: FamilyBoardProps) {
           <span className="journey-clock" aria-hidden="true">Replay {formatReplayTime(viewT)}</span>
         </div>
         <div className="care-journey-list" role="group" aria-label="Sofa-nap check-in care journey">
-          <span className="journey-progress-line" style={{ height: `${journeyProgress * 0.75}%` }} aria-hidden="true" />
+          <span className="journey-progress-line" style={{ height: `${journeyProgress * 0.78}%` }} aria-hidden="true" />
           {CARE_JOURNEY.map((item) => {
             const timelineItem = data.meta.careTimeline.find((entry) => entry.stage === item.stage);
             const itemIndex = data.meta.careTimeline.findIndex((entry) => entry.stage === item.stage);

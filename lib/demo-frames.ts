@@ -218,13 +218,14 @@ export function demoCarePresentation(stage: DemoCareStage): DemoCarePresentation
 }
 
 export type DemoCareJourneyStage =
+  | "routine"
   | "checking_stillness"
   | "arranging_check_in"
   | "resident_responding"
   | "check_in_complete";
 
 export function demoCareJourneyStage(stage: DemoCareStage): DemoCareJourneyStage | null {
-  if (stage === "routine") return null;
+  if (stage === "routine") return stage;
   if (stage === "checking_stillness") return stage;
   if (["arranging_check_in", "courier_en_route", "courier_at_door"].includes(stage)) {
     return "arranging_check_in";

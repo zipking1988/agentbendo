@@ -356,7 +356,7 @@
   display: grid;
   grid-template-columns: 26px minmax(0, 1fr);
   gap: 15px;
-  min-height: 108px;
+  min-height: 92px;
   padding: 9px 0 12px;
   border: 0;
   background: transparent;
@@ -482,7 +482,7 @@
   .dashboard-page .dashboard-status h1 { font-size: 50px; }
   .dashboard-latest-note { grid-template-columns: 110px 1fr; }
   .dashboard-latest-note .reset-floor-btn { grid-column: 2; justify-self: start; border-left: 0; }
-  .care-journey-item { min-height: 100px; }
+  .care-journey-item { min-height: 92px; }
 }
 
 @media (max-width: 1040px) {
